@@ -72,13 +72,13 @@ export function EmailCapture() {
   return (
     <div className="max-w-md mx-auto">
       <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-white mb-2">Get Early Access</h3>
+        <h3 className="text-2xl font-bold text-white mb-2">Get Your Free Analysis</h3>
         <p className="text-slate-400">
-          Join the waiting list and get notified when we launch
+          Enter your email and we'll send you a personalized support cost report
         </p>
-        <div className="flex items-center justify-center gap-2 mt-2 text-sm text-slate-500">
-          <Users className="w-4 h-4" />
-          <span>{signupCount} support teams signed up</span>
+        <div className="flex items-center justify-center gap-2 mt-2 text-sm text-green-400">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span>{signupCount} teams already got their reports</span>
         </div>
       </div>
 
