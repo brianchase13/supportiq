@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 // import { useUser } from '@clerk/nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, Zap, Mail, TrendingUp, ArrowRight, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   // const { user } = useUser();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
@@ -277,5 +277,22 @@ Sharing because this could help other founders → https://supportiq.com`;
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <CheckCircle className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold mb-4">Loading Success Page...</h1>
+        </div>
+      </div>
+    }>
+      <SuccessPageContent />
+    </Suspense>
   );
 }
