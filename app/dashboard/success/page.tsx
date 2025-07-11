@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+// import { useUser } from '@clerk/nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,7 @@ import { CheckCircle, Clock, Zap, Mail, TrendingUp, ArrowRight, Copy } from 'luc
 import { cn } from '@/lib/utils';
 
 export default function SuccessPage() {
-  const { user } = useUser();
+  // const { user } = useUser();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   
