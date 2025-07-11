@@ -3,18 +3,11 @@
     {
       "path": "/api/cron/daily-analysis",
       "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/usage-limits",
-      "schedule": "0 * * * *"
     }
   ],
   "functions": {
     "app/api/cron/daily-analysis/route.ts": {
       "maxDuration": 300
-    },
-    "app/api/cron/usage-limits/route.ts": {
-      "maxDuration": 60
     }
   }
 }
