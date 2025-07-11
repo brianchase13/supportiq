@@ -122,89 +122,66 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-16 px-4 bg-white">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4 text-slate-900">Simple, transparent pricing</h2>
-          <p className="text-slate-600 mb-8">Start free, upgrade when you see the value. No contracts, cancel anytime.</p>
+      {/* Pricing - Minimal */}
+      <section id="pricing" className="py-12 px-4 bg-gray-50">
+        <div className="max-w-lg mx-auto text-center">
+          <h2 className="text-2xl font-bold mb-8 text-gray-900">Pricing</h2>
           
-          <div className="bg-gradient-to-br from-indigo-50 to-slate-50 border-2 border-indigo-300 rounded-2xl p-8 relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-slate-700 text-white px-6 py-2 rounded-lg text-sm font-semibold">
-              🚀 Most Popular
-            </div>
-            
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="mb-6">
-              <div className="text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-slate-700">$99</div>
-              <div className="text-slate-600">per month • 7-day free trial</div>
+              <div className="text-3xl font-bold mb-1 text-gray-900">$99</div>
+              <div className="text-gray-600 text-sm">per month • 30 day free trial</div>
             </div>
 
-            <div className="space-y-3 mb-8 text-left max-w-sm mx-auto">
-              <div className="flex items-center gap-3">
-                <BarChart3 className="w-5 h-5 text-indigo-500" />
-                <span className="text-slate-700">Unlimited ticket analysis</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Target className="w-5 h-5 text-slate-500" />
-                <span className="text-slate-700">Prevention recommendations</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <DollarSign className="w-5 h-5 text-green-500" />
-                <span className="text-slate-700">ROI tracking & reporting</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-blue-500" />
-                <span className="text-slate-700">All integrations included</span>
-              </div>
-            </div>
+            <ul className="space-y-2 mb-6 text-sm text-gray-700 text-left">
+              <li>• Unlimited ticket analysis</li>
+              <li>• All integrations included</li>
+              <li>• Email support</li>
+              <li>• Cancel anytime</li>
+            </ul>
 
             <Link
               href="/checkout"
-              className="block w-full py-4 bg-gradient-to-r from-indigo-600 to-slate-700 hover:from-indigo-700 hover:to-slate-800 text-white rounded-lg font-bold text-lg transition-all shadow-lg mb-4"
+              className="block w-full py-3 bg-black hover:bg-gray-800 text-white rounded-md font-medium transition-colors mb-4"
             >
-              Start Free Trial
+              Start free trial
             </Link>
             
-            <div className="text-sm text-slate-500">
-              📈 Average customer saves $18,400/month
+            <div className="text-xs text-gray-500">
+              Average customer saves $18,400/month
             </div>
           </div>
 
-          <div className="mt-8 text-slate-600 text-sm">
-            <strong>Risk-free:</strong> 7-day free trial, cancel anytime
+          <div className="mt-4 text-gray-600 text-sm">
+            30 day free trial, cancel anytime
           </div>
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="py-16 px-4 bg-gradient-to-r from-slate-50 to-indigo-50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8 text-slate-900">Trusted by 847+ SaaS teams</h2>
-          <div className="bg-white border border-indigo-200 rounded-xl p-8">
-            <div className="grid md:grid-cols-3 gap-8 mb-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-600 mb-2">847</div>
-                <div className="text-sm text-slate-600">SaaS teams using SupportIQ</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">$47M</div>
-                <div className="text-sm text-slate-600">Total savings tracked</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-slate-600 mb-2">40%</div>
-                <div className="text-sm text-slate-600">Average ticket reduction</div>
-              </div>
+      {/* Social Proof - Minimal */}
+      <section className="py-12 px-4 bg-white">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="border border-gray-200 rounded-lg p-6">
+            <p className="text-gray-700 mb-4">
+              "SupportIQ gave us the clarity we needed to understand why our support costs were so high. Within 30 days, we'd reduced our ticket volume by 60%."
+            </p>
+            <div className="text-sm text-gray-600">
+              Mike Rodriguez, CTO @ TechFlow
             </div>
-            <div className="max-w-3xl mx-auto">
-              <p className="text-slate-700 mb-4 text-lg leading-relaxed">
-                "SupportIQ gave us the clarity we needed to understand why our support costs were so high. Within 30 days, we'd reduced our ticket volume by 60% just by fixing the top 3 issues it identified."
-              </p>
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center text-white font-bold">MR</div>
-                <div>
-                  <div className="font-semibold text-slate-900">Mike Rodriguez</div>
-                  <div className="text-sm text-slate-600">CTO @ TechFlow</div>
-                </div>
-              </div>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-6 mt-8 text-center">
+            <div>
+              <div className="text-xl font-bold text-gray-900">847</div>
+              <div className="text-xs text-gray-600">SaaS teams</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">$47M</div>
+              <div className="text-xs text-gray-600">Total saved</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">40%</div>
+              <div className="text-xs text-gray-600">Avg reduction</div>
             </div>
           </div>
         </div>
@@ -213,25 +190,22 @@ export default function Home() {
       {/* Email Capture */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-md mx-auto">
-          <EmailCapture />
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">Ready to start reducing your support costs?</p>
+            <Link href="/dashboard" className="px-6 py-3 bg-black hover:bg-gray-800 text-white rounded-md font-medium transition-colors">
+              Try it free
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 border-t border-indigo-200 bg-gradient-to-r from-slate-50 to-indigo-50 text-center">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-semibold text-slate-900 text-xl">SupportIQ</span>
+      {/* Footer - Minimal */}
+      <footer className="py-8 px-4 border-t border-gray-200 bg-white text-center">
+        <div className="mb-4">
+          <span className="font-semibold text-gray-900 text-lg">SupportIQ</span>
         </div>
-        <div className="text-slate-600 mb-4">
-          The support dashboard that helps SaaS teams save millions 🚀
-        </div>
-        <div className="flex justify-center gap-6 text-sm text-slate-500">
-          <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
-          <a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing</a>
-          <a href="#" className="hover:text-indigo-600 transition-colors">Support</a>
+        <div className="text-gray-600 text-sm">
+          Simple support analytics for SaaS teams
         </div>
       </footer>
     </div>
