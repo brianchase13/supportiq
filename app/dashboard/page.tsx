@@ -112,135 +112,135 @@ export default function DashboardPage() {
           </Link>
           <div className="flex items-center gap-4">
             <Badge className="bg-gradient-to-r from-indigo-100 to-slate-100 text-indigo-700 border border-indigo-200">
-              Masterclass Student
+              Pro Plan
             </Badge>
             <Link 
               href="/checkout" 
               className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-slate-700 text-white rounded-lg font-medium text-sm transition-all"
             >
-              Join Newsletter →
+              Upgrade Plan →
             </Link>
           </div>
         </div>
       </nav>
 
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Educational Welcome */}
+        {/* Dashboard Welcome */}
         <div className="bg-gradient-to-r from-indigo-100 via-slate-100 to-indigo-100 border border-indigo-200 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-indigo-600" />
-                Welcome to the masterclass! 
+                <BarChart3 className="w-6 h-6 text-indigo-600" />
+                Welcome to your support dashboard! 
               </h1>
               <p className="text-slate-700">
-                You're learning the frameworks that helped <strong className="text-indigo-600">847 companies</strong> save <strong className="text-green-600">$47M total</strong> in support costs.
+                You're using the same analytics that helped <strong className="text-indigo-600">847 SaaS teams</strong> save <strong className="text-green-600">$47M total</strong> in support costs.
                 <br />
-                Demo analysis below shows Framework #1 in action. Upload your data to see your personalized insights!
+                Demo analysis below shows what SupportIQ can do. Upload your data to see your real insights!
               </p>
             </div>
             <div className="bg-white border border-indigo-200 rounded-lg p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-indigo-600">15/15</div>
-                <div className="text-sm text-slate-600">Frameworks unlocked</div>
+                <div className="text-2xl font-bold text-indigo-600">Demo</div>
+                <div className="text-sm text-slate-600">Mode active</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Educational Impact */}
+        {/* Key Metrics */}
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white border border-indigo-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <BookOpen className="w-8 h-8 text-indigo-500" />
+              <BarChart3 className="w-8 h-8 text-indigo-500" />
               <div>
-                <div className="text-2xl font-bold text-slate-900">15</div>
-                <div className="text-sm text-slate-600">Frameworks mastered</div>
+                <div className="text-2xl font-bold text-slate-900">{data.metrics.totalTickets.toLocaleString()}</div>
+                <div className="text-sm text-slate-600">Tickets analyzed</div>
               </div>
             </div>
-            <div className="text-xs text-indigo-600">From unicorn companies</div>
+            <div className="text-xs text-indigo-600">Demo data</div>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Brain className="w-8 h-8 text-slate-500" />
+              <Clock className="w-8 h-8 text-slate-500" />
               <div>
-                <div className="text-2xl font-bold text-slate-900">847</div>
-                <div className="text-sm text-slate-600">Companies studied</div>
+                <div className="text-2xl font-bold text-slate-900">{data.metrics.avgResponseTime}h</div>
+                <div className="text-sm text-slate-600">Avg response time</div>
               </div>
             </div>
-            <div className="text-xs text-green-600">$47M in total savings</div>
+            <div className="text-xs text-green-600">Industry benchmark: 24h</div>
           </div>
 
           <div className="bg-white border border-green-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Target className="w-8 h-8 text-green-500" />
+              <TrendingDown className="w-8 h-8 text-green-500" />
               <div>
-                <div className="text-2xl font-bold text-slate-900">3</div>
-                <div className="text-sm text-slate-600">Min to implement</div>
+                <div className="text-2xl font-bold text-slate-900">{data.metrics.deflectionRate}%</div>
+                <div className="text-sm text-slate-600">Deflection potential</div>
               </div>
             </div>
-            <div className="text-xs text-blue-600">Actionable takeaways</div>
+            <div className="text-xs text-blue-600">Tickets preventable</div>
           </div>
         </div>
 
-        {/* Framework Application */}
-        <div className="bg-gradient-to-r from-indigo-50 to-slate-50 border border-indigo-200 rounded-xl p-8">
-          <h2 className="text-2xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
-            🎧 Framework #1: The 80/20 Rule (demo analysis)
+        {/* Savings Potential */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-8">
+          <h2 className="text-2xl font-bold text-green-900 mb-4 flex items-center gap-2">
+            💰 Your potential savings (demo analysis)
           </h2>
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <div className="text-4xl font-bold text-indigo-600 mb-2">
+              <div className="text-4xl font-bold text-green-600 mb-2">
                 ${data.metrics.potentialSavings.toLocaleString()}/month
               </div>
-              <p className="text-indigo-700 mb-4">
-                Applied the 80/20 framework to {data.metrics.totalTickets.toLocaleString()} demo tickets. This shows your potential with Framework #1 alone.
+              <p className="text-green-700 mb-4">
+                Based on analyzing {data.metrics.totalTickets.toLocaleString()} demo tickets. Upload your real data to see your actual savings potential.
               </p>
-              <div className="text-sm text-indigo-600">
-                • Framework identifies top 5 ticket types
+              <div className="text-sm text-green-600">
+                • Identifies top cost-driving ticket types
                 <br />
-                • Mental model: Focus = 67% faster results
+                • Shows automation opportunities
                 <br />
-                • Actionable: Start with highest-volume category
+                • Tracks ROI from improvements
               </div>
             </div>
             <div className="space-y-4">
               <Link 
                 href="/upload" 
-                className="block w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-center transition-all"
+                className="block w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-center transition-all"
               >
                 <Upload className="w-5 h-5 inline mr-2" />
-                Apply To My Real Data
+                Upload My Real Data
               </Link>
               <button 
-                className="block w-full px-6 py-3 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-lg font-semibold transition-all"
-                onClick={() => document.getElementById('framework-insights')?.scrollIntoView({ behavior: 'smooth' })}
+                className="block w-full px-6 py-3 border-2 border-green-600 text-green-600 hover:bg-green-50 rounded-lg font-semibold transition-all"
+                onClick={() => document.getElementById('insights')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <Brain className="w-5 h-5 inline mr-2" />
-                See All 15 Frameworks
+                <BarChart3 className="w-5 h-5 inline mr-2" />
+                See Full Analysis
               </button>
             </div>
           </div>
         </div>
 
-        {/* Framework Analyzer */}
+        {/* Ticket Analyzer */}
         <div className="bg-white border border-indigo-200 rounded-xl p-6">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-              🎧 Framework #1 Applied: The 80/20 Analysis
+              🔍 Smart Ticket Analysis
             </h2>
             <p className="text-slate-600">
-              Watch how the 80/20 framework identifies your highest-impact opportunities. This is the same mental model Stripe uses to prioritize their documentation.
+              SupportIQ automatically categorizes your tickets and identifies patterns. This demo shows the insights you'll get with your real data.
             </p>
           </div>
           <TicketAnalyzer />
         </div>
 
-        {/* Framework Insights */}
-        <div id="framework-insights" className="bg-white border border-indigo-200 rounded-xl p-6">
+        {/* Analytics Insights */}
+        <div id="insights" className="bg-white border border-indigo-200 rounded-xl p-6">
           <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-            🎧 Framework insights from the masterclass
+            📈 Analytics insights from your data
           </h2>
           
           <div className="space-y-4 mb-6">
