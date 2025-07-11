@@ -100,148 +100,80 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <nav className="border-b border-indigo-200 bg-white/95 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
-            <div className="w-8 h-8 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-white" />
-            </div>
+      <nav className="border-b border-gray-200 bg-white">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+          <Link href="/" className="font-semibold text-lg text-gray-900">
             SupportIQ
           </Link>
           <div className="flex items-center gap-4">
-            <Badge className="bg-gradient-to-r from-indigo-100 to-slate-100 text-indigo-700 border border-indigo-200">
-              Pro Plan
-            </Badge>
+            <span className="text-sm text-gray-500">Demo mode</span>
             <Link 
-              href="/checkout" 
-              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-slate-700 text-white rounded-lg font-medium text-sm transition-all"
+              href="/settings" 
+              className="text-sm text-gray-600 hover:text-gray-900"
             >
-              Upgrade Plan →
+              Settings
             </Link>
           </div>
         </div>
       </nav>
 
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Dashboard Welcome */}
-        <div className="bg-gradient-to-r from-indigo-100 via-slate-100 to-indigo-100 border border-indigo-200 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <BarChart3 className="w-6 h-6 text-indigo-600" />
-                Welcome to your support dashboard! 
-              </h1>
-              <p className="text-slate-700">
-                You're using the same analytics that helped <strong className="text-indigo-600">847 SaaS teams</strong> save <strong className="text-green-600">$47M total</strong> in support costs.
-                <br />
-                Demo analysis below shows what SupportIQ can do. Upload your data to see your real insights!
-              </p>
-            </div>
-            <div className="bg-white border border-indigo-200 rounded-lg p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-indigo-600">Demo</div>
-                <div className="text-sm text-slate-600">Mode active</div>
-              </div>
-            </div>
+        {/* Simple Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Support Dashboard</h1>
+          <p className="text-gray-600">Demo data shown. <Link href="/upload" className="text-black underline">Upload your tickets</Link> to see real insights.</p>
+        </div>
+
+        {/* Key Metrics - Simple cards */}
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="text-sm text-gray-600 mb-1">Total tickets</div>
+            <div className="text-2xl font-bold text-gray-900">{data.metrics.totalTickets.toLocaleString()}</div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="text-sm text-gray-600 mb-1">Response time</div>
+            <div className="text-2xl font-bold text-gray-900">{data.metrics.avgResponseTime}h</div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="text-sm text-gray-600 mb-1">Can prevent</div>
+            <div className="text-2xl font-bold text-gray-900">{data.metrics.deflectionRate}%</div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="text-sm text-gray-600 mb-1">Monthly savings</div>
+            <div className="text-2xl font-bold text-green-600">${data.metrics.potentialSavings.toLocaleString()}</div>
           </div>
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white border border-indigo-200 rounded-xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <BarChart3 className="w-8 h-8 text-indigo-500" />
-              <div>
-                <div className="text-2xl font-bold text-slate-900">{data.metrics.totalTickets.toLocaleString()}</div>
-                <div className="text-sm text-slate-600">Tickets analyzed</div>
-              </div>
-            </div>
-            <div className="text-xs text-indigo-600">Demo data</div>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Clock className="w-8 h-8 text-slate-500" />
-              <div>
-                <div className="text-2xl font-bold text-slate-900">{data.metrics.avgResponseTime}h</div>
-                <div className="text-sm text-slate-600">Avg response time</div>
-              </div>
-            </div>
-            <div className="text-xs text-green-600">Industry benchmark: 24h</div>
-          </div>
-
-          <div className="bg-white border border-green-200 rounded-xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <TrendingDown className="w-8 h-8 text-green-500" />
-              <div>
-                <div className="text-2xl font-bold text-slate-900">{data.metrics.deflectionRate}%</div>
-                <div className="text-sm text-slate-600">Deflection potential</div>
-              </div>
-            </div>
-            <div className="text-xs text-blue-600">Tickets preventable</div>
+        {/* Main Insight */}
+        <div className="bg-gray-50 rounded-lg p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">You could save ${data.metrics.potentialSavings.toLocaleString()}/month</h2>
+          <p className="text-gray-600 mb-4">Based on {data.metrics.totalTickets.toLocaleString()} tickets analyzed. Top issues causing most of your support volume:</p>
+          <ul className="space-y-2 text-gray-700">
+            <li>• Password reset requests (31% of tickets)</li>
+            <li>• Billing questions (24% of tickets)</li>
+            <li>• Setup confusion (18% of tickets)</li>
+          </ul>
+          <div className="mt-4">
+            <Link 
+              href="/upload" 
+              className="inline-flex items-center px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-md font-medium text-sm transition-colors"
+            >
+              Upload your data →
+            </Link>
           </div>
         </div>
 
-        {/* Savings Potential */}
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-8">
-          <h2 className="text-2xl font-bold text-green-900 mb-4 flex items-center gap-2">
-            💰 Your potential savings (demo analysis)
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">
-                ${data.metrics.potentialSavings.toLocaleString()}/month
-              </div>
-              <p className="text-green-700 mb-4">
-                Based on analyzing {data.metrics.totalTickets.toLocaleString()} demo tickets. Upload your real data to see your actual savings potential.
-              </p>
-              <div className="text-sm text-green-600">
-                • Identifies top cost-driving ticket types
-                <br />
-                • Shows automation opportunities
-                <br />
-                • Tracks ROI from improvements
-              </div>
-            </div>
-            <div className="space-y-4">
-              <Link 
-                href="/upload" 
-                className="block w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-center transition-all"
-              >
-                <Upload className="w-5 h-5 inline mr-2" />
-                Upload My Real Data
-              </Link>
-              <button 
-                className="block w-full px-6 py-3 border-2 border-green-600 text-green-600 hover:bg-green-50 rounded-lg font-semibold transition-all"
-                onClick={() => document.getElementById('insights')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                <BarChart3 className="w-5 h-5 inline mr-2" />
-                See Full Analysis
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Ticket Analyzer */}
-        <div className="bg-white border border-indigo-200 rounded-xl p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-              🔍 Smart Ticket Analysis
-            </h2>
-            <p className="text-slate-600">
-              SupportIQ automatically categorizes your tickets and identifies patterns. This demo shows the insights you'll get with your real data.
-            </p>
-          </div>
+        {/* Simple Analysis */}
+        <div className="border border-gray-200 rounded-lg p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Ticket Analysis</h2>
           <TicketAnalyzer />
         </div>
 
-        {/* Analytics Insights */}
-        <div id="insights" className="bg-white border border-indigo-200 rounded-xl p-6">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-            📈 Analytics insights from your data
-          </h2>
+        {/* Recent Tickets */}
+        <div className="border border-gray-200 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Support Trends</h2>
           
           <div className="space-y-4 mb-6">
             {/* Win 1 */}
@@ -442,35 +374,16 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Final Community CTA */}
-        <div className="bg-gradient-to-r from-purple-100 via-blue-100 to-purple-100 border border-purple-200 rounded-xl p-8 text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">
-            Ready to turn your data into community wins?
-          </h2>
-          <p className="text-slate-700 mb-6 max-w-2xl mx-auto">
-            This demo shows what's possible. Upload your real tickets to join <strong className="text-purple-600">2,847 founders</strong> who are sharing strategies and saving millions together.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/upload" 
-              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-all"
-            >
-              <Upload className="w-5 h-5" />
-              Upload My Real Data
-            </Link>
-            <Link 
-              href="/checkout"
-              className="px-8 py-4 border-2 border-purple-600 text-purple-600 hover:bg-purple-50 rounded-full font-semibold flex items-center justify-center gap-2 transition-all"
-            >
-              <Users className="w-5 h-5" />
-              Join The Community ($99/mo)
-            </Link>
-          </div>
-
-          <div className="mt-6 text-sm text-slate-600">
-            💜 <strong>Community-first forever</strong> - Your success stories fund new member resources
-          </div>
+        {/* Simple CTA */}
+        <div className="bg-gray-50 rounded-lg p-6 text-center mt-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to reduce your support costs?</h3>
+          <p className="text-gray-600 mb-4">Upload your real data to see your actual savings potential.</p>
+          <Link 
+            href="/upload" 
+            className="inline-flex items-center px-6 py-3 bg-black hover:bg-gray-800 text-white rounded-md font-medium transition-colors"
+          >
+            Upload tickets →
+          </Link>
         </div>
       </div>
     </div>

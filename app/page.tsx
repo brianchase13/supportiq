@@ -1,270 +1,124 @@
 'use client';
 
 import Link from "next/link";
-import { ArrowRight, BarChart3, Users, CheckCircle, Zap, TrendingUp, MessageSquare, Share2, Heart, Star, Twitter, Linkedin, Globe, Trophy, Target, Sparkles, BookOpen, Lightbulb, Brain, TrendingDown, DollarSign, Clock, Mail } from 'lucide-react';
-import { EmailCapture } from '@/components/landing/EmailCapture';
+import { ArrowRight, BarChart3, CheckCircle, Zap, TrendingUp, DollarSign, Clock } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
-      {/* Sahil Bloom Style Header */}
-      <nav className="border-b border-slate-200 bg-white/95 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl text-slate-900">
-            <div className="w-8 h-8 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-white" />
-            </div>
+    <div className="min-h-screen bg-white">
+      {/* Sahil Lavingia Minimal Header */}
+      <nav className="border-b border-gray-200 bg-white">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+          <Link href="/" className="font-semibold text-lg text-gray-900">
             SupportIQ
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="#features" className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-              Features
-            </Link>
-            <Link href="#pricing" className="text-slate-600 hover:text-slate-700 font-medium text-sm">
-              Pricing
-            </Link>
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-slate-700 hover:from-indigo-700 hover:to-slate-800 text-white rounded-lg font-medium text-sm transition-all"
-            >
-              Try Free →
-            </Link>
-          </div>
+          </Link>
+          <Link
+            href="/dashboard"
+            className="px-4 py-1.5 bg-black hover:bg-gray-800 text-white rounded-md font-medium text-sm transition-colors"
+          >
+            Start Free →
+          </Link>
         </div>
       </nav>
 
-      {/* Hero - Sahil Bloom Educational Style */}
-      <section className="pt-20 pb-16 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Product Badge */}
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-slate-100 border border-indigo-200 rounded-lg px-4 py-2 text-sm text-indigo-700 font-medium mb-8">
-            <BarChart3 className="w-4 h-4" />
-            The support dashboard for modern SaaS teams
-          </div>
-
-          {/* Main Headline - Product Focus */}
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-slate-700">Stop drowning in</span>
-            <br />
-            <span className="text-slate-900">support tickets</span>
+      {/* Hero - Sahil Lavingia Minimal Style */}
+      <section className="pt-16 pb-12 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          {/* Main Headline - Direct and Clear */}
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+            Reduce support tickets by 40%
           </h1>
           
-          <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            SupportIQ gives you a clear dashboard to understand your support costs, identify patterns, and reduce ticket volume.
-            <br />
-            Join <strong className="text-indigo-600">847 SaaS founders</strong> who've saved <strong className="text-green-600">$47M total</strong> using our insights.
+          <p className="text-xl text-gray-600 mb-8">
+            Simple analytics for your support inbox. See what's costing you money.
           </p>
 
-          {/* Product Proof */}
-          <div className="flex items-center justify-center gap-8 mb-8 text-sm text-slate-600">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-indigo-500" />
-              <span><strong>10M+ tickets</strong> analyzed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-slate-500" />
-              <span><strong>847 SaaS teams</strong> using</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-green-500" />
-              <span><strong>$47M</strong> saved</span>
-            </div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link
-              href="/dashboard"
-              className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-slate-700 hover:from-indigo-700 hover:to-slate-800 text-white rounded-lg font-semibold text-lg flex items-center justify-center gap-2 transition-all shadow-lg"
-            >
-              <BarChart3 className="w-5 h-5" />
-              Try Dashboard Free
-            </Link>
-            <button 
-              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-lg font-semibold text-lg transition-all"
-            >
-              See How It Works
-            </button>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center gap-8 text-slate-500 text-sm">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-indigo-500" />
-              Real-time insights
-            </div>
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-slate-500" />
-              5-minute setup
-            </div>
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-green-500" />
-              Immediate ROI
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Product Features */}
-      <section id="features" className="py-16 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 text-slate-900">Everything you need to manage support</h2>
-            <p className="text-slate-600">Stop guessing what's causing your support burden. Get clear insights and actionable recommendations.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {/* Feature 1 */}
-            <div className="bg-gradient-to-br from-indigo-50 to-slate-50 border border-indigo-200 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-900">Smart Analytics</div>
-                  <div className="text-sm text-indigo-600">
-                    Ticket insights
-                  </div>
-                </div>
-              </div>
-              <div className="mb-4">
-                <div className="text-slate-700 mb-3">Automatically categorize and analyze your support tickets to identify the biggest cost drivers.</div>
-                <div className="bg-indigo-100 border border-indigo-200 rounded-lg p-3">
-                  <div className="text-sm font-semibold text-indigo-900 mb-1">Key Features:</div>
-                  <div className="text-sm text-indigo-700">Pattern detection, cost analysis, trend tracking</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-gradient-to-br from-slate-50 to-gray-50 border border-slate-200 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-gray-700 rounded-lg flex items-center justify-center">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-900">Prevention Insights</div>
-                  <div className="text-sm text-slate-600">
-                    Reduce ticket volume
-                  </div>
-                </div>
-              </div>
-              <div className="mb-4">
-                <div className="text-slate-700 mb-3">Get specific recommendations on how to prevent the most common support requests before they happen.</div>
-                <div className="bg-slate-100 border border-slate-200 rounded-lg p-3">
-                  <div className="text-sm font-semibold text-slate-900 mb-1">Key Features:</div>
-                  <div className="text-sm text-slate-700">Automation suggestions, self-service opportunities, documentation gaps</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-700 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-900">ROI Tracking</div>
-                  <div className="text-sm text-green-600">
-                    Measure savings
-                  </div>
-                </div>
-              </div>
-              <div className="mb-4">
-                <div className="text-slate-700 mb-3">Track exactly how much money you're saving as you implement improvements to your support process.</div>
-                <div className="bg-green-100 border border-green-200 rounded-lg p-3">
-                  <div className="text-sm font-semibold text-green-900 mb-1">Key Features:</div>
-                  <div className="text-sm text-green-700">Cost per ticket, time savings, efficiency metrics</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Customer Quote */}
-          <div className="bg-gradient-to-r from-indigo-50 to-slate-50 border-l-4 border-indigo-600 rounded-lg p-6 max-w-4xl mx-auto">
-            <div className="text-lg text-slate-800 mb-4">
-              "SupportIQ helped us identify that 80% of our tickets were coming from onboarding confusion. We fixed our signup flow and cut support volume by 60% in two weeks. Game changer."
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center text-white font-bold">JC</div>
-              <div>
-                <div className="font-semibold text-slate-900">Jessica Chen</div>
-                <div className="text-sm text-slate-600">Founder @ DataFlow • 50K+ users</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-16 px-4 bg-gradient-to-r from-slate-50 to-indigo-50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8 text-slate-900">How SupportIQ works</h2>
-          <p className="text-slate-600 mb-8 text-lg">Connect your support tool, get insights in minutes, and start reducing costs immediately.</p>
-          
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-white rounded-xl p-6 border border-indigo-200 shadow-sm">
-              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-slate-900">Connect & Import</h3>
-              <p className="text-slate-600">Connect Intercom, Zendesk, or upload a CSV. We'll analyze your ticket history in under 5 minutes.</p>
-            </div>
-            <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-              <div className="w-16 h-16 bg-gradient-to-r from-slate-600 to-gray-700 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-slate-900">Get Insights</h3>
-              <p className="text-slate-600">See which ticket types are costing you the most, trending issues, and opportunities for automation.</p>
-            </div>
-            <div className="bg-white rounded-xl p-6 border border-green-200 shadow-sm">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-700 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Target className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-slate-900">Reduce Costs</h3>
-              <p className="text-slate-600">Implement our recommendations and track your savings. Most teams reduce ticket volume by 40% within 30 days.</p>
-            </div>
-          </div>
-
-          <div className="bg-white border border-indigo-200 rounded-xl p-8 mb-8">
-            <h3 className="text-xl font-semibold mb-4 text-slate-900">🚀 What you get with SupportIQ:</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-left">
-              <div className="flex items-center gap-3">
-                <BarChart3 className="w-5 h-5 text-indigo-500" />
-                <span className="text-slate-700">Smart ticket categorization & analysis</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Target className="w-5 h-5 text-slate-500" />
-                <span className="text-slate-700">Prevention recommendations</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <DollarSign className="w-5 h-5 text-green-500" />
-                <span className="text-slate-700">Cost tracking and ROI measurement</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-green-500" />
-                <span className="text-slate-700">Trend analysis and forecasting</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-blue-500" />
-                <span className="text-slate-700">Automation opportunity detection</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-yellow-500" />
-                <span className="text-slate-700">Implementation tracking</span>
-              </div>
-            </div>
-          </div>
-
+          {/* Single CTA */}
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-slate-700 hover:from-indigo-700 hover:to-slate-800 text-white rounded-lg font-semibold text-lg transition-all shadow-lg"
+            className="inline-flex items-center px-6 py-3 bg-black hover:bg-gray-800 text-white rounded-md font-medium text-base transition-colors"
           >
-            <BarChart3 className="w-5 h-5" />
-            Try Free Dashboard
+            Try it free for 30 days
+            <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
+
+          {/* Simple proof */}
+          <p className="mt-6 text-sm text-gray-500">
+            $99/month after trial • Cancel anytime • 5 minute setup
+          </p>
+        </div>
+      </section>
+
+      {/* How it works - Simple 3 steps */}
+      <section className="py-12 px-4 bg-gray-50">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-8 text-center text-gray-900">How it works</h2>
+          
+          <div className="space-y-6">
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-medium text-sm">1</div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">Connect your support tool</h3>
+                <p className="text-gray-600">Works with Intercom, Zendesk, or any CSV export. Takes 2 minutes.</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-medium text-sm">2</div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">See what's costing you money</h3>
+                <p className="text-gray-600">Instant analysis shows your top ticket categories and their cost impact.</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-medium text-sm">3</div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">Fix the biggest problems first</h3>
+                <p className="text-gray-600">Clear recommendations ranked by ROI. Most teams see results in days.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* What you get - Simple list */}
+      <section className="py-12 px-4 bg-white">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">What you get</h2>
+          
+          <ul className="space-y-3 mb-8">
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <span className="text-gray-700">See exactly which tickets cost you the most money</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <span className="text-gray-700">Get specific fixes ranked by impact (most save 40%+)</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <span className="text-gray-700">Track your savings with a simple ROI dashboard</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <span className="text-gray-700">Works with Intercom, Zendesk, or any CSV</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <span className="text-gray-700">No complex setup or training required</span>
+            </li>
+          </ul>
+
+          <div className="text-center">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center px-6 py-3 bg-black hover:bg-gray-800 text-white rounded-md font-medium text-base transition-colors"
+            >
+              Try it free
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+          </div>
         </div>
       </section>
 
