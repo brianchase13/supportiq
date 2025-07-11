@@ -100,148 +100,147 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       {/* Header */}
-      <nav className="border-b border-purple-200 bg-white/80 backdrop-blur-sm">
+      <nav className="border-b border-indigo-200 bg-white/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-purple-900">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
+            <div className="w-8 h-8 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-lg flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
             SupportIQ
           </Link>
           <div className="flex items-center gap-4">
-            <Badge className="bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 border border-purple-200">
-              Community Member
+            <Badge className="bg-gradient-to-r from-indigo-100 to-slate-100 text-indigo-700 border border-indigo-200">
+              Masterclass Student
             </Badge>
             <Link 
               href="/checkout" 
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-medium text-sm hover:scale-105 transition-all"
+              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-slate-700 text-white rounded-lg font-medium text-sm transition-all"
             >
-              Share Your Win →
+              Join Newsletter →
             </Link>
           </div>
         </div>
       </nav>
 
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Community Welcome */}
-        <div className="bg-gradient-to-r from-purple-100 via-blue-100 to-purple-100 border border-purple-200 rounded-xl p-6">
+        {/* Educational Welcome */}
+        <div className="bg-gradient-to-r from-indigo-100 via-slate-100 to-indigo-100 border border-indigo-200 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-purple-600" />
-                Welcome to the community! 
+                <BookOpen className="w-6 h-6 text-indigo-600" />
+                Welcome to the masterclass! 
               </h1>
               <p className="text-slate-700">
-                You're now part of <strong className="text-purple-600">2,847 founders</strong> who've saved <strong className="text-green-600">$47M total</strong> in support costs.
+                You're learning the frameworks that helped <strong className="text-indigo-600">847 companies</strong> save <strong className="text-green-600">$47M total</strong> in support costs.
                 <br />
-                Demo analysis below shows what's possible. Upload your real data to join the wins!
+                Demo analysis below shows Framework #1 in action. Upload your data to see your personalized insights!
               </p>
             </div>
-            <div className="flex -space-x-2">
-              {[1,2,3,4,5].map(i => (
-                <div key={i} className="w-10 h-10 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full border-2 border-white flex items-center justify-center text-white font-bold text-sm">
-                  {String.fromCharCode(65 + i)}
-                </div>
-              ))}
+            <div className="bg-white border border-indigo-200 rounded-lg p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-indigo-600">15/15</div>
+                <div className="text-sm text-slate-600">Frameworks unlocked</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Community Impact */}
+        {/* Educational Impact */}
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white border border-purple-200 rounded-xl p-6">
+          <div className="bg-white border border-indigo-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Trophy className="w-8 h-8 text-yellow-500" />
+              <BookOpen className="w-8 h-8 text-indigo-500" />
               <div>
-                <div className="text-2xl font-bold text-slate-900">$47M</div>
-                <div className="text-sm text-slate-600">Total community savings</div>
+                <div className="text-2xl font-bold text-slate-900">15</div>
+                <div className="text-sm text-slate-600">Frameworks mastered</div>
               </div>
             </div>
-            <div className="text-xs text-purple-600">+$2.3M this month alone</div>
+            <div className="text-xs text-indigo-600">From unicorn companies</div>
           </div>
 
-          <div className="bg-white border border-purple-200 rounded-xl p-6">
+          <div className="bg-white border border-slate-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Users className="w-8 h-8 text-blue-500" />
+              <Brain className="w-8 h-8 text-slate-500" />
               <div>
-                <div className="text-2xl font-bold text-slate-900">2,847</div>
-                <div className="text-sm text-slate-600">Active community members</div>
+                <div className="text-2xl font-bold text-slate-900">847</div>
+                <div className="text-sm text-slate-600">Companies studied</div>
               </div>
             </div>
-            <div className="text-xs text-green-600">+47 joined this week</div>
+            <div className="text-xs text-green-600">$47M in total savings</div>
           </div>
 
-          <div className="bg-white border border-purple-200 rounded-xl p-6">
+          <div className="bg-white border border-green-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Share2 className="w-8 h-8 text-green-500" />
+              <Target className="w-8 h-8 text-green-500" />
               <div>
-                <div className="text-2xl font-bold text-slate-900">156</div>
-                <div className="text-sm text-slate-600">Templates shared</div>
+                <div className="text-2xl font-bold text-slate-900">3</div>
+                <div className="text-sm text-slate-600">Min to implement</div>
               </div>
             </div>
-            <div className="text-xs text-blue-600">23 new this week</div>
+            <div className="text-xs text-blue-600">Actionable takeaways</div>
           </div>
         </div>
 
-        {/* Your Potential */}
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-8">
-          <h2 className="text-2xl font-bold text-green-900 mb-4 flex items-center gap-2">
-            💰 Your potential savings (demo data)
+        {/* Framework Application */}
+        <div className="bg-gradient-to-r from-indigo-50 to-slate-50 border border-indigo-200 rounded-xl p-8">
+          <h2 className="text-2xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
+            🎧 Framework #1: The 80/20 Rule (demo analysis)
           </h2>
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">
+              <div className="text-4xl font-bold text-indigo-600 mb-2">
                 ${data.metrics.potentialSavings.toLocaleString()}/month
               </div>
-              <p className="text-green-700 mb-4">
-                Based on analyzing {data.metrics.totalTickets.toLocaleString()} demo tickets using community-proven strategies
+              <p className="text-indigo-700 mb-4">
+                Applied the 80/20 framework to {data.metrics.totalTickets.toLocaleString()} demo tickets. This shows your potential with Framework #1 alone.
               </p>
-              <div className="text-sm text-green-600">
-                • Join 847 others who saved 40%+ in month 1
+              <div className="text-sm text-indigo-600">
+                • Framework identifies top 5 ticket types
                 <br />
-                • Access 100+ community templates
+                • Mental model: Focus = 67% faster results
                 <br />
-                • Get AI analysis + human wisdom
+                • Actionable: Start with highest-volume category
               </div>
             </div>
             <div className="space-y-4">
               <Link 
                 href="/upload" 
-                className="block w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold text-center transition-all hover:scale-105"
+                className="block w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-center transition-all"
               >
                 <Upload className="w-5 h-5 inline mr-2" />
-                Upload My Real Tickets
+                Apply To My Real Data
               </Link>
               <button 
-                className="block w-full px-6 py-3 border-2 border-green-600 text-green-600 hover:bg-green-50 rounded-full font-semibold transition-all"
-                onClick={() => document.getElementById('community-wins')?.scrollIntoView({ behavior: 'smooth' })}
+                className="block w-full px-6 py-3 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-lg font-semibold transition-all"
+                onClick={() => document.getElementById('framework-insights')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <Heart className="w-5 h-5 inline mr-2" />
-                See Community Wins
+                <Brain className="w-5 h-5 inline mr-2" />
+                See All 15 Frameworks
               </button>
             </div>
           </div>
         </div>
 
-        {/* Ticket Analyzer */}
-        <div className="bg-white border border-purple-200 rounded-xl p-6">
+        {/* Framework Analyzer */}
+        <div className="bg-white border border-indigo-200 rounded-xl p-6">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-              🔍 AI Analysis + Community Wisdom
+              🎧 Framework #1 Applied: The 80/20 Analysis
             </h2>
             <p className="text-slate-600">
-              This demo analysis uses the same AI + community templates that helped 2,847 founders save millions.
+              Watch how the 80/20 framework identifies your highest-impact opportunities. This is the same mental model Stripe uses to prioritize their documentation.
             </p>
           </div>
           <TicketAnalyzer />
         </div>
 
-        {/* Community Wins Feed */}
-        <div id="community-wins" className="bg-white border border-purple-200 rounded-xl p-6">
+        {/* Framework Insights */}
+        <div id="framework-insights" className="bg-white border border-indigo-200 rounded-xl p-6">
           <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-            🎉 Recent community wins
+            🎧 Framework insights from the masterclass
           </h2>
           
           <div className="space-y-4 mb-6">
