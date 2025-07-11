@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import { ArrowRight, BarChart3, DollarSign, Clock, Users, Star, CheckCircle, Zap, TrendingUp } from 'lucide-react';
 import { EmailCapture } from '@/components/landing/EmailCapture';
