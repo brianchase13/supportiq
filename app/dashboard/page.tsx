@@ -13,9 +13,12 @@ import {
   Target,
   Activity,
   DollarSign,
-  Zap
+  Zap,
+  ArrowRight
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+import { IntercomConnect } from '@/components/intercom/IntercomConnect';
+import { TicketAnalyzer } from '@/components/intercom/TicketAnalyzer';
 
 interface DashboardData {
   metrics: {
@@ -110,6 +113,12 @@ export default function DashboardPage() {
           </a>
           <Badge className="bg-green-600 text-white">Live Demo</Badge>
         </div>
+      </div>
+
+      {/* Intercom Integration */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <IntercomConnect />
+        <TicketAnalyzer />
       </div>
 
       {/* Key Metrics */}

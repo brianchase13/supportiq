@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, Brain, Zap, Shield, Clock, Users, Star, CheckCircle } from 'lucide-react';
+import { EmailCapture } from '@/components/landing/EmailCapture';
+import { BookDemo } from '@/components/demo/BookDemo';
 
 export default function Home() {
   return (
@@ -53,18 +55,13 @@ export default function Home() {
               Transform your customer support with intelligent analytics that identify patterns, predict issues, and automate resolutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <BookDemo />
               <Link
-                href="/auth"
+                href="/dashboard"
                 className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
               >
-                Start Free Trial <ArrowRight className="w-4 h-4" />
+                Try Live Demo <ArrowRight className="w-4 h-4" />
               </Link>
-              <a
-                href="#demo"
-                className="px-6 py-3 border border-slate-700 hover:border-slate-600 rounded-lg transition-colors font-medium text-center"
-              >
-                View Demo
-              </a>
             </div>
           </div>
 
@@ -99,6 +96,13 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Email Capture */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <EmailCapture />
         </div>
       </section>
 
