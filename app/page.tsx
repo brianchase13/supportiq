@@ -54,7 +54,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/dashboard"
+                href="/auth"
                 className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
               >
                 Start Free Trial <ArrowRight className="w-4 h-4" />
@@ -149,7 +149,7 @@ export default function Home() {
                   <span className="text-slate-300">Basic analytics</span>
                 </li>
               </ul>
-              <Link href="/dashboard" className="block w-full text-center px-4 py-2 border border-slate-700 hover:border-slate-600 rounded-lg transition-colors">
+              <Link href="/auth" className="block w-full text-center px-4 py-2 border border-slate-700 hover:border-slate-600 rounded-lg transition-colors">
                 Start free trial
               </Link>
             </div>
@@ -179,7 +179,7 @@ export default function Home() {
                   <span className="text-slate-300">Integrations</span>
                 </li>
               </ul>
-              <Link href="/dashboard" className="block w-full text-center px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors">
+              <Link href="/auth" className="block w-full text-center px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors">
                 Start free trial
               </Link>
             </div>
@@ -206,7 +206,7 @@ export default function Home() {
                   <span className="text-slate-300">SLA guarantee</span>
                 </li>
               </ul>
-              <Link href="/dashboard" className="block w-full text-center px-4 py-2 border border-slate-700 hover:border-slate-600 rounded-lg transition-colors">
+              <Link href="/auth" className="block w-full text-center px-4 py-2 border border-slate-700 hover:border-slate-600 rounded-lg transition-colors">
                 Contact sales
               </Link>
             </div>

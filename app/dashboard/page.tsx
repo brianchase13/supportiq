@@ -100,7 +100,16 @@ export default function DashboardPage() {
           </h1>
           <p className="text-slate-400">Live analytics powered by AI insights</p>
         </div>
-        <Badge className="bg-green-600 text-white">Live Demo</Badge>
+        <div className="flex items-center gap-4">
+          <a 
+            href="/upload" 
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium flex items-center gap-2"
+          >
+            Upload Your Data
+            <ArrowRight className="w-4 h-4" />
+          </a>
+          <Badge className="bg-green-600 text-white">Live Demo</Badge>
+        </div>
       </div>
 
       {/* Key Metrics */}
