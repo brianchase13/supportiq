@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { ArrowRight, BarChart3, CheckCircle, Zap, TrendingUp, DollarSign, Clock } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle } from 'lucide-react';
 
 export default function Home() {
   return (
