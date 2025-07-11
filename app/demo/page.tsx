@@ -88,9 +88,45 @@ export default function DemoPage() {
   const fetchDemoData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/demo');
+      const response = await fetch('/api/demo-insights');
       const data = await response.json();
-      setDemoData(data.data);
+      setDemoData({
+        summary: data.data.summary,
+        topDeflectionOpportunities: data.data.opportunities,
+        // Add mock data for other sections
+        metrics: {
+          responseTime: { current: 47, target: 30, industryAverage: 65, trend: 'improving', percentile: 35 },
+          ticketVolume: { current: 1247, lastMonth: 1389, trend: 'decreasing', percentChange: -10.2 },
+          satisfaction: { current: 78, target: 85, trend: 'stable', lastMonth: 79 },
+          deflectionRate: { current: 34, potential: 68, improvement: 34, impact: '$2,841/month' }
+        },
+        benchmarks: {
+          industryPosition: { overallRank: 45, strongestMetric: 'Customer Satisfaction', weakestMetric: 'Response Time', improvementFocus: 'Ticket Deflection' },
+          peerComparison: { similarCompanies: 127, betterThan: 57, percentile: 45 },
+          industryInsights: []
+        },
+        trends: {
+          dailyTickets: [],
+          categoryBreakdown: [],
+          sentimentTrends: []
+        },
+        roiCalculator: {
+          currentCosts: { monthlyTickets: 1247, avgHandleTime: 23.5, agentHourlyCost: 30, monthlyAgentCost: 14756, annualAgentCost: 177072 },
+          withDeflection: { deflectedTickets: 847, remainingTickets: 400, newMonthlyCost: 4700, newAnnualCost: 56400, monthlySavings: 10056, annualSavings: 120672 },
+          implementation: { timeRequired: '2-3 weeks', resourcesNeeded: 'Content writer + Developer', upfrontCost: 5000, paybackPeriod: '2 weeks', roi: '2,413%' }
+        },
+        quickWins: [],
+        socialProof: {
+          companiesAnalyzed: 247,
+          totalSavingsGenerated: 2347829,
+          averageROI: 847,
+          customerCount: 89,
+          testimonials: [
+            { company: 'TechCorp', role: 'Head of Support', quote: 'SupportIQ identified $47K in savings in our first month. We implemented 3 KB articles and cut our ticket volume by 60%.', savings: 47000, timeline: '1 month' },
+            { company: 'GrowthSaaS', role: 'Customer Success Manager', quote: 'The insights were shocking. We had no idea we were spending $3K/month on password reset tickets.', savings: 36000, timeline: '2 weeks' }
+          ]
+        }
+      });
       
       // Track demo view
       await analytics.track({
