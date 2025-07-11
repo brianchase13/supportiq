@@ -22,18 +22,18 @@ export default function Home() {
                 Testimonials
               </Link>
               <Link
-                href="/dashboard"
+                href="/simple"
                 className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors font-medium"
               >
-                Start Free Trial
+                View Demo
               </Link>
             </div>
             <div className="sm:hidden">
               <Link
-                href="/dashboard"
+                href="/simple"
                 className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors font-medium"
               >
-                Try Free
+                Demo
               </Link>
             </div>
           </div>
