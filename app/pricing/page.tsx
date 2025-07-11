@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +35,6 @@ interface PricingData {
 }
 
 export default function PricingPage() {
-  const { user, isLoaded } = useUser();
   const [pricingData, setPricingData] = useState<PricingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -44,10 +42,8 @@ export default function PricingPage() {
   const [projectedSavings, setProjectedSavings] = useState(60000);
 
   useEffect(() => {
-    if (isLoaded) {
-      fetchPricingData();
-    }
-  }, [isLoaded, ticketVolume, projectedSavings]);
+    fetchPricingData();
+  }, [ticketVolume, projectedSavings]);
 
   const fetchPricingData = async () => {
     try {
@@ -56,6 +52,94 @@ export default function PricingPage() {
       setPricingData(data);
     } catch (error) {
       console.error('Failed to fetch pricing:', error);
+      // Set demo pricing data as fallback
+      setPricingData({
+        pricing: [
+          {
+            planId: 'starter',
+            name: 'Starter',
+            features: [
+              'Up to 1,000 tickets/month analyzed',
+              'Basic insights dashboard',
+              'Email support',
+              '3 team members',
+              'Ticket deflection tracking',
+            ],
+            maxTickets: 1000,
+            monthly: {
+              price: 99,
+              monthlyPrice: '$99',
+              roiMultiplier: 6,
+              monthlySavings: '$600',
+            },
+            yearly: {
+              price: 89,
+              monthlyPrice: '$89',
+              roiMultiplier: 7,
+              monthlySavings: '$630',
+            },
+            recommended: false,
+          },
+          {
+            planId: 'pro',
+            name: 'Professional',
+            features: [
+              'Up to 5,000 tickets/month analyzed',
+              'Advanced AI insights',
+              'Real-time dashboard',
+              'Unlimited team members',
+              'Priority support',
+              'Custom integrations',
+              'ROI reporting',
+            ],
+            maxTickets: 5000,
+            monthly: {
+              price: 299,
+              monthlyPrice: '$299',
+              roiMultiplier: 12,
+              monthlySavings: '$3,588',
+            },
+            yearly: {
+              price: 269,
+              monthlyPrice: '$269',
+              roiMultiplier: 13,
+              monthlySavings: '$3,497',
+            },
+            recommended: true,
+          },
+          {
+            planId: 'enterprise',
+            name: 'Enterprise',
+            features: [
+              'Unlimited tickets analyzed',
+              'Custom AI models',
+              'Dedicated success manager',
+              'SLA guarantees',
+              'Advanced security',
+              'White-label options',
+              'Custom reporting',
+              'API access',
+            ],
+            maxTickets: 999999,
+            monthly: {
+              price: 899,
+              monthlyPrice: '$899',
+              roiMultiplier: 25,
+              monthlySavings: '$22,475',
+            },
+            yearly: {
+              price: 809,
+              monthlyPrice: '$809',
+              roiMultiplier: 28,
+              monthlySavings: '$22,652',
+            },
+            recommended: false,
+          },
+        ],
+        roiMessage: 'Typical customers save 15x their investment in the first year',
+        ticketVolume: ticketVolume,
+        projectedSavings: projectedSavings,
+      });
     } finally {
       setLoading(false);
     }
@@ -272,7 +356,7 @@ export default function PricingPage() {
                         : 'bg-slate-800 hover:bg-slate-700 text-white'
                     )}
                   >
-                    {user ? 'Start Saving Money' : 'Get Started'}
+                    Start Saving Money
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </CardContent>
