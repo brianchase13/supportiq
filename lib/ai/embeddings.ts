@@ -1,8 +1,8 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+}) : null;
 
 export interface SimilarityResult {
   ticketId: string;
@@ -12,6 +12,11 @@ export interface SimilarityResult {
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
+  if (!openai) {
+    // Return a mock embedding vector for demo mode
+    return Array.from({ length: 1536 }, () => Math.random() * 2 - 1);
+  }
+
   try {
     // Clean and truncate text for embedding
     const cleanText = text.replace(/\s+/g, ' ').trim().substring(0, 8000);
@@ -29,6 +34,11 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 export async function generateBatchEmbeddings(texts: string[]): Promise<number[][]> {
+  if (!openai) {
+    // Return mock embedding vectors for demo mode
+    return texts.map(() => Array.from({ length: 1536 }, () => Math.random() * 2 - 1));
+  }
+
   try {
     // Process in batches of 100 for rate limiting
     const batchSize = 100;
