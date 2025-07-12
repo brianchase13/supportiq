@@ -12,7 +12,7 @@ export default function Home() {
       <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg md:text-xl text-slate-900">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-lg flex items-center justify-center shadow-lg">
               <Bot className="w-5 h-5 text-white" />
             </div>
             <span className="hidden sm:block">SupportIQ</span>
@@ -26,7 +26,7 @@ export default function Home() {
             </Link>
             <Link
               href="/dashboard"
-              className="px-4 md:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm md:text-base"
+              className="px-4 md:px-6 py-2 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg text-white rounded-lg font-semibold transition-all text-sm md:text-base"
             >
               Get Started
             </Link>
@@ -47,7 +47,7 @@ export default function Home() {
           {/* Main Headline - Gary Tan's brutal clarity test */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4 text-slate-900 leading-[0.9] tracking-tight">
             <span className="block">Automate Support.</span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#8B5CF6] to-[#10B981]">
               Focus on Building.
             </span>
           </h1>
@@ -56,7 +56,7 @@ export default function Home() {
           </p>
           
           {/* Immediate ROI - Marc Lou's conversion focus */}
-          <div className="relative bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl p-8 mb-8 max-w-2xl mx-auto shadow-2xl overflow-hidden">
+          <div className="relative bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-2xl p-8 mb-8 max-w-2xl mx-auto shadow-2xl overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
             <div className="relative z-10">
@@ -77,17 +77,17 @@ export default function Home() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 mb-10 max-w-4xl mx-auto">
             <div className="grid grid-cols-3 gap-6 text-center">
               <div className="border-r border-slate-200 last:border-r-0">
-                <div className="text-3xl md:text-4xl font-black text-blue-600 mb-1">85%</div>
+                <div className="text-3xl md:text-4xl font-black text-[#0066FF] mb-1">85%</div>
                 <div className="text-sm md:text-base text-slate-600 font-medium">Auto-Resolution</div>
                 <div className="text-xs text-slate-500 mt-1">AI handles instantly</div>
               </div>
               <div className="border-r border-slate-200 last:border-r-0">
-                <div className="text-3xl md:text-4xl font-black text-green-600 mb-1">10+hrs</div>
+                <div className="text-3xl md:text-4xl font-black text-[#10B981] mb-1">10+hrs</div>
                 <div className="text-sm md:text-base text-slate-600 font-medium">Saved Weekly</div>
                 <div className="text-xs text-slate-500 mt-1">Per founder</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-black text-purple-600 mb-1">&lt;2min</div>
+                <div className="text-3xl md:text-4xl font-black text-[#8B5CF6] mb-1">&lt;2min</div>
                 <div className="text-sm md:text-base text-slate-600 font-medium">Response Time</div>
                 <div className="text-xs text-slate-500 mt-1">24/7 instant</div>
               </div>
@@ -98,7 +98,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center gap-6 mb-8">
             <Link
               href="/dashboard"
-              className="group relative inline-flex items-center gap-3 px-8 md:px-12 py-5 md:py-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-2xl font-black text-xl md:text-2xl hover:scale-105 transition-all shadow-2xl hover:shadow-3xl border-4 border-blue-200 w-full sm:w-auto justify-center max-w-md"
+              className="group relative inline-flex items-center gap-3 px-8 md:px-12 py-5 md:py-6 bg-gradient-to-r from-[#0066FF] via-[#0052CC] to-[#8B5CF6] text-white rounded-2xl font-black text-xl md:text-2xl hover:scale-105 transition-all shadow-2xl hover:shadow-3xl border-4 border-blue-200 w-full sm:w-auto justify-center max-w-md"
             >
               <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <Bot className="w-6 h-6 md:w-7 md:h-7 relative z-10" />
@@ -109,7 +109,7 @@ export default function Home() {
               <div className="text-sm font-black text-green-700 mb-2">💰 Pays for itself in 2 hours • 30-day money-back guarantee</div>
               <Link
                 href="/demo"
-                className="inline-flex items-center gap-2 px-4 py-2 text-blue-700 hover:text-blue-800 font-medium transition-colors underline underline-offset-4"
+                className="inline-flex items-center gap-2 px-4 py-2 text-[#0066FF] hover:text-[#0052CC] font-medium transition-colors underline underline-offset-4"
               >
                 <MessageSquare className="w-4 h-4" />
                 Watch demo first
@@ -170,56 +170,56 @@ export default function Home() {
       <section id="how-it-works" className="py-16 px-4 bg-slate-50">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-orange-100 border border-orange-300 text-orange-800 px-4 py-2 rounded-full text-sm font-bold mb-4">
+            <div className="inline-flex items-center gap-2 bg-amber-50 border border-[#F59E0B] text-amber-800 px-4 py-2 rounded-full text-sm font-bold mb-4">
               <Clock className="w-4 h-4" />
               Setup complete in 5 minutes
             </div>
             <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">Go Completely Hands-off in 24 Hours</h2>
             <p className="text-slate-600 text-xl font-medium">Our AI + expert team handles everything while you focus on building</p>
-            <div className="inline-flex items-center gap-2 bg-orange-100 border border-orange-300 text-orange-800 px-4 py-2 rounded-full text-sm font-bold mt-4">
-              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+            <div className="inline-flex items-center gap-2 bg-amber-50 border border-[#F59E0B] text-amber-800 px-4 py-2 rounded-full text-sm font-bold mt-4">
+              <div className="w-2 h-2 bg-[#F59E0B] rounded-full animate-pulse"></div>
               <span>📊 73% of founders see ROI in first week</span>
             </div>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
                 <Bot className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-black text-slate-900 mb-2 text-lg">1. AI Setup & Training</h3>
               <p className="text-slate-600 text-sm mb-4 leading-relaxed">Connect your existing support channels. Our AI learns your product, tone, and common issues in minutes.</p>
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3">
-                <div className="text-sm text-blue-700 font-black flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-[#0066FF]/30 rounded-lg p-3">
+                <div className="text-sm text-[#0066FF] font-black flex items-center gap-2">
+                  <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
                   ⚡ Live in 5 minutes
                 </div>
               </div>
             </div>
             
             <div className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
                 <Zap className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-black text-slate-900 mb-2 text-lg">2. Automated Resolution</h3>
               <p className="text-slate-600 text-sm mb-4 leading-relaxed">AI handles 85% of tickets instantly. Complex issues get escalated to our expert support team automatically.</p>
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
-                <div className="text-sm text-green-700 font-black flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-3">
+                <div className="text-sm text-emerald-700 font-black flex items-center gap-2">
+                  <div className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
                   🚀 85% instant resolution
                 </div>
               </div>
             </div>
             
             <div className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
                 <BarChart3 className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-black text-slate-900 mb-2 text-lg">3. Actionable Insights</h3>
               <p className="text-slate-600 text-sm mb-4 leading-relaxed">Weekly reports show what's causing support volume so you can fix root causes and improve your product.</p>
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
-                <div className="text-sm text-purple-700 font-black flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+              <div className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-lg p-3">
+                <div className="text-sm text-[#8B5CF6] font-black flex items-center gap-2">
+                  <div className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-pulse"></div>
                   📊 Product improvement intel
                 </div>
               </div>
@@ -227,7 +227,7 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <div className="relative bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white rounded-xl p-8 max-w-2xl mx-auto overflow-hidden">
+            <div className="relative bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] text-white rounded-xl p-8 max-w-2xl mx-auto overflow-hidden shadow-2xl">
               <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-2 mb-4">
@@ -253,7 +253,7 @@ export default function Home() {
                 </div>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-white text-green-700 rounded-lg font-bold text-lg hover:scale-105 transition-all shadow-lg"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-white text-emerald-700 rounded-lg font-bold text-lg hover:scale-105 transition-all shadow-lg"
                 >
                   <Clock className="w-5 h-5" />
                   Get Started - $99

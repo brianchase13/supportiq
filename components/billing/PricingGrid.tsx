@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckCircle, Zap, Star, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,20 +9,61 @@ import { Badge } from '@/components/ui/badge';
 import { SUPPORTIQ_PLANS, calculateMonthlySavings } from '@/lib/billing/autumn-config';
 
 export function PricingGrid() {
+  const [isYearly, setIsYearly] = useState(false);
+
   return (
-    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <div className="space-y-8">
+      {/* Billing Toggle */}
+      <div className="flex items-center justify-center">
+        <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
+          <button
+            onClick={() => setIsYearly(false)}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              !isYearly 
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200' 
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setIsYearly(true)}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              isYearly 
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200' 
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Yearly
+            <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
+              Save 20%
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
       {Object.entries(SUPPORTIQ_PLANS).map(([planKey, plan]) => {
         const monthlyTickets = plan.features['support-tickets'].limit;
         const monthlySavings = calculateMonthlySavings(monthlyTickets);
         
+        // Calculate pricing based on toggle
+        const displayPrice = typeof plan.price === 'number' 
+          ? isYearly ? Math.round(plan.price * 12 * 0.8) : plan.price 
+          : plan.price;
+        const billingPeriod = isYearly ? '/year' : '/month';
+        const monthlyEquivalent = typeof displayPrice === 'number' && isYearly 
+          ? Math.round(displayPrice / 12) 
+          : displayPrice;
+        
         return (
           <Card 
             key={plan.id} 
-            className={`relative ${plan.popular ? 'border-blue-500 shadow-lg scale-105' : 'border-slate-200'}`}
+            className={`relative ${plan.popular ? 'border-[#0066FF] shadow-xl scale-105' : 'border-slate-200'} hover:shadow-lg transition-all`}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-blue-600 text-white px-4 py-1">
+                <Badge className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white px-4 py-1 shadow-lg">
                   <Star className="w-3 h-3 mr-1" />
                   Most Popular
                 </Badge>
@@ -30,20 +72,27 @@ export function PricingGrid() {
 
             <CardHeader className="text-center pb-4">
               <CardTitle className="flex items-center justify-center gap-2 text-xl font-bold">
-                <Zap className="w-5 h-5 text-blue-600" />
+                <Zap className="w-5 h-5 text-[#0066FF]" />
                 {plan.name}
               </CardTitle>
               
               <div className="mt-4">
-                {typeof plan.price === 'number' ? (
+                {typeof displayPrice === 'number' ? (
                   <>
                     <div className="text-4xl font-bold text-slate-900">
-                      ${plan.price}
-                      <span className="text-lg text-slate-500 font-normal">/month</span>
+                      ${displayPrice}
+                      <span className="text-lg text-slate-500 font-normal">{billingPeriod}</span>
                     </div>
-                    <div className="text-sm text-green-600 mt-1">
-                      Save ${monthlySavings.toLocaleString()}/month
-                    </div>
+                    {isYearly && typeof monthlyEquivalent === 'number' && (
+                      <div className="text-sm text-[#10B981] mt-1 font-semibold">
+                        ${monthlyEquivalent}/month • 20% savings
+                      </div>
+                    )}
+                    {!isYearly && (
+                      <div className="text-sm text-[#10B981] mt-1 font-semibold">
+                        Save ${monthlySavings.toLocaleString()}/month
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="text-3xl font-bold text-slate-900">
@@ -99,13 +148,13 @@ export function PricingGrid() {
                   <Button 
                     className={`w-full ${
                       plan.popular 
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                        : 'bg-slate-900 hover:bg-slate-800 text-white'
-                    }`}
+                        ? 'bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl text-white font-bold' 
+                        : 'bg-gradient-to-r from-slate-800 to-slate-900 hover:shadow-lg text-white font-bold'
+                    } transition-all`}
                     asChild
                   >
-                    <Link href={`/checkout?plan=${planKey}`}>
-                      Start Free Trial
+                    <Link href={`/checkout?plan=${planKey}&billing=${isYearly ? 'yearly' : 'monthly'}`}>
+                      Get Started - ${typeof displayPrice === 'number' ? displayPrice : 'Custom'}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
@@ -113,14 +162,15 @@ export function PricingGrid() {
               </div>
 
               {typeof plan.price === 'number' && (
-                <div className="text-xs text-slate-500 text-center">
-                  30-day free trial • Cancel anytime
+                <div className="text-xs text-slate-500 text-center font-medium">
+                  30-day money-back guarantee • No setup fees
                 </div>
               )}
             </CardContent>
           </Card>
         );
       })}
+      </div>
     </div>
   );
 }
