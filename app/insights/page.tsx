@@ -1,8 +1,9 @@
 'use client';
 
-import { Card, Title, Metric, Grid, Text, Flex, Badge, ProgressBar } from '@tremor/react';
-import { Brain, TrendingUp, Clock, AlertTriangle, CheckCircle, ArrowRight, Lightbulb } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Brain, TrendingUp, Clock, AlertTriangle, CheckCircle, ArrowRight, Lightbulb, Target, Zap, Users } from 'lucide-react';
 import { useState } from 'react';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 interface Insight {
   id: string;
@@ -102,158 +103,187 @@ export default function InsightsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">AI Insights</h1>
-        <p className="text-slate-400">Intelligent recommendations to improve your support performance</p>
-      </div>
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900 mb-2">AI Insights</h1>
+          <p className="text-slate-600">Intelligent recommendations to optimize your support performance</p>
+        </div>
 
-      {/* Summary Cards */}
-      <Grid numItemsMd={2} numItemsLg={4} className="gap-6">
-        <Card className="bg-slate-900 border-slate-800">
-          <Flex alignItems="start">
-            <div className="truncate">
-              <Text className="text-slate-400">Total Insights</Text>
-              <Metric className="text-white">{insights.length}</Metric>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-slate-600 mb-1">Total Insights</div>
+                <div className="text-3xl font-bold text-slate-900">{insights.length}</div>
+                <div className="text-sm text-blue-600">Active recommendations</div>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Brain className="w-6 h-6 text-blue-600" />
+              </div>
             </div>
-            <div className="flex-shrink-0">
-              <Brain className="w-8 h-8 text-blue-400" />
-            </div>
-          </Flex>
-        </Card>
+          </Card>
 
-        <Card className="bg-slate-900 border-slate-800">
-          <Flex alignItems="start">
-            <div className="truncate">
-              <Text className="text-slate-400">High Impact</Text>
-              <Metric className="text-white">{insights.filter(i => i.impact === 'high').length}</Metric>
+          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-red-50 to-orange-50">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-slate-600 mb-1">High Impact</div>
+                <div className="text-3xl font-bold text-slate-900">{insights.filter(i => i.impact === 'high').length}</div>
+                <div className="text-sm text-red-600">Critical actions</div>
+              </div>
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
             </div>
-            <div className="flex-shrink-0">
-              <AlertTriangle className="w-8 h-8 text-red-400" />
-            </div>
-          </Flex>
-        </Card>
+          </Card>
 
-        <Card className="bg-slate-900 border-slate-800">
-          <Flex alignItems="start">
-            <div className="truncate">
-              <Text className="text-slate-400">Potential Reduction</Text>
-              <Metric className="text-white">34%</Metric>
+          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-slate-600 mb-1">Ticket Reduction</div>
+                <div className="text-3xl font-bold text-slate-900">34%</div>
+                <div className="text-sm text-green-600">Potential savings</div>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-green-600" />
+              </div>
             </div>
-            <div className="flex-shrink-0">
-              <TrendingUp className="w-8 h-8 text-green-400" />
-            </div>
-          </Flex>
-        </Card>
+          </Card>
 
-        <Card className="bg-slate-900 border-slate-800">
-          <Flex alignItems="start">
-            <div className="truncate">
-              <Text className="text-slate-400">Actions Ready</Text>
-              <Metric className="text-white">{insights.filter(i => i.impactScore > 80).length}</Metric>
+          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-purple-50 to-pink-50">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-slate-600 mb-1">Ready to Act</div>
+                <div className="text-3xl font-bold text-slate-900">{insights.filter(i => i.impactScore > 80).length}</div>
+                <div className="text-sm text-purple-600">High-confidence</div>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-purple-600" />
+              </div>
             </div>
-            <div className="flex-shrink-0">
-              <CheckCircle className="w-8 h-8 text-purple-400" />
-            </div>
-          </Flex>
-        </Card>
-      </Grid>
+          </Card>
+        </div>
 
-      {/* Filters */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-            selectedCategory === 'all' 
-              ? 'bg-blue-500 text-white' 
-              : 'bg-slate-800 text-slate-400 hover:text-white'
-          }`}
-        >
-          All Insights
-        </button>
-        <button
-          onClick={() => setSelectedCategory('prevention')}
-          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-            selectedCategory === 'prevention' 
-              ? 'bg-blue-500 text-white' 
-              : 'bg-slate-800 text-slate-400 hover:text-white'
-          }`}
-        >
-          Prevention
-        </button>
-        <button
-          onClick={() => setSelectedCategory('efficiency')}
-          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-            selectedCategory === 'efficiency' 
-              ? 'bg-blue-500 text-white' 
-              : 'bg-slate-800 text-slate-400 hover:text-white'
-          }`}
-        >
-          Efficiency
-        </button>
-        <button
-          onClick={() => setSelectedCategory('satisfaction')}
-          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-            selectedCategory === 'satisfaction' 
-              ? 'bg-blue-500 text-white' 
-              : 'bg-slate-800 text-slate-400 hover:text-white'
-          }`}
-        >
-          Satisfaction
-        </button>
-      </div>
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedCategory === 'all' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+            }`}
+          >
+            All Insights
+          </button>
+          <button
+            onClick={() => setSelectedCategory('prevention')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedCategory === 'prevention' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4 mr-2 inline" />
+            Prevention
+          </button>
+          <button
+            onClick={() => setSelectedCategory('efficiency')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedCategory === 'efficiency' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+            }`}
+          >
+            <Zap className="w-4 h-4 mr-2 inline" />
+            Efficiency
+          </button>
+          <button
+            onClick={() => setSelectedCategory('satisfaction')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedCategory === 'satisfaction' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+            }`}
+          >
+            <Users className="w-4 h-4 mr-2 inline" />
+            Satisfaction
+          </button>
+        </div>
 
-      {/* Insights Grid */}
-      <div className="space-y-4">
-        {filteredInsights.map((insight) => {
-          const Icon = insight.icon;
-          return (
-            <Card key={insight.id} className="bg-slate-900 border-slate-800 hover:border-slate-700 transition-colors">
-              <div className="space-y-4">
-                <Flex alignItems="start" className="gap-4">
-                  <div className="flex-shrink-0">
-                    <Icon className={`w-8 h-8 ${getIconColor(insight.color)}`} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <Title className="text-white">{insight.title}</Title>
-                      <Badge className={`border ${getImpactColor(insight.impact)}`}>
-                        {insight.impact.toUpperCase()} IMPACT
-                      </Badge>
+        {/* Insights Grid */}
+        <div className="space-y-6">
+          {filteredInsights.map((insight) => {
+            const Icon = insight.icon;
+            return (
+              <Card key={insight.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+                <div className="p-6">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      insight.color === 'blue' ? 'bg-blue-100' :
+                      insight.color === 'green' ? 'bg-green-100' :
+                      insight.color === 'yellow' ? 'bg-yellow-100' :
+                      insight.color === 'red' ? 'bg-red-100' :
+                      insight.color === 'purple' ? 'bg-purple-100' : 'bg-slate-100'
+                    }`}>
+                      <Icon className={`w-6 h-6 ${getIconColor(insight.color)}`} />
                     </div>
-                    <Text className="text-slate-400 mb-3">{insight.description}</Text>
-                    
-                    <div className="mb-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <Text className="text-sm text-slate-400">Impact Score</Text>
-                        <Text className="text-sm font-medium text-white">{insight.impactScore}/100</Text>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-slate-900 leading-tight">{insight.title}</h3>
+                        <div className={`px-3 py-1 rounded-full text-xs font-semibold border ${getImpactColor(insight.impact)}`}>
+                          {insight.impact.toUpperCase()} IMPACT
+                        </div>
                       </div>
-                      <ProgressBar value={insight.impactScore} className="h-2" color={insight.color} />
-                    </div>
+                      <p className="text-slate-600 mb-4 leading-relaxed">{insight.description}</p>
+                      
+                      {/* Impact Score */}
+                      <div className="mb-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-slate-700">Confidence Score</span>
+                          <span className="text-sm font-bold text-slate-900">{insight.impactScore}/100</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full transition-all duration-300 ${
+                              insight.color === 'blue' ? 'bg-blue-500' :
+                              insight.color === 'green' ? 'bg-green-500' :
+                              insight.color === 'yellow' ? 'bg-yellow-500' :
+                              insight.color === 'red' ? 'bg-red-500' :
+                              insight.color === 'purple' ? 'bg-purple-500' : 'bg-slate-500'
+                            }`}
+                            style={{ width: `${insight.impactScore}%` }}
+                          />
+                        </div>
+                      </div>
 
-                    <div className="bg-slate-800 rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-white mb-1">Recommended Action</p>
-                          <p className="text-sm text-slate-400">{insight.action}</p>
+                      {/* Action Box */}
+                      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-slate-900 mb-1">Recommended Action</p>
+                            <p className="text-sm text-slate-600 leading-relaxed">{insight.action}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </Flex>
 
-                <Flex justifyContent="end">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors text-sm font-medium">
-                    Take Action <ArrowRight className="w-4 h-4" />
-                  </button>
-                </Flex>
-              </div>
-            </Card>
-          );
-        })}
+                  <div className="flex justify-end">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium">
+                      Implement Now
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

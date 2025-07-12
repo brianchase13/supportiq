@@ -1,49 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, CreditCard, Shield, Zap, ArrowLeft, DollarSign, TrendingUp, Users } from 'lucide-react';
+import { CheckCircle, CreditCard, Shield, Zap, ArrowLeft, DollarSign, TrendingUp, Users, Bot } from 'lucide-react';
 import Link from 'next/link';
+import { AutumnCheckout } from '@/components/billing/AutumnCheckout';
+import { useSearchParams } from 'next/navigation';
 
-export default function CheckoutPage() {
-  const [email, setEmail] = useState('');
-  const [companyName, setCompanyName] = useState('');
+function CheckoutContent() {
+  const searchParams = useSearchParams();
+  const plan = (searchParams.get('plan') as 'STARTER' | 'GROWTH' | 'ENTERPRISE') || 'STARTER';
   const [ycBatch, setYcBatch] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email,
-          companyName,
-          ycBatch,
-          priceId: 'price_1234567890', // Replace with actual Stripe price ID
-          successUrl: `${window.location.origin}/dashboard/success`,
-          cancelUrl: `${window.location.origin}/checkout`
-        }),
-      });
-
-      const { url } = await response.json();
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Something went wrong. Please try again or email founders@supportiq.ai');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -54,10 +24,12 @@ export default function CheckoutPage() {
             <ArrowLeft className="w-5 h-5" />
             Back
           </Link>
-          <div className="flex items-center gap-2 font-bold text-xl text-slate-900">
-            <Zap className="w-6 h-6 text-blue-600" />
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
             SupportIQ
-          </div>
+          </Link>
         </div>
       </nav>
 
@@ -106,36 +78,36 @@ export default function CheckoutPage() {
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
                     <div>
-                      <div className="font-medium text-slate-900">Upload tickets, get savings report</div>
-                      <div className="text-sm text-slate-600">Works with any CSV export - Intercom, Zendesk, etc.</div>
+                      <div className="font-medium text-slate-900">95% auto-resolution rate</div>
+                      <div className="text-sm text-slate-600">AI handles tickets instantly, 24/7 without your involvement</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
                     <div>
-                      <div className="font-medium text-slate-900">AI identifies preventable tickets</div>
-                      <div className="text-sm text-slate-600">Trained on 50M+ support tickets across 1,000+ startups</div>
+                      <div className="font-medium text-slate-900">Expert human backup</div>
+                      <div className="text-sm text-slate-600">When AI can't resolve, experienced agents take over</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
                     <div>
-                      <div className="font-medium text-slate-900">Specific action plan with ROI</div>
-                      <div className="text-sm text-slate-600">Step-by-step fixes ranked by impact and effort</div>
+                      <div className="font-medium text-slate-900">Actionable weekly insights</div>
+                      <div className="text-sm text-slate-600">See what's driving support and how to prevent it</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
                     <div>
-                      <div className="font-medium text-slate-900">Founder Slack community</div>
-                      <div className="text-sm text-slate-600">Share wins, get advice from other founders</div>
+                      <div className="font-medium text-slate-900">Seamless integrations</div>
+                      <div className="text-sm text-slate-600">Works with Intercom, Zendesk, HelpScout, and more</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
                     <div>
-                      <div className="font-medium text-slate-900">Direct access to our team</div>
-                      <div className="text-sm text-slate-600">Built by ex-Intercom/Zendesk founders who get it</div>
+                      <div className="font-medium text-slate-900">Hands-off operation</div>
+                      <div className="text-sm text-slate-600">Set it once, forget it. Focus on growing your business</div>
                     </div>
                   </div>
                 </div>
@@ -154,91 +126,36 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right: Checkout Form */}
+          {/* Right: Autumn Checkout */}
           <div>
-            <Card className="border border-slate-200">
+            {/* YC Batch Input */}
+            <Card className="border border-slate-200 mb-6">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-slate-900">
-                  <CreditCard className="w-5 h-5" />
-                  Start your 30-day free trial
-                </CardTitle>
+                <CardTitle className="text-slate-900 text-lg">Special Offer</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-slate-700">Work email</label>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="founder@startup.com"
-                      className="border-slate-300 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-slate-700">Company name</label>
-                    <Input
-                      type="text"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder="Your Startup Inc"
-                      className="border-slate-300 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-slate-700">
-                      YC batch <span className="text-xs text-slate-500">(optional - for 50% discount)</span>
-                    </label>
-                    <Input
-                      type="text"
-                      value={ycBatch}
-                      onChange={(e) => setYcBatch(e.target.value)}
-                      placeholder="W24, S23, etc."
-                      className="border-slate-300 focus:border-blue-500"
-                    />
-                    {ycBatch && (
-                      <div className="text-xs text-green-600 mt-1">
-                        🎉 YC discount will be applied: $49/month first year
-                      </div>
-                    )}
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    disabled={isProcessing || !email || !companyName}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
-                  >
-                    {isProcessing ? 'Starting your trial...' : 'Start Free Trial →'}
-                  </Button>
-
-                  <div className="text-center text-sm text-slate-500">
-                    Free for 30 days, then ${ycBatch ? '49' : '99'}/month. Cancel anytime.
-                  </div>
-                </form>
-
-                {/* Trust Indicators */}
-                <div className="mt-8 pt-6 border-t border-slate-200">
-                  <div className="flex items-center justify-center gap-6 text-slate-500 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
-                      <span>Secure</span>
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-slate-700">
+                    YC batch <span className="text-xs text-slate-500">(optional - for 50% discount)</span>
+                  </label>
+                  <Input
+                    type="text"
+                    value={ycBatch}
+                    onChange={(e) => setYcBatch(e.target.value)}
+                    placeholder="W24, S23, etc."
+                    className="border-slate-300 focus:border-blue-500"
+                  />
+                  {ycBatch && (
+                    <div className="text-xs text-green-600 mt-1">
+                      🎉 50% YC discount will be applied at checkout!
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Cancel anytime</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      <span>Join 200+ founders</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
+
+            {/* Autumn Checkout Component */}
+            <AutumnCheckout planId={plan} ycBatch={ycBatch} />
 
             {/* Founder FAQ */}
             <div className="mt-8 space-y-4">
@@ -273,5 +190,13 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center">Loading...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

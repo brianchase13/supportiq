@@ -1,9 +1,10 @@
 'use client';
 
-import { Card, Title, Grid, Text, Flex, Badge } from '@tremor/react';
-import { Settings, Users, CreditCard, Key, Check, ExternalLink, Plus, Trash2, RefreshCw, Brain, Zap } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Settings, Users, CreditCard, Key, Check, ExternalLink, Plus, Trash2, RefreshCw, Brain, Zap, Shield, Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useUser, syncIntercomData, analyzeTickets, generateInsights } from '@/hooks/data/useSupabaseData';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 // For demo purposes, using a hardcoded user ID
 // In production, this would come from your auth system
@@ -136,200 +137,272 @@ export default function SettingsPage() {
 
   if (userLoading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-slate-800 rounded w-1/4 mb-2"></div>
-          <div className="h-4 bg-slate-800 rounded w-1/2"></div>
+      <DashboardLayout>
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-slate-200 rounded w-1/4 mb-2"></div>
+          <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-32 bg-slate-100 rounded-lg" />
+            ))}
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <p className="text-slate-400">Manage your account, integrations, and billing</p>
-      </div>
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900 mb-2">Settings</h1>
+          <p className="text-slate-600">Manage your account, integrations, and billing preferences</p>
+        </div>
 
-      {/* Sync Status Card */}
-      {isIntercomConnected && (
-        <Card className="bg-slate-900 border-slate-800">
-          <div className="flex justify-between items-center mb-4">
-            <Title className="text-white">Data Synchronization</Title>
-            <button
-              onClick={handleSyncData}
-              disabled={syncStatus !== 'idle'}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                syncStatus !== 'idle'
-                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                  : 'bg-blue-500 hover:bg-blue-600 text-white'
-              }`}
-            >
-              {getSyncStatusIcon()}
-              {getSyncStatusText()}
-            </button>
-          </div>
-          
-          {lastSync && (
-            <div className="grid grid-cols-3 gap-4 p-4 bg-slate-800 rounded-lg">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-400">{syncStats.tickets}</p>
-                <p className="text-sm text-slate-400">Tickets Synced</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-400">{syncStats.insights}</p>
-                <p className="text-sm text-slate-400">Insights Generated</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-white">Last Sync</p>
-                <p className="text-sm text-slate-400">{lastSync}</p>
-              </div>
-            </div>
-          )}
-        </Card>
-      )}
-
-      {/* Integrations */}
-      <Card className="bg-slate-900 border-slate-800">
-        <Title className="text-white mb-4">Integrations</Title>
-        <Grid numItemsMd={2} numItemsLg={2} className="gap-4">
-          {integrations.map((integration) => (
-            <div key={integration.name} className="bg-slate-800 rounded-lg p-4">
-              <Flex alignItems="start" className="gap-3">
-                <div className="text-2xl">{integration.logo}</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Text className="font-medium text-white">{integration.name}</Text>
-                    <Badge className={integration.status === 'connected' 
-                      ? 'bg-green-500/20 text-green-400 border-green-500/30' 
-                      : 'bg-slate-500/20 text-slate-400 border-slate-500/30'
-                    }>
-                      {integration.status === 'connected' ? (
-                        <><Check className="w-3 h-3 mr-1" /> Connected</>
-                      ) : (
-                        'Disconnected'
-                      )}
-                    </Badge>
+        {/* Sync Status Card */}
+        {isIntercomConnected && (
+          <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <RefreshCw className="w-5 h-5 text-blue-600" />
                   </div>
-                  <Text className="text-sm text-slate-400 mb-3">{integration.description}</Text>
-                  {integration.connectedAt && (
-                    <Text className="text-xs text-slate-500">
-                      Connected on {integration.connectedAt}
-                    </Text>
-                  )}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">Data Synchronization</h3>
+                    <p className="text-sm text-slate-600">Keep your AI insights up to date</p>
+                  </div>
                 </div>
-              </Flex>
-              <div className="mt-4 flex gap-2">
-                <button 
-                  onClick={integration.status === 'connected' ? integration.onDisconnect : integration.onConnect}
-                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                    integration.status === 'connected'
-                      ? 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-                      : 'bg-blue-500 text-white hover:bg-blue-600'
+                <button
+                  onClick={handleSyncData}
+                  disabled={syncStatus !== 'idle'}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+                    syncStatus !== 'idle'
+                      ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
                   }`}
                 >
-                  {integration.status === 'connected' ? 'Disconnect' : 'Connect'}
-                </button>
-                <button className="px-3 py-1 bg-slate-700 text-slate-400 hover:bg-slate-600 rounded-lg text-sm transition-colors">
-                  <ExternalLink className="w-4 h-4" />
+                  {getSyncStatusIcon()}
+                  {getSyncStatusText()}
                 </button>
               </div>
+              
+              {lastSync && (
+                <div className="grid grid-cols-3 gap-6 p-4 bg-white rounded-lg border border-blue-100">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{syncStats.tickets}</p>
+                    <p className="text-sm text-slate-600">Tickets Synced</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">{syncStats.insights}</p>
+                    <p className="text-sm text-slate-600">Insights Generated</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-slate-900">Last Sync</p>
+                    <p className="text-sm text-slate-600">{lastSync}</p>
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-        </Grid>
-      </Card>
+          </Card>
+        )}
 
-      {/* Account Info */}
-      <Card className="bg-slate-900 border-slate-800">
-        <Title className="text-white mb-4">Account Information</Title>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center p-4 bg-slate-800 rounded-lg">
-            <div>
-              <p className="font-medium text-white">Email</p>
-              <p className="text-sm text-slate-400">{user?.email || 'demo@supportiq.com'}</p>
+        {/* Integrations */}
+        <Card className="border-0 shadow-sm">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Zap className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Integrations</h3>
+                <p className="text-sm text-slate-600">Connect your support tools and platforms</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="font-medium text-white">User ID</p>
-              <p className="text-sm text-slate-400">{DEMO_USER_ID}</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {integrations.map((integration) => (
+                <div key={integration.name} className="bg-slate-50 border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="text-2xl">{integration.logo}</div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-slate-900">{integration.name}</h4>
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                          integration.status === 'connected' 
+                            ? 'bg-green-50 text-green-700 border-green-200' 
+                            : 'bg-slate-100 text-slate-600 border-slate-200'
+                        }`}>
+                          {integration.status === 'connected' ? (
+                            <div className="flex items-center gap-1">
+                              <Check className="w-3 h-3" /> Connected
+                            </div>
+                          ) : (
+                            'Disconnected'
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-600 mb-2">{integration.description}</p>
+                      {integration.connectedAt && (
+                        <p className="text-xs text-slate-500">
+                          Connected on {integration.connectedAt}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={integration.status === 'connected' ? integration.onDisconnect : integration.onConnect}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        integration.status === 'connected'
+                          ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {integration.status === 'connected' ? 'Disconnect' : 'Connect'}
+                    </button>
+                    <button className="px-3 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg text-sm transition-colors">
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
+        </Card>
+
+        {/* Account & Billing Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Account Info */}
+          <Card className="border-0 shadow-sm">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Users className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">Account Information</h3>
+                  <p className="text-sm text-slate-600">Your profile and account details</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div>
+                    <p className="font-medium text-slate-900">Email Address</p>
+                    <p className="text-sm text-slate-600">{user?.email || 'demo@supportiq.com'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-slate-900">Account ID</p>
+                    <p className="text-sm text-slate-600 font-mono">{DEMO_USER_ID}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                  <Shield className="w-4 h-4" />
+                  <span className="font-medium">Account verified and secure</span>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Billing */}
+          <Card className="border-0 shadow-sm">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">Billing & Usage</h3>
+                  <p className="text-sm text-slate-600">Plan details and consumption</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div>
+                    <p className="font-medium text-slate-900">Current Plan</p>
+                    <p className="text-sm text-slate-600">{billing.plan.charAt(0).toUpperCase() + billing.plan.slice(1)} Plan - {billing.price}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-slate-900">{billing.status.charAt(0).toUpperCase() + billing.status.slice(1)}</p>
+                    <p className="text-sm text-slate-600">Renews {new Date(billing.renewsOn).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="font-medium text-slate-900">Usage This Month</p>
+                    <p className="text-sm text-slate-600">
+                      {billing.usage.tickets.toLocaleString()} / {billing.usage.limit.toLocaleString()} tickets
+                    </p>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min(billing.usage.percentage, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium">
+                    Upgrade Plan
+                  </button>
+                  <button className="px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg text-sm transition-colors">
+                    Billing History
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
-      </Card>
 
-      {/* Billing */}
-      <Card className="bg-slate-900 border-slate-800">
-        <Title className="text-white mb-4">Billing Information</Title>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center p-4 bg-slate-800 rounded-lg">
-            <div>
-              <p className="font-medium text-white">Current Plan</p>
-              <p className="text-sm text-slate-400">{billing.plan.charAt(0).toUpperCase() + billing.plan.slice(1)} Plan - {billing.price}</p>
+        {/* API Keys */}
+        <Card className="border-0 shadow-sm">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Key className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">API Keys</h3>
+                <p className="text-sm text-slate-600">Manage your API access tokens</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="font-medium text-white">{billing.status.charAt(0).toUpperCase() + billing.status.slice(1)}</p>
-              <p className="text-sm text-slate-400">Renews {new Date(billing.renewsOn).toLocaleDateString()}</p>
-            </div>
-          </div>
-          
-          <div className="p-4 bg-slate-800 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <p className="font-medium text-white">Usage This Month</p>
-              <p className="text-sm text-slate-400">
-                {billing.usage.tickets.toLocaleString()} / {billing.usage.limit.toLocaleString()} tickets
-              </p>
-            </div>
-            <div className="w-full bg-slate-700 rounded-full h-2">
-              <div 
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(billing.usage.percentage, 100)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors text-sm font-medium">
-              Upgrade Plan
-            </button>
-            <button className="px-4 py-2 bg-slate-700 text-slate-400 hover:bg-slate-600 rounded-lg text-sm transition-colors">
-              View Billing History
-            </button>
-          </div>
-        </div>
-      </Card>
-
-      {/* API Keys */}
-      <Card className="bg-slate-900 border-slate-800">
-        <Title className="text-white mb-4">API Keys</Title>
-        <div className="space-y-4">
-          <div className="p-4 bg-slate-800 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <p className="font-medium text-white">Production API Key</p>
-              <button 
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                {showApiKey ? 'Hide' : 'Show'}
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                <div className="flex justify-between items-center mb-3">
+                  <p className="font-medium text-slate-900">Production API Key</p>
+                  <button 
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  >
+                    {showApiKey ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <code className="flex-1 p-3 bg-white border border-slate-200 rounded text-sm text-slate-700 font-mono">
+                    {showApiKey ? apiKey : '•'.repeat(20)}
+                  </code>
+                  <button className="px-3 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded transition-colors text-sm font-medium">
+                    Copy
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500">Created on Jan 15, 2024 • Last used 2 hours ago</p>
+              </div>
+              
+              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors text-sm font-medium">
+                <Plus className="w-4 h-4" />
+                Generate New Key
               </button>
             </div>
-            <div className="flex items-center gap-2 mb-2">
-              <code className="flex-1 p-2 bg-slate-900 rounded text-sm text-slate-300 font-mono">
-                {showApiKey ? apiKey : '•'.repeat(20)}
-              </code>
-              <button className="px-3 py-2 bg-slate-700 text-slate-400 hover:bg-slate-600 rounded transition-colors text-sm">
-                Copy
-              </button>
-            </div>
-            <p className="text-xs text-slate-500">Created on Jan 15, 2024 • Last used 2 hours ago</p>
           </div>
-          
-          <button className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-400 hover:bg-slate-600 rounded-lg transition-colors text-sm">
-            <Key className="w-4 h-4" />
-            Generate New Key
-          </button>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </DashboardLayout>
   );
 }
