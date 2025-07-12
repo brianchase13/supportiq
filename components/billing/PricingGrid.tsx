@@ -18,7 +18,7 @@ export function PricingGrid() {
         <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
           <button
             onClick={() => setIsYearly(false)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-md text-base font-medium transition-colors ${
               !isYearly 
                 ? 'bg-white text-slate-900 shadow-sm border border-slate-200' 
                 : 'text-slate-600 hover:text-slate-900'
@@ -28,14 +28,14 @@ export function PricingGrid() {
           </button>
           <button
             onClick={() => setIsYearly(true)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-md text-base font-medium transition-colors ${
               isYearly 
                 ? 'bg-white text-slate-900 shadow-sm border border-slate-200' 
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Yearly
-            <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
+            <span className="ml-2 text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
               Save 20%
             </span>
           </button>
@@ -59,20 +59,20 @@ export function PricingGrid() {
         return (
           <Card 
             key={plan.id} 
-            className={`relative ${plan.popular ? 'border-[#0066FF] shadow-xl scale-105' : 'border-slate-200'} hover:shadow-lg transition-all`}
+            className={`relative bg-white ${plan.popular ? 'border-[#0066FF] shadow-xl scale-105' : 'border-slate-200'} hover:shadow-lg transition-all`}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white px-4 py-1 shadow-lg">
+                <Badge className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white px-6 py-2 shadow-lg text-base font-bold">
                   <Star className="w-3 h-3 mr-1" />
                   Most Popular
                 </Badge>
               </div>
             )}
 
-            <CardHeader className="text-center pb-6">
-              <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold mb-4">
-                <Zap className="w-6 h-6 text-[#0066FF]" />
+            <CardHeader className="text-center pb-8">
+              <CardTitle className="flex items-center justify-center gap-3 text-3xl font-bold mb-6 text-slate-900">
+                <Zap className="w-8 h-8 text-[#0066FF]" />
                 {plan.name}
               </CardTitle>
               
@@ -101,18 +101,18 @@ export function PricingGrid() {
                 )}
               </div>
 
-              <p className="text-slate-600 mt-6 text-base leading-relaxed">{plan.description}</p>
+              <p className="text-slate-600 mt-8 text-lg leading-relaxed">{plan.description}</p>
             </CardHeader>
 
-            <CardContent className="space-y-8 p-8">
+            <CardContent className="space-y-8 p-10">
               {/* Key Features */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {Object.entries(plan.features).slice(0, 6).map(([key, feature]) => (
                   <div key={key} className="flex items-start gap-4">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                    <div className="text-base">
+                    <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                    <div className="text-lg">
                       <span className="font-semibold text-slate-900">{feature.name}</span>
-                      <div className="text-slate-600 mt-1 leading-relaxed">
+                      <div className="text-slate-600 mt-2 leading-relaxed text-base">
                         {feature.limit === -1 
                           ? 'Unlimited' 
                           : feature.limit === 1 
@@ -125,14 +125,14 @@ export function PricingGrid() {
                 ))}
                 
                 {Object.keys(plan.features).length > 6 && (
-                  <div className="text-base text-slate-500 pl-9 font-medium">
+                  <div className="text-lg text-slate-500 pl-10 font-medium">
                     + {Object.keys(plan.features).length - 6} more features
                   </div>
                 )}
               </div>
 
               {/* CTA Button */}
-              <div className="pt-4">
+              <div className="pt-6">
                 {plan.price === 'custom' ? (
                   <Button 
                     variant="outline" 
@@ -162,7 +162,7 @@ export function PricingGrid() {
               </div>
 
               {typeof plan.price === 'number' && (
-                <div className="text-sm text-slate-500 text-center font-medium leading-relaxed mt-4">
+                <div className="text-base text-slate-500 text-center font-medium leading-relaxed mt-6">
                   30-day money-back guarantee • No setup fees
                 </div>
               )}
