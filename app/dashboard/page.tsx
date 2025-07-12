@@ -89,9 +89,9 @@ export default function DashboardPage() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Clean Header */}
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900 mb-2">Dashboard</h1>
-          <p className="text-slate-600">AI handling your support automatically</p>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-3">Dashboard</h1>
+          <p className="text-lg text-slate-600 leading-relaxed">AI handling your support automatically</p>
         </div>
 
         {/* Key Metrics - Modern AI-First Design */}
@@ -103,8 +103,8 @@ export default function DashboardPage() {
                   <Zap className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-slate-900">{data.metrics.deflectionRate}%</div>
-                  <div className="text-sm text-slate-600 font-semibold">Auto-Resolution</div>
+                  <div className="text-3xl font-bold text-slate-900 mb-1">{data.metrics.deflectionRate}%</div>
+                  <div className="text-sm text-slate-600 font-medium">Auto-Resolution</div>
                 </div>
               </div>
               <div className="text-right">
@@ -123,8 +123,8 @@ export default function DashboardPage() {
                   <Clock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-slate-900">&lt; {data.metrics.avgResponseTime}m</div>
-                  <div className="text-sm text-slate-600 font-semibold">Response Time</div>
+                  <div className="text-3xl font-bold text-slate-900 mb-1">&lt; {data.metrics.avgResponseTime}m</div>
+                  <div className="text-sm text-slate-600 font-medium">Response Time</div>
                 </div>
               </div>
               <div className="text-right">
@@ -141,8 +141,8 @@ export default function DashboardPage() {
                   <TrendingUp className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-slate-900">${data.metrics.potentialSavings.toLocaleString()}</div>
-                  <div className="text-sm text-slate-600 font-semibold">Monthly Savings</div>
+                  <div className="text-3xl font-bold text-slate-900 mb-1">${data.metrics.potentialSavings.toLocaleString()}</div>
+                  <div className="text-sm text-slate-600 font-medium">Monthly Savings</div>
                 </div>
               </div>
               <div className="text-right">
@@ -156,11 +156,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Performance Chart */}
-        <Card className="p-6 border border-slate-200 shadow-lg bg-white">
-          <div className="flex items-center justify-between mb-6">
+        <Card className="p-8 border border-slate-200 shadow-lg bg-white">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">AI Performance Analytics</h3>
-              <p className="text-sm text-slate-600">Real-time automation efficiency tracking</p>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">AI Performance Analytics</h3>
+              <p className="text-base text-slate-600 leading-relaxed">Real-time automation efficiency tracking</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -174,7 +174,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-5">
             {[
               { day: 'Mon', auto: 92, manual: 8 },
               { day: 'Tue', auto: 89, manual: 11 },
@@ -184,9 +184,9 @@ export default function DashboardPage() {
               { day: 'Sat', auto: 96, manual: 4 },
               { day: 'Sun', auto: 93, manual: 7 }
             ].map((day, i) => (
-              <div key={i} className="flex items-center gap-4">
-                <div className="w-8 text-sm font-bold text-slate-700">{day.day}</div>
-                <div className="flex-1 flex bg-slate-100 rounded-full h-4 overflow-hidden shadow-inner">
+              <div key={i} className="flex items-center gap-6">
+                <div className="w-10 text-sm font-bold text-slate-700">{day.day}</div>
+                <div className="flex-1 flex bg-slate-100 rounded-full h-5 overflow-hidden shadow-inner">
                   <div 
                     className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] transition-all duration-700 shadow-sm"
                     style={{ width: `${day.auto}%` }}
@@ -196,22 +196,22 @@ export default function DashboardPage() {
                     style={{ width: `${day.manual}%` }}
                   />
                 </div>
-                <div className="w-12 text-sm font-bold text-[#0066FF] text-right">{day.auto}%</div>
+                <div className="w-14 text-sm font-bold text-[#0066FF] text-right">{day.auto}%</div>
               </div>
             ))}
           </div>
         </Card>
 
         {/* Status Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-6 border border-slate-200 shadow-lg bg-white">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-xl flex items-center justify-center shadow-lg">
-                <Zap className="w-6 h-6 text-white" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="p-8 border border-slate-200 shadow-lg bg-white">
+            <div className="flex items-start gap-6">
+              <div className="w-14 h-14 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-xl flex items-center justify-center shadow-lg">
+                <Zap className="w-7 h-7 text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-slate-900 mb-2">AI Automation Engine</h3>
-                <p className="text-slate-600 mb-4">
+                <h3 className="text-xl font-bold text-slate-900 mb-3">AI Automation Engine</h3>
+                <p className="text-base text-slate-600 mb-6 leading-relaxed">
                   Handling {data.metrics.deflectionRate}% of {data.metrics.totalTickets.toLocaleString()} tickets automatically. 
                   Saving ~{Math.round(data.metrics.totalTickets * 0.1)} hours monthly.
                 </p>
@@ -223,14 +223,14 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="p-6 border border-slate-200 shadow-lg bg-white">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-xl flex items-center justify-center shadow-lg">
-                <Users className="w-6 h-6 text-white" />
+          <Card className="p-8 border border-slate-200 shadow-lg bg-white">
+            <div className="flex items-start gap-6">
+              <div className="w-14 h-14 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-xl flex items-center justify-center shadow-lg">
+                <Users className="w-7 h-7 text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Customer Intelligence</h3>
-                <p className="text-slate-600 mb-4">
+                <h3 className="text-xl font-bold text-slate-900 mb-3">Customer Intelligence</h3>
+                <p className="text-base text-slate-600 mb-6 leading-relaxed">
                   {data.metrics.satisfactionScore}% satisfaction rate with AI responses. 
                   Customers love the instant, accurate support.
                 </p>
@@ -249,43 +249,43 @@ export default function DashboardPage() {
 
         {/* Activity Feed */}
         <Card className="border border-slate-200 shadow-lg bg-white">
-          <div className="p-6 border-b border-slate-200">
-            <h2 className="text-lg font-bold text-slate-900">AI Activity Stream</h2>
-            <p className="text-sm text-slate-600 mt-1">Real-time automation wins and intelligent updates</p>
+          <div className="p-8 border-b border-slate-200">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">AI Activity Stream</h2>
+            <p className="text-base text-slate-600 leading-relaxed">Real-time automation wins and intelligent updates</p>
           </div>
-          <div className="p-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 rounded-xl transition-all border border-transparent hover:border-emerald-200">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-xl flex items-center justify-center shadow-lg">
-                  <Zap className="w-5 h-5 text-white" />
+          <div className="p-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-6 p-5 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 rounded-xl transition-all border border-transparent hover:border-emerald-200">
+                <div className="w-12 h-12 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-xl flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-bold text-slate-900 text-sm">Password reset automation deployed</div>
-                  <div className="text-xs text-slate-600 font-medium">23 tickets resolved • 4.6 hours saved</div>
+                  <div className="font-bold text-slate-900 text-base mb-1">Password reset automation deployed</div>
+                  <div className="text-sm text-slate-600 font-medium">23 tickets resolved • 4.6 hours saved</div>
                 </div>
-                <div className="text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-full">2h ago</div>
+                <div className="text-sm text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-full">2h ago</div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all border border-transparent hover:border-blue-200">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-xl flex items-center justify-center shadow-lg">
-                  <Clock className="w-5 h-5 text-white" />
+              <div className="flex items-center gap-6 p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all border border-transparent hover:border-blue-200">
+                <div className="w-12 h-12 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-xl flex items-center justify-center shadow-lg">
+                  <Clock className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-bold text-slate-900 text-sm">Billing inquiry responses updated</div>
-                  <div className="text-xs text-slate-600 font-medium">18 tickets resolved • 5.4 hours saved</div>
+                  <div className="font-bold text-slate-900 text-base mb-1">Billing inquiry responses updated</div>
+                  <div className="text-sm text-slate-600 font-medium">18 tickets resolved • 5.4 hours saved</div>
                 </div>
-                <div className="text-xs text-[#0066FF] font-bold bg-blue-50 px-2 py-1 rounded-full">6h ago</div>
+                <div className="text-sm text-[#0066FF] font-bold bg-blue-50 px-3 py-1.5 rounded-full">6h ago</div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 rounded-xl transition-all border border-transparent hover:border-violet-200">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-xl flex items-center justify-center shadow-lg">
-                  <TrendingUp className="w-5 h-5 text-white" />
+              <div className="flex items-center gap-6 p-5 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 rounded-xl transition-all border border-transparent hover:border-violet-200">
+                <div className="w-12 h-12 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-xl flex items-center justify-center shadow-lg">
+                  <TrendingUp className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-bold text-slate-900 text-sm">Setup guide automation improved</div>
-                  <div className="text-xs text-slate-600 font-medium">12 tickets resolved • 3.2 hours saved</div>
+                  <div className="font-bold text-slate-900 text-base mb-1">Setup guide automation improved</div>
+                  <div className="text-sm text-slate-600 font-medium">12 tickets resolved • 3.2 hours saved</div>
                 </div>
-                <div className="text-xs text-[#8B5CF6] font-bold bg-violet-50 px-2 py-1 rounded-full">1d ago</div>
+                <div className="text-sm text-[#8B5CF6] font-bold bg-violet-50 px-3 py-1.5 rounded-full">1d ago</div>
               </div>
             </div>
           </div>

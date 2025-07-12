@@ -70,49 +70,49 @@ export function PricingGrid() {
               </div>
             )}
 
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="flex items-center justify-center gap-2 text-xl font-bold">
-                <Zap className="w-5 h-5 text-[#0066FF]" />
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold mb-4">
+                <Zap className="w-6 h-6 text-[#0066FF]" />
                 {plan.name}
               </CardTitle>
               
-              <div className="mt-4">
+              <div className="mt-6">
                 {typeof displayPrice === 'number' ? (
                   <>
-                    <div className="text-4xl font-bold text-slate-900">
+                    <div className="text-5xl font-bold text-slate-900 mb-2">
                       ${displayPrice}
-                      <span className="text-lg text-slate-500 font-normal">{billingPeriod}</span>
+                      <span className="text-xl text-slate-500 font-normal">{billingPeriod}</span>
                     </div>
                     {isYearly && typeof monthlyEquivalent === 'number' && (
-                      <div className="text-sm text-[#10B981] mt-1 font-semibold">
+                      <div className="text-base text-[#10B981] mt-2 font-bold">
                         ${monthlyEquivalent}/month • 20% savings
                       </div>
                     )}
                     {!isYearly && (
-                      <div className="text-sm text-[#10B981] mt-1 font-semibold">
+                      <div className="text-base text-[#10B981] mt-2 font-bold">
                         Save ${monthlySavings.toLocaleString()}/month
                       </div>
                     )}
                   </>
                 ) : (
-                  <div className="text-3xl font-bold text-slate-900">
+                  <div className="text-4xl font-bold text-slate-900 mb-2">
                     Custom Pricing
                   </div>
                 )}
               </div>
 
-              <p className="text-slate-600 mt-3">{plan.description}</p>
+              <p className="text-slate-600 mt-6 text-base leading-relaxed">{plan.description}</p>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8 p-8">
               {/* Key Features */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {Object.entries(plan.features).slice(0, 6).map(([key, feature]) => (
-                  <div key={key} className="flex items-start gap-3">
-                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm">
-                      <span className="font-medium text-slate-900">{feature.name}</span>
-                      <div className="text-slate-600">
+                  <div key={key} className="flex items-start gap-4">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                    <div className="text-base">
+                      <span className="font-semibold text-slate-900">{feature.name}</span>
+                      <div className="text-slate-600 mt-1 leading-relaxed">
                         {feature.limit === -1 
                           ? 'Unlimited' 
                           : feature.limit === 1 
@@ -125,7 +125,7 @@ export function PricingGrid() {
                 ))}
                 
                 {Object.keys(plan.features).length > 6 && (
-                  <div className="text-sm text-slate-500 pl-7">
+                  <div className="text-base text-slate-500 pl-9 font-medium">
                     + {Object.keys(plan.features).length - 6} more features
                   </div>
                 )}
@@ -162,7 +162,7 @@ export function PricingGrid() {
               </div>
 
               {typeof plan.price === 'number' && (
-                <div className="text-xs text-slate-500 text-center font-medium">
+                <div className="text-sm text-slate-500 text-center font-medium leading-relaxed mt-4">
                   30-day money-back guarantee • No setup fees
                 </div>
               )}

@@ -51,7 +51,7 @@ export default function Home() {
               Focus on Building.
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-slate-600 mb-8 font-medium max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-slate-600 mb-10 font-medium max-w-3xl mx-auto leading-relaxed">
             AI handles 85% of tickets instantly. Save 10+ hours/week and $2,400+/month.
           </p>
           
@@ -60,10 +60,10 @@ export default function Home() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
             <div className="relative z-10">
-              <div className="text-3xl md:text-4xl font-black mb-2">
+              <div className="text-3xl md:text-4xl font-black mb-3">
                 Save $2,400+ Monthly
               </div>
-              <div className="text-lg md:text-xl text-green-100 mb-4">
+              <div className="text-lg md:text-xl text-green-100 mb-6 leading-relaxed">
                 10+ hours/week freed for building your product
               </div>
               <div className="flex items-center gap-2 text-green-200 text-sm">
@@ -74,22 +74,22 @@ export default function Home() {
           </div>
 
           {/* Key Stats - Enhanced visibility */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 mb-10 max-w-4xl mx-auto">
-            <div className="grid grid-cols-3 gap-6 text-center">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-8 mb-12 max-w-4xl mx-auto">
+            <div className="grid grid-cols-3 gap-8 text-center">
               <div className="border-r border-slate-200 last:border-r-0">
-                <div className="text-3xl md:text-4xl font-black text-[#0066FF] mb-1">85%</div>
-                <div className="text-sm md:text-base text-slate-600 font-medium">Auto-Resolution</div>
-                <div className="text-xs text-slate-500 mt-1">AI handles instantly</div>
+                <div className="text-4xl md:text-5xl font-black text-[#0066FF] mb-2">85%</div>
+                <div className="text-base md:text-lg text-slate-600 font-semibold mb-1">Auto-Resolution</div>
+                <div className="text-sm text-slate-500">AI handles instantly</div>
               </div>
               <div className="border-r border-slate-200 last:border-r-0">
-                <div className="text-3xl md:text-4xl font-black text-[#10B981] mb-1">10+hrs</div>
-                <div className="text-sm md:text-base text-slate-600 font-medium">Saved Weekly</div>
-                <div className="text-xs text-slate-500 mt-1">Per founder</div>
+                <div className="text-4xl md:text-5xl font-black text-[#10B981] mb-2">10+hrs</div>
+                <div className="text-base md:text-lg text-slate-600 font-semibold mb-1">Saved Weekly</div>
+                <div className="text-sm text-slate-500">Per founder</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-black text-[#8B5CF6] mb-1">&lt;2min</div>
-                <div className="text-sm md:text-base text-slate-600 font-medium">Response Time</div>
-                <div className="text-xs text-slate-500 mt-1">24/7 instant</div>
+                <div className="text-4xl md:text-5xl font-black text-[#8B5CF6] mb-2">&lt;2min</div>
+                <div className="text-base md:text-lg text-slate-600 font-semibold mb-1">Response Time</div>
+                <div className="text-sm text-slate-500">24/7 instant</div>
               </div>
             </div>
           </div>
@@ -106,12 +106,12 @@ export default function Home() {
               <ArrowRight className="w-6 h-6 md:w-7 md:h-7 relative z-10 group-hover:translate-x-1 transition-transform" />
             </Link>
             <div className="text-center">
-              <div className="text-sm font-black text-green-700 mb-2">💰 Pays for itself in 2 hours • 30-day money-back guarantee</div>
+              <div className="text-base font-black text-green-700 mb-4 leading-relaxed">💰 Pays for itself in 2 hours • 30-day money-back guarantee</div>
               <Link
                 href="/demo"
-                className="inline-flex items-center gap-2 px-4 py-2 text-[#0066FF] hover:text-[#0052CC] font-medium transition-colors underline underline-offset-4"
+                className="inline-flex items-center gap-2 px-6 py-3 text-[#0066FF] hover:text-[#0052CC] font-semibold transition-colors underline underline-offset-4 text-base"
               >
-                <MessageSquare className="w-4 h-4" />
+                <MessageSquare className="w-5 h-5" />
                 Watch demo first
               </Link>
             </div>

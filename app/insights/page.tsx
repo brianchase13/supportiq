@@ -106,9 +106,9 @@ export default function InsightsPage() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900 mb-2">AI Insights</h1>
-          <p className="text-slate-600">Intelligent recommendations to optimize your support performance</p>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-3">AI Insights</h1>
+          <p className="text-lg text-slate-600 leading-relaxed">Intelligent recommendations to optimize your support performance</p>
         </div>
 
         {/* Summary Cards */}
