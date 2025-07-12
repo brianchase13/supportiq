@@ -73,13 +73,13 @@ export async function POST(request: NextRequest) {
     const { planId, billingCycle, returnUrl, ticketVolume, projectedSavings } = validationResult.data;
 
     // Get user information
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
@@ -243,11 +243,11 @@ function calculateDynamicPricing(
   };
 }
 
-async function getOrCreateStripeCustomer(user: any) {
+async function getOrCreateStripeCustomer(userData: any) {
   // Check if user already has a Stripe customer ID
-  if (user.stripe_customer_id) {
+  if (userData.stripe_customer_id) {
     try {
-      const customer = await stripe.customers.retrieve(user.stripe_customer_id);
+      const customer = await stripe.customers.retrieve(userData.stripe_customer_id);
       if (!customer.deleted) {
         return customer;
       }
@@ -258,11 +258,11 @@ async function getOrCreateStripeCustomer(user: any) {
 
   // Create new Stripe customer
   const customer = await stripe.customers.create({
-    email: user.email,
-    name: user.name || user.email,
+    email: userData.email,
+    name: userData.name || userData.email,
     metadata: {
-      userId: user.id,
-      clerksUserId: user.id,
+      userId: userData.id,
+      clerksUserId: userData.id,
     },
   });
 
@@ -270,7 +270,7 @@ async function getOrCreateStripeCustomer(user: any) {
   await supabaseAdmin
     .from('users')
     .update({ stripe_customer_id: customer.id })
-    .eq('id', user.id);
+    .eq('id', userData.id);
 
   return customer;
 }

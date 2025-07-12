@@ -64,18 +64,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user has benchmark access
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('subscription_plan, subscription_status')
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const hasBenchmarkAccess = ['growth', 'enterprise'].includes(user.subscription_plan) && 
-                               user.subscription_status === 'active';
+    const hasBenchmarkAccess = ['growth', 'enterprise'].includes(userData.subscription_plan) && 
+                               userData.subscription_status === 'active';
 
     if (!hasBenchmarkAccess) {
       return NextResponse.json({
