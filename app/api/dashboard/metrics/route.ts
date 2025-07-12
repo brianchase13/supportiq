@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { DashboardDataService } from '@/lib/dashboard/dashboard-data';
 import { dashboardLimiter, checkRateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const user = await auth.getUser();
     const clientIP = request.ip || 'unknown';
 
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     // Rate limiting
     const rateLimitResult = await checkRateLimit(dashboardLimiter, clientIP);

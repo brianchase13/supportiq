@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { apiLimiter, checkRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
@@ -44,7 +44,7 @@ interface BenchmarkResponse {
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const user = await auth.getUser(); const userId = user?.id;
     const clientIP = request.ip || 'unknown';
 
     if (!userId) {

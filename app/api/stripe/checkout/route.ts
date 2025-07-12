@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { apiLimiter, checkRateLimit } from '@/lib/rate-limit';
 import Stripe from 'stripe';
@@ -41,7 +41,7 @@ const PRICING_TIERS = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const user = await auth.getUser(); const userId = user?.id;
     const clientIP = request.ip || 'unknown';
 
     if (!userId) {
@@ -278,7 +278,7 @@ async function getOrCreateStripeCustomer(user: any) {
 // GET endpoint for pricing information
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const user = await auth.getUser(); const userId = user?.id;
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
