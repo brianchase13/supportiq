@@ -50,10 +50,10 @@ export default function Home() {
           
           {/* Single Clear Value Prop */}
           <div className="bg-white rounded-2xl border-2 border-[#0066FF] shadow-2xl p-10 mb-12 max-w-3xl mx-auto">
-            <div className="text-5xl md:text-6xl font-black text-[#0066FF] mb-4">$2,400</div>
-            <div className="text-xl md:text-2xl text-slate-900 font-bold mb-3">Monthly savings guaranteed</div>
+            <div className="text-5xl md:text-6xl font-black text-[#0066FF] mb-4">40+</div>
+            <div className="text-xl md:text-2xl text-slate-900 font-bold mb-3">Hours saved weekly</div>
             <div className="text-lg text-slate-600 leading-relaxed mb-6">
-              Join 247 founders who've eliminated support work entirely while improving customer satisfaction
+              Join our early access program - 12 beta founders testing the future of support automation
             </div>
             <div className="flex items-center justify-center gap-8 text-sm font-semibold">
               <div className="flex items-center gap-2 text-green-700">
@@ -79,11 +79,11 @@ export default function Home() {
             >
               <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <Bot className="w-6 h-6 md:w-7 md:h-7 relative z-10" />
-              <span className="relative z-10">Get Started - $99</span>
+              <span className="relative z-10">Join Beta - Free</span>
               <ArrowRight className="w-6 h-6 md:w-7 md:h-7 relative z-10 group-hover:translate-x-1 transition-transform" />
             </Link>
             <div className="text-center">
-              <div className="text-base font-black text-green-700 mb-4 leading-relaxed">💰 Pays for itself in 2 hours • 30-day money-back guarantee</div>
+              <div className="text-base font-black text-green-700 mb-4 leading-relaxed">🚀 Free during beta • Full access to all features</div>
               <Link
                 href="/demo"
                 className="inline-flex items-center gap-2 px-6 py-3 text-[#0066FF] hover:text-[#0052CC] font-semibold transition-colors underline underline-offset-4 text-base"
@@ -97,8 +97,8 @@ export default function Home() {
           {/* Customer Proof - Real Results */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-10 max-w-5xl mx-auto">
             <div className="text-center mb-10">
-              <div className="text-lg font-bold text-slate-900 mb-2">Trusted by 247+ SaaS founders</div>
-              <div className="text-slate-600">Average customer saves $2,400/month and 40+ hours</div>
+              <div className="text-lg font-bold text-slate-900 mb-2">Early Access Program</div>
+              <div className="text-slate-600">Join 12 beta founders testing the platform</div>
             </div>
             
             {/* Customer Logos */}
@@ -131,16 +131,16 @@ export default function Home() {
             {/* Results Grid */}
             <div className="grid grid-cols-3 gap-8 text-center">
               <div>
-                <div className="text-3xl font-black text-[#0066FF] mb-2">247+</div>
-                <div className="text-sm text-slate-600 font-medium">Active customers</div>
+                <div className="text-3xl font-black text-[#0066FF] mb-2">12</div>
+                <div className="text-sm text-slate-600 font-medium">Beta testers</div>
               </div>
               <div>
-                <div className="text-3xl font-black text-[#10B981] mb-2">$593K</div>
-                <div className="text-sm text-slate-600 font-medium">Total saved monthly</div>
+                <div className="text-3xl font-black text-[#10B981] mb-2">40+</div>
+                <div className="text-sm text-slate-600 font-medium">Hours saved weekly</div>
               </div>
               <div>
-                <div className="text-3xl font-black text-[#8B5CF6] mb-2">98.7%</div>
-                <div className="text-sm text-slate-600 font-medium">Satisfaction rate</div>
+                <div className="text-3xl font-black text-[#8B5CF6] mb-2">85%</div>
+                <div className="text-sm text-slate-600 font-medium">Auto-resolution rate</div>
               </div>
             </div>
           </div>
@@ -177,13 +177,13 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Technical Integrations */}
+              {/* Beta Features */}
               <div className="mt-4 pt-4 border-t border-slate-100">
-                <div className="text-xs text-slate-500 mb-2 font-semibold">CONNECTS TO</div>
+                <div className="text-xs text-slate-500 mb-2 font-semibold">PLANNED INTEGRATIONS</div>
                 <div className="flex items-center justify-center gap-2">
-                  <div className="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 font-medium">Intercom</div>
-                  <div className="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 font-medium">Zendesk</div>
-                  <div className="px-2 py-1 bg-slate-100 rounded text-xs text-slate-600 font-medium">Slack</div>
+                  <div className="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs text-blue-600 font-medium">Email</div>
+                  <div className="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs text-blue-600 font-medium">Chat</div>
+                  <div className="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs text-blue-600 font-medium">API</div>
                 </div>
               </div>
             </div>
@@ -201,21 +201,21 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Security Badges */}
+              {/* Beta Testing Status */}
               <div className="mt-4 pt-4 border-t border-slate-100">
-                <div className="text-xs text-slate-500 mb-2 font-semibold">SECURITY</div>
+                <div className="text-xs text-slate-500 mb-2 font-semibold">BETA STATUS</div>
                 <div className="flex items-center justify-center gap-3">
-                  <div className="flex items-center gap-1 text-xs text-green-700">
+                  <div className="flex items-center gap-1 text-xs text-blue-700">
                     <Shield className="w-3 h-3" />
-                    <span>SOC 2</span>
+                    <span>Secure</span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-green-700">
+                  <div className="flex items-center gap-1 text-xs text-blue-700">
                     <Shield className="w-3 h-3" />
-                    <span>GDPR</span>
+                    <span>Private</span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-green-700">
+                  <div className="flex items-center gap-1 text-xs text-blue-700">
                     <Shield className="w-3 h-3" />
-                    <span>ISO 27001</span>
+                    <span>Tested</span>
                   </div>
                 </div>
               </div>
@@ -241,23 +241,23 @@ export default function Home() {
               <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className="w-3 h-3 bg-white rounded-full animate-bounce"></div>
-                  <span className="text-green-100 text-sm font-black">🔥 LIVE: 3 founders joined in the last hour</span>
+                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                  <span className="text-green-100 text-sm font-black">🚀 Join the beta test program</span>
                 </div>
                 <h3 className="text-3xl md:text-4xl font-black mb-4">The Result: Complete Freedom</h3>
                 <p className="text-green-100 mb-6 text-xl font-medium leading-relaxed">
                   Never touch a support ticket again. Get better customer satisfaction while saving 10+ hours per week.
                 </p>
                 <div className="bg-white/20 rounded-lg p-4 mb-6">
-                  <div className="text-white font-black text-lg mb-2">💰 ROI in first week:</div>
+                  <div className="text-white font-black text-lg mb-2">🔬 Beta tester benefits:</div>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-black text-white">$2,400</div>
-                      <div className="text-green-200 text-sm">monthly savings</div>
+                      <div className="text-2xl font-black text-white">Free</div>
+                      <div className="text-green-200 text-sm">full access</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-white">2,424%</div>
-                      <div className="text-green-200 text-sm">ROI vs $99 cost</div>
+                      <div className="text-2xl font-black text-white">50%</div>
+                      <div className="text-green-200 text-sm">lifetime discount</div>
                     </div>
                   </div>
                 </div>
@@ -266,29 +266,45 @@ export default function Home() {
                   className="inline-flex items-center gap-3 px-8 py-4 bg-white text-emerald-700 rounded-lg font-bold text-lg hover:scale-105 transition-all shadow-lg"
                 >
                   <Clock className="w-5 h-5" />
-                  Get Started - $99
+                  Join Beta - Free
                   <ArrowRight className="w-5 h-5" />
                 </Link>
-                <p className="text-green-200 text-sm mt-3">Save $2,400+ this month. Guaranteed.</p>
+                <p className="text-green-200 text-sm mt-3">Limited spots available. Help shape the future.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ROI Calculator - Gary Tan's 5-Minute Value Test */}
+      {/* Beta Value Prop */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-blue-100 border border-blue-300 text-blue-800 px-4 py-2 rounded-full text-sm font-bold mb-6">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span>📈 Average ROI: 2,424% in first month</span>
+              <span>🚀 Limited Beta Spots Available</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">See Your Exact ROI</h2>
-            <p className="text-slate-600 text-xl font-medium">Most founders save 24x more than the $99 cost</p>
+            <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">Help Us Build The Future</h2>
+            <p className="text-slate-600 text-xl font-medium">Get free access to shape the product that will revolutionize support</p>
           </div>
           
-          <ROICalculator />
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-8 text-center">
+            <h3 className="text-2xl font-bold text-slate-900 mb-4">What Beta Testers Get</h3>
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <div className="space-y-2">
+                <div className="text-3xl font-black text-blue-600">Free</div>
+                <div className="text-sm text-slate-600">Full platform access</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-3xl font-black text-green-600">Direct</div>
+                <div className="text-sm text-slate-600">Founder feedback line</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-3xl font-black text-purple-600">50%</div>
+                <div className="text-sm text-slate-600">Lifetime discount</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -296,31 +312,31 @@ export default function Home() {
       <section id="pricing" className="py-16 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-full text-sm font-black mb-6 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full text-sm font-black mb-6 shadow-lg">
               <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-              💰 Launch Special: $99 (normally $299)
+              🚀 Early Access - Free Beta
             </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">Simple, Honest Pricing</h2>
-            <p className="text-slate-600 text-xl font-medium mb-4">One price, immediate value. No subscriptions, no hidden fees.</p>
-            <div className="bg-green-100 border border-green-300 rounded-lg p-4 max-w-md mx-auto">
-              <div className="text-green-800 font-black text-center">
-                💰 $99 one-time. Saves $2,400+ monthly. Do the math.
+            <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">Beta Access Pricing</h2>
+            <p className="text-slate-600 text-xl font-medium mb-4">Free during beta testing. Help us build the future of support automation.</p>
+            <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 max-w-md mx-auto">
+              <div className="text-blue-800 font-black text-center">
+                🔬 Free beta access. Help shape the product. Get lifetime discounts.
               </div>
             </div>
             <div className="flex items-center justify-center gap-4 mt-4 text-sm text-slate-500">
               <div className="flex items-center gap-1">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>30-day money-back guarantee</span>
+                <span>Full feature access</span>
               </div>
               <div>•</div>
               <div className="flex items-center gap-1">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Setup in 5 minutes</span>
+                <span>Direct founder feedback</span>
               </div>
               <div>•</div>
               <div className="flex items-center gap-1">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>No monthly fees</span>
+                <span>Lifetime discounts</span>
               </div>
             </div>
           </div>
@@ -333,23 +349,23 @@ export default function Home() {
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#F59E0B] to-orange-500 text-white px-8 py-4 rounded-full text-base font-black mb-6 shadow-xl">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-full text-base font-black mb-6 shadow-xl">
             <Clock className="w-5 h-5" />
-            ⏰ Support tickets piling up while you read this
+            🚀 Limited beta access available
           </div>
           
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
-            Stop Wasting Time on Support
+            Join The Beta Program
           </h2>
           <p className="text-2xl text-blue-100 mb-8 max-w-3xl mx-auto font-medium leading-relaxed">
-            Every hour spent on tickets is an hour <strong className="text-white">not building your product.</strong> 
-            247 founders already made the switch.
+            Help us build the future of support automation. <strong className="text-white">Free access during beta.</strong> 
+            12 spots remaining.
           </p>
           <div className="bg-white/20 backdrop-blur-sm rounded-xl p-8 mb-8 max-w-2xl mx-auto border border-white/30">
-            <div className="text-white font-black text-2xl mb-3">$99 → Save $2,400+ Monthly</div>
+            <div className="text-white font-black text-2xl mb-3">Free Beta → Shape The Product</div>
             <div className="text-blue-200 font-medium text-lg leading-relaxed">
-              One-time payment. <strong className="text-white">30-day money-back guarantee.</strong> 
-              Setup in 5 minutes. Start saving today.
+              Full access. <strong className="text-white">Direct feedback to founders.</strong> 
+              50% lifetime discount when we launch.
             </div>
           </div>
           
@@ -360,15 +376,15 @@ export default function Home() {
             >
               <div className="absolute inset-0 bg-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <Bot className="w-6 h-6 md:w-7 md:h-7 relative z-10" />
-              <span className="relative z-10">Get Started - $99</span>
+              <span className="relative z-10">Join Beta - Free</span>
               <ArrowRight className="w-6 h-6 md:w-7 md:h-7 relative z-10 group-hover:translate-x-1 transition-transform" />
             </Link>
             <div className="text-center">
               <div className="bg-green-500 text-white px-6 py-3 rounded-xl font-black text-base mb-2 shadow-lg">
-                💰 $99 = $2,400+ monthly savings guaranteed
+                🚀 Free beta = Early access + 50% lifetime discount
               </div>
               <div className="text-white/90 text-sm font-medium">
-                5-minute setup • 30-day money-back guarantee • No monthly fees
+                Limited spots • Direct founder access • Shape the product
               </div>
             </div>
           </div>
@@ -395,7 +411,7 @@ export default function Home() {
           </div>
 
           <div className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white px-8 py-4 rounded-xl mx-auto max-w-lg font-black text-center shadow-xl">
-            💰 247 customers saved $593K+ this month. Your turn.
+            🔬 12 beta testers. Limited spots remaining. Join now.
           </div>
         </div>
       </section>
