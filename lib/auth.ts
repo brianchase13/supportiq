@@ -1,28 +1,60 @@
-import { betterAuth } from "better-auth"
+import { createBrowserClient, createServerClient } from '@supabase/ssr'
 
-export const auth = betterAuth({
-  database: {
-    provider: "sqlite",
-    url: "./database.sqlite" // Simple SQLite for demo
-  },
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: false
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-    },
-  },
-  plugins: [
-    // Add plugins here when they become available
-  ],
-})
+// Browser client for client-side operations
+export const createClient = () => {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
-export type Session = typeof auth.$Infer.Session
-export type User = typeof auth.$Infer.User
+// Server client for server-side operations
+export const createServerSupabaseClient = (cookieStore: any) => {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          cookieStore.set({ name, value, ...options })
+        },
+        remove(name: string, options: any) {
+          cookieStore.set({ name, value: '', ...options })
+        },
+      },
+    }
+  )
+}
+
+// Auth helper functions
+export const auth = {
+  getUser: async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    return user
+  },
+  
+  signIn: async (email: string, password: string) => {
+    const supabase = createClient()
+    return await supabase.auth.signInWithPassword({ email, password })
+  },
+  
+  signUp: async (email: string, password: string) => {
+    const supabase = createClient()
+    return await supabase.auth.signUp({ email, password })
+  },
+  
+  signOut: async () => {
+    const supabase = createClient()
+    return await supabase.auth.signOut()
+  }
+}
+
+export type User = {
+  id: string
+  email?: string
+  user_metadata?: any
+}
