@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
-import { apiLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { generateEmbedding, generateBatchEmbeddings, findSimilarTickets } from '@/lib/ai/embeddings';
+import { analysisLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { generateBatchEmbeddings, findSimilarTickets } from '@/lib/ai/embeddings';
 import OpenAI from 'openai';
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 }) : null;
 
 const AnalyzeRequestSchema = z.object({
-  userId: z.string().uuid(),
   ticketIds: z.array(z.string()).optional(),
   forceReanalysis: z.boolean().optional().default(false),
   useCheapModel: z.boolean().optional().default(false),
@@ -26,8 +26,42 @@ interface AnalysisResult {
   similarTickets?: string[];
 }
 
+interface TicketData {
+  id: string;
+  subject?: string;
+  content?: string;
+  category?: string;
+  sentiment?: number;
+  embedding?: number[];
+  user_id: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = user.id;
+    const clientIP = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+
+    // Rate limiting for expensive AI operations
+    const rateLimitResult = await checkRateLimit(analysisLimiter, `${userId}:${clientIP}`);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { 
+          error: 'Rate limit exceeded for AI analysis operations. Please try again later.',
+          retryAfter: rateLimitResult.msBeforeNext 
+        },
+        { status: 429 }
+      );
+    }
+
     // Return demo data if OpenAI is not configured
     if (!openai) {
       return NextResponse.json({
@@ -42,19 +76,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const clientIP = request.ip || 'unknown';
-
-    // Rate limiting
-    const rateLimitResult = await checkRateLimit(apiLimiter, clientIP);
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        { 
-          error: 'Analysis rate limit exceeded',
-          retryAfter: rateLimitResult.msBeforeNext 
-        },
-        { status: 429 }
-      );
-    }
 
     // Validate request
     const validationResult = AnalyzeRequestSchema.safeParse(body);
@@ -65,10 +86,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { userId, ticketIds, forceReanalysis, useCheapModel } = validationResult.data;
+    const { ticketIds, forceReanalysis, useCheapModel } = validationResult.data;
 
     // Check user subscription and limits
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select(`
         *,
@@ -77,7 +98,7 @@ export async function POST(request: NextRequest) {
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
@@ -114,8 +135,8 @@ export async function POST(request: NextRequest) {
 
     // Check if analysis would exceed limits
     const estimatedCost = calculateEstimatedCost(tickets, useCheapModel);
-    const maxCostPerMonth = user.subscription_plan === 'free' ? 1.0 : 
-                           user.subscription_plan === 'starter' ? 10.0 : 50.0;
+    const maxCostPerMonth = userData.subscription_plan === 'free' ? 1.0 : 
+                           userData.subscription_plan === 'starter' ? 10.0 : 50.0;
 
     if (estimatedCost > maxCostPerMonth) {
       return NextResponse.json({
@@ -206,7 +227,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateEmbeddingsForBatch(tickets: any[]): Promise<Map<string, number[]>> {
+async function generateEmbeddingsForBatch(tickets: TicketData[]): Promise<Map<string, number[]>> {
   const texts = tickets.map(ticket => 
     `${ticket.subject || ''} ${ticket.content || ''}`.trim()
   );
@@ -222,10 +243,10 @@ async function generateEmbeddingsForBatch(tickets: any[]): Promise<Map<string, n
 }
 
 async function smartBatchFiltering(
-  batch: any[], 
+  batch: TicketData[], 
   embeddings: Map<string, number[]>, 
   userId: string
-): Promise<{ toAnalyze: any[], toSkip: any[] }> {
+): Promise<{ toAnalyze: TicketData[], toSkip: TicketData[] }> {
   // Get existing analyzed tickets for similarity comparison
   const { data: existingTickets } = await supabaseAdmin
     .from('tickets')

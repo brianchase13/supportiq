@@ -2,16 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { authLimiter, checkRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 
 const AuthRequestSchema = z.object({
-  userId: z.string().uuid(),
   returnUrl: z.string().url().optional(),
 });
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = user.id;
+
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
     const returnUrl = searchParams.get('returnUrl') || '/dashboard';
     const clientIP = request.ip || 'unknown';
 
@@ -28,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate input
-    const validationResult = AuthRequestSchema.safeParse({ userId, returnUrl });
+    const validationResult = AuthRequestSchema.safeParse({ returnUrl });
     if (!validationResult.success) {
       return NextResponse.json(
         { error: 'Invalid request parameters' },
@@ -37,13 +45,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user exists
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, email')
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -70,7 +78,7 @@ export async function GET(request: NextRequest) {
       nonce: crypto.randomUUID(),
     };
     
-    const state = Buffer.from(JSON.stringify(stateData)).toString('base64url');
+    const state = Buffer.from(JSON.stringify(stateData)).toString('base64');
 
     // Store state temporarily for validation (expires in 10 minutes)
     await supabaseAdmin
@@ -83,19 +91,14 @@ export async function GET(request: NextRequest) {
       .single();
 
     // Build OAuth URL
-    const authUrl = new URL('https://app.intercom.com/oauth');
-    authUrl.searchParams.set('client_id', clientId);
-    authUrl.searchParams.set('state', state);
-    authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('redirect_uri', redirectUri);
-    authUrl.searchParams.set('scope', 'read_conversations read_users read_admins');
-
-    return NextResponse.redirect(authUrl.toString());
+    const authUrl = `https://app.intercom.com/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=read_conversations,read_users&state=${encodeURIComponent(state)}`;
+    
+    return NextResponse.json({ authUrl });
 
   } catch (error) {
-    console.error('OAuth initiation error:', error);
+    console.error('Intercom OAuth error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'OAuth initialization failed' },
       { status: 500 }
     );
   }

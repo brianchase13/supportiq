@@ -1,9 +1,12 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
-import { Brain, TrendingUp, Clock, AlertTriangle, CheckCircle, ArrowRight, Lightbulb, Target, Zap, Users } from 'lucide-react';
+import { Brain, TrendingUp, Clock, AlertTriangle, CheckCircle, ArrowRight, Lightbulb, Target, Zap, Users, Loader2, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { useInsights } from '@/hooks/data/useSupabaseData';
+import { useAuth } from '@/components/auth/AuthContext';
+import Link from 'next/link';
 
 interface Insight {
   id: string;
@@ -17,7 +20,8 @@ interface Insight {
   color: string;
 }
 
-const insights: Insight[] = [
+// Fallback insights for demo purposes
+const fallbackInsights: Insight[] = [
   {
     id: '1',
     title: '27% of tickets could be prevented with a docs update',
@@ -76,7 +80,14 @@ const insights: Insight[] = [
 ];
 
 export default function InsightsPage() {
+  const { user, loading: authLoading } = useAuth();
+  const { insights: realInsights, loading: insightsLoading } = useInsights();
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const loading = authLoading || insightsLoading;
+
+  // Use real insights if available, otherwise fallback to demo insights
+  const insights = realInsights.length > 0 ? realInsights : fallbackInsights;
 
   const filteredInsights = selectedCategory === 'all' 
     ? insights 
@@ -102,13 +113,49 @@ export default function InsightsPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
+            <p className="text-slate-400">Loading insights...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!user) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-slate-400 mb-4">Please sign in to view insights</p>
+            <Link 
+              href="/auth"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-3">AI Insights</h1>
-          <p className="text-lg text-slate-600 leading-relaxed">Intelligent recommendations to optimize your support performance</p>
+          <p className="text-lg text-slate-600 leading-relaxed">
+            {realInsights.length > 0 
+              ? 'Intelligent recommendations to optimize your support performance'
+              : 'Demo insights showing how AI can help optimize your support performance'
+            }
+          </p>
         </div>
 
         {/* Summary Cards */}
@@ -165,6 +212,30 @@ export default function InsightsPage() {
             </div>
           </Card>
         </div>
+
+        {/* Demo Notice */}
+        {realInsights.length === 0 && (
+          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-yellow-50 to-orange-50">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-slate-900 mb-1">Demo Mode</h3>
+                <p className="text-slate-600 mb-3">
+                  These are sample insights. Connect your support channels to get personalized AI recommendations based on your actual data.
+                </p>
+                <Link 
+                  href="/settings"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                >
+                  Connect Support Channel
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Filters */}
         <div className="flex flex-wrap gap-2">

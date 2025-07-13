@@ -1,184 +1,138 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/client';
-import { IntercomConversation } from '@/lib/supabase/types';
+import { supabaseServer } from '@/lib/supabase/server';
+import { createIntercomIntegration } from '@/lib/integrations/intercom';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
+    const supabase = await supabaseServer();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's Intercom access token
-    const { data: user, error: userError } = await supabaseAdmin
+    // Get user's Intercom configuration
+    const { data: userConfig } = await supabase
       .from('users')
-      .select('intercom_access_token, intercom_workspace_id')
-      .eq('id', userId)
+      .select('intercom_access_token')
+      .eq('id', user.id)
       .single();
 
-    if (userError || !user?.intercom_access_token) {
-      return NextResponse.json({ error: 'Intercom not connected' }, { status: 400 });
+    if (!userConfig?.intercom_access_token) {
+      return NextResponse.json(
+        { error: 'Intercom not connected' },
+        { status: 400 }
+      );
     }
 
-    // Create sync log entry
-    const { data: syncLog, error: syncLogError } = await supabaseAdmin
-      .from('sync_logs')
-      .insert({
-        user_id: userId,
-        sync_type: 'tickets',
-        status: 'in_progress',
-      })
-      .select()
-      .single();
+    const { full_sync = false, limit = 100, batch_size = 50, force = false } = await request.json();
 
-    if (syncLogError) {
-      console.error('Failed to create sync log:', syncLogError);
-      return NextResponse.json({ error: 'Failed to start sync' }, { status: 500 });
+    // Check if sync is already running (unless forced)
+    if (!force) {
+      const { data: activeSync } = await supabase
+        .from('sync_logs')
+        .select('id, status, created_at')
+        .eq('user_id', user.id)
+        .eq('status', 'started')
+        .gte('created_at', new Date(Date.now() - 10 * 60 * 1000).toISOString()) // Last 10 minutes
+        .single();
+
+      if (activeSync) {
+        return NextResponse.json({ 
+          error: 'Sync already in progress',
+          sync_id: activeSync.id 
+        }, { status: 409 });
+      }
     }
 
     try {
-      // Calculate date 30 days ago
-      const thirtyDaysAgo = Math.floor((Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000);
+      // Create Intercom integration
+      const intercom = createIntercomIntegration(userConfig.intercom_access_token);
 
-      let allConversations: IntercomConversation[] = [];
-      let hasMore = true;
-      let startingAfter: string | undefined;
-
-      // Fetch conversations from Intercom (paginated)
-      while (hasMore) {
-        const url = new URL('https://api.intercom.io/conversations/search');
-        
-        const searchBody = {
-          query: {
-            operator: 'AND',
-            value: [
-              {
-                field: 'created_at',
-                operator: '>',
-                value: thirtyDaysAgo,
-              },
-            ],
+      // Start sync
+      const startTime = new Date();
+      
+      // Log sync start
+      const { data: syncLog } = await supabase
+        .from('sync_logs')
+        .insert({
+          user_id: user.id,
+          provider: 'intercom',
+          action: 'sync',
+          status: 'started',
+          metadata: {
+            full_sync,
+            limit,
+            batch_size,
+            start_time: startTime.toISOString()
           },
-          sort: {
-            field: 'created_at',
-            order: 'descending',
-          },
-          pagination: {
-            per_page: 50,
-            ...(startingAfter && { starting_after: startingAfter }),
-          },
-        };
-
-        const response = await fetch(url.toString(), {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${user.intercom_access_token}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(searchBody),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch conversations: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        allConversations = [...allConversations, ...data.conversations];
-
-        hasMore = data.pages?.next != null;
-        if (hasMore && data.conversations.length > 0) {
-          startingAfter = data.conversations[data.conversations.length - 1].id;
-        }
-      }
-
-      // Process and store conversations
-      const processedTickets = await Promise.all(
-        allConversations.map(async (conversation) => {
-          // Extract conversation content
-          const parts = conversation.conversation_parts?.conversation_parts || [];
-          const content = parts
-            .filter(part => part.part_type === 'comment')
-            .map(part => part.body)
-            .join('\n\n');
-
-          // Calculate response time
-          let responseTimeMinutes: number | undefined;
-          if (conversation.statistics?.first_admin_reply?.created_at && conversation.created_at) {
-            const responseTimeMs = (conversation.statistics.first_admin_reply.created_at * 1000) - (conversation.created_at * 1000);
-            responseTimeMinutes = Math.round(responseTimeMs / (1000 * 60));
-          }
-
-          // Get customer email
-          const customerEmail = conversation.contacts?.contacts?.[0]?.email;
-
-          // Get tags
-          const tags = conversation.tags?.tags?.map(tag => tag.name) || [];
-
-          return {
-            id: `intercom_${conversation.id}`,
-            user_id: userId,
-            intercom_conversation_id: conversation.id,
-            content: content || '',
-            subject: conversation.title || 'No subject',
-            status: conversation.state,
-            priority: conversation.priority,
-            assignee_type: conversation.assignee?.type || 'admin',
-            agent_name: conversation.assignee?.name,
-            agent_email: conversation.assignee?.email,
-            customer_email: customerEmail,
-            tags,
-            response_time_minutes: responseTimeMinutes,
-            created_at: new Date(conversation.created_at * 1000).toISOString(),
-            updated_at: new Date(conversation.updated_at * 1000).toISOString(),
-          };
+          created_at: startTime.toISOString()
         })
+        .select()
+        .single();
+
+      // Perform the sync with enhanced batch processing
+      const syncResult = await intercom.syncConversationsWithBatching(
+        user.id, 
+        limit, 
+        batch_size
       );
 
-      // Bulk insert tickets (upsert to handle duplicates)
-      const { error: insertError } = await supabaseAdmin
-        .from('tickets')
-        .upsert(processedTickets, { onConflict: 'id' });
+      const endTime = new Date();
+      const duration = endTime.getTime() - startTime.getTime();
 
-      if (insertError) {
-        throw new Error(`Failed to insert tickets: ${insertError.message}`);
-      }
-
-      // Update sync log with success
-      await supabaseAdmin
+      // Log sync completion
+      await supabase
         .from('sync_logs')
         .update({
-          status: 'success',
-          records_processed: processedTickets.length,
-          completed_at: new Date().toISOString(),
+          status: 'completed',
+          metadata: {
+            ...syncLog?.metadata,
+            end_time: endTime.toISOString(),
+            duration_ms: duration,
+            processed_count: syncResult.processed,
+            success_count: syncResult.successful,
+            error_count: syncResult.errors
+          },
+          updated_at: endTime.toISOString()
         })
-        .eq('id', syncLog.id);
+        .eq('id', syncLog?.id);
 
       return NextResponse.json({
         success: true,
-        processed: processedTickets.length,
-        syncLogId: syncLog.id,
+        sync_id: syncLog?.id,
+        processed: syncResult.processed,
+        successful: syncResult.successful,
+        errors: syncResult.errors,
+        duration_ms: duration,
+        message: `Successfully synced ${syncResult.successful} conversations`
       });
 
     } catch (error) {
-      // Update sync log with error
-      await supabaseAdmin
+      console.error('Error during Intercom sync:', error);
+
+      // Log sync error
+      await supabase
         .from('sync_logs')
-        .update({
+        .insert({
+          user_id: user.id,
+          provider: 'intercom',
+          action: 'sync',
           status: 'error',
           error_message: error instanceof Error ? error.message : 'Unknown error',
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', syncLog.id);
+          created_at: new Date().toISOString()
+        });
 
-      throw error;
+      return NextResponse.json(
+        { error: 'Sync failed: ' + (error instanceof Error ? error.message : 'Unknown error') },
+        { status: 500 }
+      );
     }
 
   } catch (error) {
-    console.error('Sync error:', error);
+    console.error('Error in sync endpoint:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Sync failed' },
+      { error: 'Failed to start sync' },
       { status: 500 }
     );
   }

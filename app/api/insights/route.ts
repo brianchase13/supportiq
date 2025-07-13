@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import OpenAI from 'openai';
+import { createClient } from '@/lib/supabase/server';
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -8,27 +9,26 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    const userId = user.id;
     // Get ticket analytics for insights generation
     const { data: tickets, error: ticketsError } = await supabaseAdmin
       .from('tickets')
       .select('*')
       .eq('user_id', userId)
       .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-
     if (ticketsError) {
       return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 });
     }
-
     if (!tickets || tickets.length === 0) {
       return NextResponse.json({ message: 'No tickets found for analysis' });
     }
-
     // Generate analytics summary
     const totalTickets = tickets.length;
     const categoryBreakdown = tickets.reduce((acc, ticket) => {
@@ -37,18 +37,15 @@ export async function POST(request: NextRequest) {
       }
       return acc;
     }, {} as Record<string, number>);
-
     const sentimentBreakdown = tickets.reduce((acc, ticket) => {
       if (ticket.sentiment) {
         acc[ticket.sentiment] = (acc[ticket.sentiment] || 0) + 1;
       }
       return acc;
     }, {} as Record<string, number>);
-
     const avgResponseTime = tickets
       .filter(t => t.response_time_minutes)
       .reduce((sum, t) => sum + (t.response_time_minutes || 0), 0) / tickets.filter(t => t.response_time_minutes).length;
-
     const frequentIssues = Object.entries(categoryBreakdown)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 5);
@@ -217,13 +214,14 @@ Make insights specific, actionable, and tied to real metrics.`;
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    const userId = user.id;
     // Get existing insights
     const { data: insights, error } = await supabaseAdmin
       .from('insights')
@@ -231,13 +229,10 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('created_at', { ascending: false });
-
     if (error) {
       return NextResponse.json({ error: 'Failed to fetch insights' }, { status: 500 });
     }
-
     return NextResponse.json({ insights: insights || [] });
-
   } catch (error) {
     console.error('Failed to fetch insights:', error);
     return NextResponse.json(

@@ -3,14 +3,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { Ticket, Insight, User } from '@/lib/supabase/types';
+import { useAuth } from '@/components/auth/AuthContext';
 
-export function useTickets(userId: string) {
+export function useTickets() {
+  const { user } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) return;
 
     const fetchTickets = async () => {
       try {
@@ -18,7 +20,7 @@ export function useTickets(userId: string) {
         const { data, error } = await supabase
           .from('tickets')
           .select('*')
-          .eq('user_id', userId)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -31,18 +33,19 @@ export function useTickets(userId: string) {
     };
 
     fetchTickets();
-  }, [userId]);
+  }, [user?.id]);
 
   return { tickets, loading, error };
 }
 
-export function useInsights(userId: string) {
+export function useInsights() {
+  const { user } = useAuth();
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) return;
 
     const fetchInsights = async () => {
       try {
@@ -50,7 +53,7 @@ export function useInsights(userId: string) {
         const { data, error } = await supabase
           .from('insights')
           .select('*')
-          .eq('user_id', userId)
+          .eq('user_id', user.id)
           .eq('status', 'active')
           .order('created_at', { ascending: false });
 
@@ -64,18 +67,19 @@ export function useInsights(userId: string) {
     };
 
     fetchInsights();
-  }, [userId]);
+  }, [user?.id]);
 
   return { insights, loading, error };
 }
 
-export function useUser(userId: string) {
+export function useUser() {
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!authUser?.id) return;
 
     const fetchUser = async () => {
       try {
@@ -83,7 +87,7 @@ export function useUser(userId: string) {
         const { data, error } = await supabase
           .from('users')
           .select('*')
-          .eq('id', userId)
+          .eq('id', authUser.id)
           .single();
 
         if (error) throw error;
@@ -96,7 +100,7 @@ export function useUser(userId: string) {
     };
 
     fetchUser();
-  }, [userId]);
+  }, [authUser?.id]);
 
   return { user, loading, error };
 }
@@ -132,14 +136,13 @@ export function useTicketStats(tickets: Ticket[]) {
   };
 }
 
-export async function syncIntercomData(userId: string) {
+export async function syncIntercomData() {
   try {
     const response = await fetch('/api/intercom/sync', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId }),
     });
 
     if (!response.ok) {
@@ -152,14 +155,14 @@ export async function syncIntercomData(userId: string) {
   }
 }
 
-export async function analyzeTickets(userId: string, ticketIds?: string[]) {
+export async function analyzeTickets(ticketIds?: string[]) {
   try {
     const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, ticketIds }),
+      body: JSON.stringify({ ticketIds }),
     });
 
     if (!response.ok) {
@@ -172,14 +175,13 @@ export async function analyzeTickets(userId: string, ticketIds?: string[]) {
   }
 }
 
-export async function generateInsights(userId: string) {
+export async function generateInsights() {
   try {
     const response = await fetch('/api/insights', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId }),
     });
 
     if (!response.ok) {

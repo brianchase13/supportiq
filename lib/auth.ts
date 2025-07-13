@@ -1,4 +1,5 @@
 import { createBrowserClient, createServerClient } from '@supabase/ssr'
+import { createClient as createServerSupabaseClient } from '@/lib/supabase/server'
 
 // Browser client for client-side operations
 export const createClient = () => {
@@ -32,7 +33,7 @@ export const createServerSupabaseClient = (cookieStore: any) => {
 // Auth helper functions
 export const auth = {
   getUser: async () => {
-    const supabase = createClient()
+    const supabase = createServerSupabaseClient()
     const { data: { user } } = await supabase.auth.getUser()
     return user
   },

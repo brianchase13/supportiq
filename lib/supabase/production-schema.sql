@@ -1,187 +1,289 @@
--- Enhanced production schema for SupportIQ
--- Run this after the basic schema
+-- Enhanced production schema with Intercom integration support
 
--- Add new columns to users table for production features
-ALTER TABLE users ADD COLUMN IF NOT EXISTS intercom_refresh_token text;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS intercom_workspace_name text;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS intercom_connected_at timestamp with time zone;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS intercom_token_expires_at timestamp with time zone;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id text;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_tier text DEFAULT 'free';
-ALTER TABLE users ADD COLUMN IF NOT EXISTS usage_limit integer DEFAULT 1000;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS usage_current integer DEFAULT 0;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS usage_reset_at timestamp with time zone DEFAULT date_trunc('month', now() + interval '1 month');
-
--- OAuth state management table
-CREATE TABLE IF NOT EXISTS oauth_states (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  state text UNIQUE NOT NULL,
-  user_id uuid REFERENCES users(id) ON DELETE CASCADE,
-  expires_at timestamp with time zone NOT NULL,
-  created_at timestamp with time zone DEFAULT now()
+-- Users table with Intercom integration fields
+CREATE TABLE IF NOT EXISTS users (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  full_name TEXT,
+  company_name TEXT,
+  role TEXT DEFAULT 'user',
+  subscription_tier TEXT DEFAULT 'free',
+  subscription_status TEXT DEFAULT 'active',
+  intercom_access_token TEXT,
+  intercom_workspace_id TEXT,
+  intercom_webhook_url TEXT,
+  onboarding_completed BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Audit logs for security and debugging
-CREATE TABLE IF NOT EXISTS audit_logs (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id text, -- Can be UUID or 'unknown' for failed attempts
-  action text NOT NULL,
-  details jsonb,
-  ip_address text,
-  user_agent text,
-  created_at timestamp with time zone DEFAULT now()
+-- Tickets table with enhanced Intercom support
+CREATE TABLE IF NOT EXISTS tickets (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  intercom_id TEXT,
+  subject TEXT,
+  content TEXT NOT NULL,
+  category TEXT,
+  subcategory TEXT,
+  priority TEXT DEFAULT 'normal',
+  sentiment TEXT,
+  sentiment_score DECIMAL(3,2),
+  deflection_potential DECIMAL(3,2),
+  confidence DECIMAL(3,2),
+  keywords TEXT[],
+  intent TEXT,
+  estimated_resolution_time INTEGER, -- in minutes
+  requires_human BOOLEAN DEFAULT TRUE,
+  tags TEXT[],
+  embedding VECTOR(1536),
+  similar_tickets JSONB,
+  deflected BOOLEAN DEFAULT FALSE,
+  deflection_response TEXT,
+  deflection_confidence DECIMAL(3,2),
+  response_sent BOOLEAN DEFAULT FALSE,
+  response_sent_at TIMESTAMP WITH TIME ZONE,
+  status TEXT DEFAULT 'open',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  metadata JSONB
 );
 
--- Enhanced tickets table with embeddings and caching
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS embedding vector(1536); -- OpenAI embeddings
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS analysis_version integer DEFAULT 1;
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS cached_until timestamp with time zone;
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS similar_tickets text[]; -- Array of similar ticket IDs
+-- Ticket responses table
+CREATE TABLE IF NOT EXISTS ticket_responses (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  ticket_id TEXT NOT NULL,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  intercom_response_id TEXT,
+  response_type TEXT DEFAULT 'automated', -- automated, manual, test
+  content TEXT NOT NULL,
+  confidence DECIMAL(3,2),
+  sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  metadata JSONB
+);
+
+-- Webhook logs table
+CREATE TABLE IF NOT EXISTS webhook_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  provider TEXT NOT NULL, -- intercom, zendesk, etc.
+  event_type TEXT NOT NULL,
+  event_data JSONB,
+  processed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  status TEXT DEFAULT 'pending', -- pending, success, error
+  error_message TEXT
+);
+
+-- Integration logs table
+CREATE TABLE IF NOT EXISTS integration_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  provider TEXT NOT NULL,
+  action TEXT NOT NULL, -- connect, disconnect, sync, etc.
+  status TEXT DEFAULT 'pending',
+  error_message TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Sync logs table
+CREATE TABLE IF NOT EXISTS sync_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  provider TEXT NOT NULL,
+  action TEXT NOT NULL, -- sync, full_sync, etc.
+  status TEXT DEFAULT 'started', -- started, completed, error
+  error_message TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Analytics table for deflection metrics
+CREATE TABLE IF NOT EXISTS deflection_analytics (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  date DATE NOT NULL,
+  total_tickets INTEGER DEFAULT 0,
+  deflected_tickets INTEGER DEFAULT 0,
+  deflection_rate DECIMAL(5,2),
+  avg_response_time_minutes INTEGER,
+  avg_resolution_time_minutes INTEGER,
+  category_breakdown JSONB,
+  sentiment_breakdown JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, date)
+);
+
+-- Benchmarks table
+CREATE TABLE IF NOT EXISTS benchmarks (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  metric_name TEXT NOT NULL,
+  metric_value DECIMAL(10,2),
+  benchmark_value DECIMAL(10,2),
+  industry_average DECIMAL(10,2),
+  percentile INTEGER,
+  date DATE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, metric_name, date)
+);
+
+-- Pricing table
+CREATE TABLE IF NOT EXISTS pricing (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  tier TEXT NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  currency TEXT DEFAULT 'USD',
+  billing_cycle TEXT DEFAULT 'monthly',
+  features JSONB,
+  limits JSONB,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
 -- Usage tracking table
-CREATE TABLE IF NOT EXISTS usage_logs (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id uuid REFERENCES users(id) ON DELETE CASCADE,
-  operation_type text NOT NULL, -- 'sync', 'analyze', 'insight_generation'
-  tokens_used integer DEFAULT 0,
-  cost_usd decimal(10,4) DEFAULT 0,
-  success boolean DEFAULT true,
-  error_message text,
-  created_at timestamp with time zone DEFAULT now()
+CREATE TABLE IF NOT EXISTS usage_tracking (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  date DATE NOT NULL,
+  tickets_processed INTEGER DEFAULT 0,
+  responses_sent INTEGER DEFAULT 0,
+  api_calls INTEGER DEFAULT 0,
+  storage_used_mb INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, date)
 );
 
--- Webhook events table for real-time sync
-CREATE TABLE IF NOT EXISTS webhook_events (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id uuid REFERENCES users(id) ON DELETE CASCADE,
-  event_type text NOT NULL, -- 'conversation.created', 'conversation.updated', etc.
-  intercom_event_id text UNIQUE,
-  payload jsonb NOT NULL,
-  processed boolean DEFAULT false,
-  processed_at timestamp with time zone,
-  error_message text,
-  created_at timestamp with time zone DEFAULT now()
-);
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_tickets_user_id ON tickets(user_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_intercom_id ON tickets(intercom_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_category ON tickets(category);
+CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
+CREATE INDEX IF NOT EXISTS idx_tickets_created_at ON tickets(created_at);
+CREATE INDEX IF NOT EXISTS idx_tickets_deflected ON tickets(deflected);
 
--- Subscription plans table
-CREATE TABLE IF NOT EXISTS subscription_plans (
-  id text PRIMARY KEY,
-  name text NOT NULL,
-  price_monthly integer NOT NULL, -- Price in cents
-  ticket_limit integer NOT NULL,
-  features jsonb NOT NULL DEFAULT '{}',
-  active boolean DEFAULT true,
-  created_at timestamp with time zone DEFAULT now()
-);
+CREATE INDEX IF NOT EXISTS idx_webhook_logs_user_id ON webhook_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_logs_provider ON webhook_logs(provider);
+CREATE INDEX IF NOT EXISTS idx_webhook_logs_status ON webhook_logs(status);
+CREATE INDEX IF NOT EXISTS idx_webhook_logs_processed_at ON webhook_logs(processed_at);
 
--- Insert default subscription plans
-INSERT INTO subscription_plans (id, name, price_monthly, ticket_limit, features) VALUES 
-('free', 'Free Trial', 0, 100, '{"ai_insights": false, "webhook_sync": false, "advanced_analytics": false}'),
-('starter', 'Starter', 9900, 1000, '{"ai_insights": true, "webhook_sync": false, "advanced_analytics": false}'),
-('pro', 'Pro', 29900, 10000, '{"ai_insights": true, "webhook_sync": true, "advanced_analytics": true}'),
-('enterprise', 'Enterprise', 89900, 999999, '{"ai_insights": true, "webhook_sync": true, "advanced_analytics": true, "custom_integrations": true}')
-ON CONFLICT (id) DO UPDATE SET
-  price_monthly = EXCLUDED.price_monthly,
-  features = EXCLUDED.features;
+CREATE INDEX IF NOT EXISTS idx_integration_logs_user_id ON integration_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_integration_logs_provider ON integration_logs(provider);
+CREATE INDEX IF NOT EXISTS idx_integration_logs_created_at ON integration_logs(created_at);
 
--- Data quality metrics table
-CREATE TABLE IF NOT EXISTS data_quality_metrics (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id uuid REFERENCES users(id) ON DELETE CASCADE,
-  metric_type text NOT NULL, -- 'ticket_categorization_accuracy', 'sentiment_confidence', etc.
-  value decimal(5,4) NOT NULL, -- 0.0 to 1.0 for accuracy metrics
-  sample_size integer NOT NULL,
-  calculated_at timestamp with time zone DEFAULT now()
-);
+CREATE INDEX IF NOT EXISTS idx_sync_logs_user_id ON sync_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_sync_logs_provider ON sync_logs(provider);
+CREATE INDEX IF NOT EXISTS idx_sync_logs_status ON sync_logs(status);
 
--- Performance indexes
-CREATE INDEX IF NOT EXISTS idx_oauth_states_expires ON oauth_states(expires_at);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user_action ON audit_logs(user_id, action);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_tickets_embedding ON tickets USING ivfflat (embedding vector_cosine_ops);
-CREATE INDEX IF NOT EXISTS idx_tickets_cached_until ON tickets(cached_until);
-CREATE INDEX IF NOT EXISTS idx_usage_logs_user_operation ON usage_logs(user_id, operation_type);
-CREATE INDEX IF NOT EXISTS idx_webhook_events_processed ON webhook_events(processed, created_at);
-CREATE INDEX IF NOT EXISTS idx_webhook_events_user_type ON webhook_events(user_id, event_type);
+CREATE INDEX IF NOT EXISTS idx_deflection_analytics_user_id ON deflection_analytics(user_id);
+CREATE INDEX IF NOT EXISTS idx_deflection_analytics_date ON deflection_analytics(date);
 
--- Enable RLS on new tables
-ALTER TABLE oauth_states ENABLE ROW LEVEL SECURITY;
-ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE usage_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE webhook_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE data_quality_metrics ENABLE ROW LEVEL SECURITY;
+CREATE INDEX IF NOT EXISTS idx_benchmarks_user_id ON benchmarks(user_id);
+CREATE INDEX IF NOT EXISTS idx_benchmarks_metric_name ON benchmarks(metric_name);
+CREATE INDEX IF NOT EXISTS idx_benchmarks_date ON benchmarks(date);
 
--- RLS policies
-CREATE POLICY "Users can only see their own oauth states" ON oauth_states
-  FOR ALL USING (auth.uid() = user_id);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_user_id ON usage_tracking(user_id);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_date ON usage_tracking(date);
 
-CREATE POLICY "Users can only see their own audit logs" ON audit_logs
-  FOR ALL USING (auth.uid()::text = user_id);
+-- Enable Row Level Security (RLS)
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ticket_responses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE webhook_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE integration_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE deflection_analytics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE benchmarks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pricing ENABLE ROW LEVEL SECURITY;
+ALTER TABLE usage_tracking ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can only see their own usage logs" ON usage_logs
-  FOR ALL USING (auth.uid() = user_id);
+-- RLS Policies
+CREATE POLICY "Users can view own profile" ON users
+  FOR SELECT USING (auth.uid() = id);
 
-CREATE POLICY "Users can only see their own webhook events" ON webhook_events
-  FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own profile" ON users
+  FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "Users can only see their own metrics" ON data_quality_metrics
-  FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Users can view own tickets" ON tickets
+  FOR SELECT USING (auth.uid() = user_id);
 
--- Subscription plans are public read-only
-CREATE POLICY "Anyone can read subscription plans" ON subscription_plans
-  FOR SELECT USING (true);
+CREATE POLICY "Users can insert own tickets" ON tickets
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- Cleanup function for expired oauth states
-CREATE OR REPLACE FUNCTION cleanup_expired_oauth_states()
-RETURNS void AS $$
+CREATE POLICY "Users can update own tickets" ON tickets
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own ticket responses" ON ticket_responses
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own ticket responses" ON ticket_responses
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own webhook logs" ON webhook_logs
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own integration logs" ON integration_logs
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own sync logs" ON sync_logs
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own analytics" ON deflection_analytics
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own benchmarks" ON benchmarks
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own pricing" ON pricing
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own usage" ON usage_tracking
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Functions for automatic updates
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
 BEGIN
-  DELETE FROM oauth_states WHERE expires_at < now();
+  NEW.updated_at = NOW();
+  RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ language 'plpgsql';
 
--- Function to update usage tracking
-CREATE OR REPLACE FUNCTION update_user_usage(
-  p_user_id uuid,
-  p_operation_type text,
-  p_tokens_used integer DEFAULT 0,
-  p_cost_usd decimal DEFAULT 0
-)
-RETURNS void AS $$
+-- Triggers for automatic updated_at
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_tickets_updated_at BEFORE UPDATE ON tickets
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_deflection_analytics_updated_at BEFORE UPDATE ON deflection_analytics
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_pricing_updated_at BEFORE UPDATE ON pricing
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Function to calculate deflection rate
+CREATE OR REPLACE FUNCTION calculate_deflection_rate(user_uuid UUID, start_date DATE, end_date DATE)
+RETURNS DECIMAL(5,2) AS $$
+DECLARE
+  total_tickets INTEGER;
+  deflected_tickets INTEGER;
+  rate DECIMAL(5,2);
 BEGIN
-  -- Insert usage log
-  INSERT INTO usage_logs (user_id, operation_type, tokens_used, cost_usd)
-  VALUES (p_user_id, p_operation_type, p_tokens_used, p_cost_usd);
+  SELECT COUNT(*), COUNT(*) FILTER (WHERE deflected = true)
+  INTO total_tickets, deflected_tickets
+  FROM tickets
+  WHERE user_id = user_uuid
+    AND created_at::date BETWEEN start_date AND end_date;
   
-  -- Update current usage
-  UPDATE users 
-  SET usage_current = usage_current + 1
-  WHERE id = p_user_id;
+  IF total_tickets = 0 THEN
+    RETURN 0;
+  END IF;
+  
+  rate := (deflected_tickets::DECIMAL / total_tickets::DECIMAL) * 100;
+  RETURN ROUND(rate, 2);
 END;
 $$ LANGUAGE plpgsql;
-
--- Function to reset monthly usage
-CREATE OR REPLACE FUNCTION reset_monthly_usage()
-RETURNS void AS $$
-BEGIN
-  UPDATE users 
-  SET 
-    usage_current = 0,
-    usage_reset_at = date_trunc('month', now() + interval '1 month')
-  WHERE usage_reset_at <= now();
-END;
-$$ LANGUAGE plpgsql;
-
--- Triggers for automatic cleanup
-CREATE OR REPLACE FUNCTION trigger_cleanup_oauth_states()
-RETURNS trigger AS $$
-BEGIN
-  PERFORM cleanup_expired_oauth_states();
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
--- Create trigger that runs cleanup every hour
--- Note: This would typically be handled by a cron job in production
-CREATE TRIGGER oauth_cleanup_trigger
-  AFTER INSERT ON oauth_states
-  EXECUTE FUNCTION trigger_cleanup_oauth_states();

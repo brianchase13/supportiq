@@ -10,7 +10,8 @@ import {
   ChevronRight,
   BarChart3,
   Users,
-  HelpCircle
+  HelpCircle,
+  Zap
 } from 'lucide-react';
 import { useState } from 'react';
 import { clsx } from 'clsx';
@@ -20,6 +21,11 @@ const navItems = [
     name: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    name: 'Deflection',
+    href: '/deflection',
+    icon: Zap,
   },
   {
     name: 'Insights',

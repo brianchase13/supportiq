@@ -3,14 +3,23 @@ import { supabaseAdmin } from '@/lib/supabase/client';
 import { decrypt } from '@/lib/crypto/encryption';
 import { syncLimiter, checkRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 
 const ConversationSyncRequestSchema = z.object({
-  userId: z.string().uuid(),
   conversationId: z.string(),
 });
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = user.id;
+
     const body = await request.json();
     const clientIP = request.ip || 'unknown';
 
@@ -35,26 +44,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { userId, conversationId } = validationResult.data;
+    const { conversationId } = validationResult.data;
 
     // Get user and access token
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, intercom_access_token')
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    if (!user.intercom_access_token) {
+    if (!userData.intercom_access_token) {
       return NextResponse.json({ error: 'Intercom not connected' }, { status: 400 });
     }
 
     try {
       // Decrypt access token
-      const accessToken = decrypt(user.intercom_access_token);
+      const accessToken = decrypt(userData.intercom_access_token);
 
       // Fetch specific conversation from Intercom
       const conversation = await fetchSingleConversation(accessToken, conversationId);

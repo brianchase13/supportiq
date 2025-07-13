@@ -3,9 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase/client';
 import { decrypt } from '@/lib/crypto/encryption';
 import { syncLimiter, checkRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 
 const SyncRequestSchema = z.object({
-  userId: z.string().uuid(),
   force: z.boolean().optional().default(false),
   maxTickets: z.number().min(1).max(1000).optional().default(100),
 });
@@ -61,6 +61,15 @@ export async function POST(request: NextRequest) {
   let syncLogId: string | null = null;
   
   try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = user.id;
+
     const body = await request.json();
     const clientIP = request.ip || 'unknown';
 
@@ -85,10 +94,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { userId, force, maxTickets } = validationResult.data;
+    const { force, maxTickets } = validationResult.data;
 
     // Get user and check subscription limits
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select(`
         *,
@@ -97,20 +106,20 @@ export async function POST(request: NextRequest) {
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    if (!user.intercom_access_token) {
+    if (!userData.intercom_access_token) {
       return NextResponse.json({ error: 'Intercom not connected' }, { status: 400 });
     }
 
     // Check usage limits
-    const ticketLimit = user.subscription_plans?.ticket_limit || 100;
-    if (user.usage_current >= ticketLimit && !force) {
+    const ticketLimit = userData.subscription_plans?.ticket_limit || 100;
+    if (userData.usage_current >= ticketLimit && !force) {
       return NextResponse.json({ 
         error: 'Usage limit exceeded',
-        current: user.usage_current,
+        current: userData.usage_current,
         limit: ticketLimit,
         upgradeUrl: '/pricing'
       }, { status: 402 });
@@ -158,7 +167,7 @@ export async function POST(request: NextRequest) {
 
     try {
       // Decrypt access token
-      const accessToken = decrypt(user.intercom_access_token);
+      const accessToken = decrypt(userData.intercom_access_token);
 
       // Get last sync timestamp for incremental updates
       const { data: lastTicket } = await supabaseAdmin
