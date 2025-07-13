@@ -194,3 +194,12 @@ export function getRateLimitHeaders(result: RateLimitResult): Record<string, str
     'X-RateLimit-Reset': new Date(result.resetTime).toISOString()
   };
 }
+
+// Legacy exports for backward compatibility
+export const checkRateLimit = withRateLimit;
+export const rateLimit = withRateLimit;
+export const apiLimiter = rateLimiters.api;
+export const syncLimiter = rateLimiters.sync;
+export const analysisLimiter = rateLimiters.analysis;
+export const authLimiter = rateLimiters.api;
+export const dashboardLimiter = rateLimiters.api;

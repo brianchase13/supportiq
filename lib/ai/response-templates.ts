@@ -513,3 +513,6 @@ export class ResponseTemplateSystem {
     }
   }
 }
+
+// Legacy export for backward compatibility
+export const ResponseTemplateEngine = ResponseTemplateSystem;

@@ -27,3 +27,6 @@ export function createClient() {
     }
   )
 }
+
+// Legacy export for backward compatibility
+export const supabaseServer = createClient;
