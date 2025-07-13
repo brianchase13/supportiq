@@ -91,8 +91,8 @@ export async function GET(request: NextRequest) {
 
     const categoryBreakdownArray = Object.entries(categoryBreakdown).map(([category, data]) => ({
       category,
-      count: data.count,
-      deflection_rate: data.count > 0 ? (data.deflected / data.count) * 100 : 0
+      count: (data as { count: number; deflected: number }).count,
+      deflection_rate: (data as { count: number; deflected: number }).count > 0 ? ((data as { count: number; deflected: number }).deflected / (data as { count: number; deflected: number }).count) * 100 : 0
     }));
 
     // Recent activity (combine webhook logs and ticket creation)
