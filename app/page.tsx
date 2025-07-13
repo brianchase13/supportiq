@@ -71,26 +71,90 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Primary CTA - Brutal conversion optimization */}
+          {/* Primary CTA - Conversion Optimized */}
           <div className="flex flex-col items-center justify-center gap-6 mb-8">
             <Link
-              href="/dashboard"
+              href="/auth"
               className="group relative inline-flex items-center gap-3 px-8 md:px-12 py-5 md:py-6 bg-gradient-to-r from-[#0066FF] via-[#0052CC] to-[#8B5CF6] text-white rounded-2xl font-black text-xl md:text-2xl hover:scale-105 transition-all shadow-2xl hover:shadow-3xl border-4 border-blue-200 w-full sm:w-auto justify-center max-w-md"
             >
               <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <Bot className="w-6 h-6 md:w-7 md:h-7 relative z-10" />
-              <span className="relative z-10">Join Beta - Free</span>
+              <span className="relative z-10">Start Free 14-Day Trial</span>
               <ArrowRight className="w-6 h-6 md:w-7 md:h-7 relative z-10 group-hover:translate-x-1 transition-transform" />
             </Link>
             <div className="text-center">
-              <div className="text-base font-black text-green-700 mb-4 leading-relaxed">🚀 Free during beta • Full access to all features</div>
-              <Link
-                href="/demo"
-                className="inline-flex items-center gap-2 px-6 py-3 text-[#0066FF] hover:text-[#0052CC] font-semibold transition-colors underline underline-offset-4 text-base"
+              <div className="text-base font-black text-green-700 mb-4 leading-relaxed">🚀 No credit card required • Full access to all features</div>
+              <div className="flex items-center justify-center gap-4 text-sm text-slate-600">
+                <span>✅ 5-minute setup</span>
+                <span>✅ 30-day money-back guarantee</span>
+                <span>✅ Cancel anytime</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Lead Capture Form */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-8 max-w-2xl mx-auto mb-12">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Get Early Access</h3>
+              <p className="text-slate-600">Join 50+ companies already using SupportIQ</p>
+            </div>
+            
+            <form className="space-y-4" onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const email = formData.get('email') as string;
+              const name = formData.get('name') as string;
+              const company = formData.get('company') as string;
+              
+              try {
+                const response = await fetch('/api/leads', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, name, company, source: 'landing_page' })
+                });
+                
+                if (response.ok) {
+                  window.location.href = '/auth?email=' + encodeURIComponent(email);
+                }
+              } catch (error) {
+                console.error('Lead capture failed:', error);
+              }
+            }}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input
+                  name="name"
+                  type="text"
+                  placeholder="Your name"
+                  className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Work email"
+                  className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                <input
+                  name="company"
+                  type="text"
+                  placeholder="Company"
+                  className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all"
               >
-                <MessageSquare className="w-5 h-5" />
-                Watch demo first
-              </Link>
+                Start Free Trial
+              </button>
+            </form>
+            
+            <div className="text-center mt-4">
+              <p className="text-xs text-slate-500">
+                By signing up, you agree to our Terms of Service and Privacy Policy
+              </p>
             </div>
           </div>
 

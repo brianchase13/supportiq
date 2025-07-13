@@ -12,7 +12,8 @@ import {
   Users,
   HelpCircle,
   Zap,
-  BookOpen
+  BookOpen,
+  User
 } from 'lucide-react';
 import { useState } from 'react';
 import { clsx } from 'clsx';
@@ -37,6 +38,11 @@ const navItems = [
     name: 'Insights',
     href: '/insights',
     icon: Brain,
+  },
+  {
+    name: 'Profile',
+    href: '/dashboard/profile',
+    icon: User,
   },
   {
     name: 'Settings',

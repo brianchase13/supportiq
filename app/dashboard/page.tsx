@@ -21,6 +21,8 @@ import { TicketDeflectionCalculator } from '@/components/dashboard/TicketDeflect
 import { AgentPerformanceScorecard } from '@/components/dashboard/AgentPerformanceScorecard';
 import { CrisisModeAlert } from '@/components/dashboard/CrisisModeAlert';
 import { ROIDashboard } from '@/components/dashboard/ROIDashboard';
+import { TrialStatus } from '@/components/trial/TrialStatus';
+import { TicketTester } from '@/components/ai/TicketTester';
 
 export default function DashboardPage() {
   const { user, profile, loading: userLoading } = useRequireAuth();
@@ -147,6 +149,26 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-xs text-slate-500 mt-1 font-medium">vs $99 cost</div>
               </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Trial Status & AI Tester */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <TrialStatus />
+          <Card className="p-6 border border-slate-200 shadow-lg bg-white">
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Test AI Processing</h3>
+              <p className="text-sm text-slate-600 mb-4">
+                Try our AI with sample tickets to see how it works
+              </p>
+              <Link 
+                href="/dashboard/ai-test"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+              >
+                <Zap className="w-4 h-4" />
+                Test AI
+              </Link>
             </div>
           </Card>
         </div>

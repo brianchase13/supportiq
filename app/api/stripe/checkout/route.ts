@@ -15,6 +15,8 @@ const CheckoutRequestSchema = z.object({
   returnUrl: z.string().url().optional(),
   ticketVolume: z.number().min(0).optional(),
   projectedSavings: z.number().min(0).optional(),
+  isTrialConversion: z.boolean().optional().default(false),
+  trialEndDate: z.string().optional(),
 });
 
 // Dynamic pricing based on ticket volume and ROI
@@ -70,7 +72,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { planId, billingCycle, returnUrl, ticketVolume, projectedSavings } = validationResult.data;
+    const { planId, billingCycle, returnUrl, ticketVolume, projectedSavings, isTrialConversion, trialEndDate } = validationResult.data;
 
     // Get user information
     const { data: userData, error: userError } = await supabaseAdmin
@@ -87,10 +89,10 @@ export async function POST(request: NextRequest) {
     const pricingInfo = calculateDynamicPricing(planId, billingCycle, ticketVolume, projectedSavings);
     
     // Get or create Stripe customer
-    const stripeCustomer = await getOrCreateStripeCustomer(user);
+    const stripeCustomer = await getOrCreateStripeCustomer(userData);
 
-    // Create checkout session with ROI messaging
-    const session = await stripe.checkout.sessions.create({
+    // Prepare checkout session configuration
+    const checkoutConfig: Stripe.Checkout.SessionCreateParams = {
       customer: stripeCustomer.id,
       payment_method_types: ['card'],
       line_items: [
@@ -111,8 +113,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXTAUTH_URL}/dashboard/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/pricing?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL}/dashboard/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL}/pricing?canceled=true`,
       metadata: {
         userId,
         planId,
@@ -120,12 +122,14 @@ export async function POST(request: NextRequest) {
         ticketVolume: ticketVolume?.toString() || '0',
         projectedSavings: projectedSavings?.toString() || '0',
         roiMultiplier: pricingInfo.roiMultiplier.toString(),
+        isTrialConversion: isTrialConversion.toString(),
       },
       subscription_data: {
         metadata: {
           userId,
           planId,
           billingCycle,
+          isTrialConversion: isTrialConversion.toString(),
         },
       },
       // Custom fields to capture additional info
@@ -165,7 +169,15 @@ export async function POST(request: NextRequest) {
       phone_number_collection: {
         enabled: true,
       },
-    });
+    };
+
+    // Add trial_end for trial conversions
+    if (isTrialConversion && trialEndDate) {
+      checkoutConfig.subscription_data!.trial_end = Math.floor(new Date(trialEndDate).getTime() / 1000);
+    }
+
+    // Create checkout session
+    const session = await stripe.checkout.sessions.create(checkoutConfig);
 
     // Store checkout session for tracking
     await supabaseAdmin

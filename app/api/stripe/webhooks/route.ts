@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import Stripe from 'stripe';
 import { headers } from 'next/headers';
+import { SubscriptionSync } from '@/lib/stripe/sync-subscription';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
@@ -34,23 +35,23 @@ export async function POST(request: NextRequest) {
         break;
       
       case 'customer.subscription.created':
-        await handleSubscriptionCreated(event.data.object as Stripe.Subscription);
+        await SubscriptionSync.syncSubscription(event.data.object as Stripe.Subscription);
         break;
       
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
+        await SubscriptionSync.syncSubscription(event.data.object as Stripe.Subscription);
         break;
       
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+        await SubscriptionSync.handleSubscriptionCancellation(event.data.object as Stripe.Subscription);
         break;
       
       case 'invoice.payment_succeeded':
-        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
+        await SubscriptionSync.handlePaymentSuccess(event.data.object as Stripe.Invoice);
         break;
       
       case 'invoice.payment_failed':
-        await handlePaymentFailed(event.data.object as Stripe.Invoice);
+        await SubscriptionSync.handlePaymentFailure(event.data.object as Stripe.Invoice);
         break;
       
       default:
@@ -388,27 +389,4 @@ async function sendEmail({ to, subject, html }: { to: string; subject: string; h
 }
 
 // Additional webhook handlers...
-async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  // Handle subscription creation
-  console.log('Subscription created:', subscription.id);
-}
-
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  // Handle subscription updates (plan changes, etc.)
-  console.log('Subscription updated:', subscription.id);
-}
-
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  // Handle subscription cancellation
-  console.log('Subscription deleted:', subscription.id);
-}
-
-async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  // Handle successful payments
-  console.log('Payment succeeded:', invoice.id);
-}
-
-async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  // Handle failed payments
-  console.log('Payment failed:', invoice.id);
-}
+// Old handler functions removed - now using SubscriptionSync class for all subscription events

@@ -1,502 +1,428 @@
-import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
+import { z } from 'zod';
+import { 
+  Ticket, 
+  AIAnalysisResult, 
+  DeflectionResponse, 
+  TicketCategory, 
+  TicketPriority, 
+  TicketSentiment,
+  DeflectionPotential 
+} from '@/lib/types';
+import { getConfig } from '@/lib/config/constants';
+import { log } from '@/lib/logging/logger';
+import { generateEmbedding, findSimilarTickets } from './embeddings';
+import { supabaseAdmin } from '@/lib/supabase/client';
 
-interface Ticket {
-  id: string;
-  subject: string;
-  body: string;
-  customer_email: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  category?: string;
-  tags?: string[];
-  created_at: string;
-  updated_at: string;
-}
-
-interface DeflectionResponse {
-  id: string;
-  ticket_id: string;
-  response: string;
-  confidence: number;
-  category: string;
-  template_used?: string;
-  auto_sent: boolean;
-  created_at: string;
-}
-
-interface DeflectionSettings {
-  enabled: boolean;
-  autoRespond: boolean;
-  deflectionThreshold: number;
-  responseTemplates: ResponseTemplate[];
-  categories: Category[];
-  workingHours: WorkingHours;
-}
-
-interface ResponseTemplate {
-  id: string;
-  name: string;
-  content: string;
-  category: string;
-  active: boolean;
-  keywords: string[];
-}
-
-interface Category {
-  id: string;
-  name: string;
-  enabled: boolean;
-  threshold: number;
-}
-
-interface WorkingHours {
-  enabled: boolean;
-  startTime: string;
-  endTime: string;
-  timezone: string;
-}
-
-interface DeflectionResult {
-  shouldDeflect: boolean;
-  confidence: number;
-  response: string;
-  category: string;
-  template_used?: string;
-  reasoning: string;
-  estimatedSavings: number;
-}
+// Input validation schemas
+const TicketAnalysisSchema = z.object({
+  category: z.enum(['Account', 'Billing', 'Feature Request', 'Bug', 'How-to', 'Technical Issue', 'Other']),
+  subcategory: z.string().optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']),
+  sentiment: z.enum(['positive', 'neutral', 'negative']),
+  sentiment_score: z.number().min(-1).max(1),
+  deflection_potential: z.enum(['high', 'medium', 'low']),
+  confidence: z.number().min(0).max(1),
+  keywords: z.array(z.string()),
+  intent: z.string(),
+  estimated_resolution_time: z.number().positive(),
+  requires_human: z.boolean(),
+  tags: z.array(z.string()),
+});
 
 export class TicketDeflectionEngine {
-  private openai: OpenAI;
-  private supabase: any;
-  private settings: DeflectionSettings;
+  private openai: OpenAI | null;
+  private config = getConfig();
 
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    this.openai = process.env.OPENAI_API_KEY 
+      ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      : null;
+  }
+
+  async analyzeTicket(ticket: Ticket, existingTickets: Ticket[] = []): Promise<AIAnalysisResult> {
+    const startTime = Date.now();
     
-    this.supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    this.settings = this.getDefaultSettings();
-  }
-
-  private getDefaultSettings(): DeflectionSettings {
-    return {
-      enabled: true,
-      autoRespond: true,
-      deflectionThreshold: 0.8,
-      responseTemplates: [
-        {
-          id: '1',
-          name: 'FAQ Response',
-          content: 'Hi there! I found a helpful answer to your question in our FAQ: [LINK]. This should resolve your issue. Let me know if you need anything else!',
-          category: 'general',
-          active: true,
-          keywords: ['how', 'what', 'where', 'when', 'why', 'faq', 'help']
-        },
-        {
-          id: '2',
-          name: 'Account Access',
-          content: 'I can help you with account access. Please try resetting your password here: [LINK]. If that doesn\'t work, I\'ll escalate this to our team.',
-          category: 'account',
-          active: true,
-          keywords: ['password', 'login', 'access', 'account', 'reset', 'forgot']
-        },
-        {
-          id: '3',
-          name: 'Billing Inquiry',
-          content: 'Thank you for your billing question. You can view your billing information and make changes here: [LINK]. If you need further assistance, I\'ll connect you with our billing team.',
-          category: 'billing',
-          active: true,
-          keywords: ['billing', 'payment', 'invoice', 'charge', 'subscription', 'plan']
-        }
-      ],
-      categories: [
-        { id: '1', name: 'General Questions', enabled: true, threshold: 0.8 },
-        { id: '2', name: 'Account Issues', enabled: true, threshold: 0.7 },
-        { id: '3', name: 'Billing', enabled: false, threshold: 0.9 },
-        { id: '4', name: 'Technical Support', enabled: true, threshold: 0.6 },
-        { id: '5', name: 'Feature Requests', enabled: false, threshold: 0.8 }
-      ],
-      workingHours: {
-        enabled: true,
-        startTime: '09:00',
-        endTime: '17:00',
-        timezone: 'America/New_York'
-      }
-    };
-  }
-
-  async loadUserSettings(userId: string): Promise<void> {
     try {
-      const { data, error } = await this.supabase
-        .from('user_settings')
-        .select('deflection_settings')
-        .eq('user_id', userId)
-        .single();
+      log.info('Starting ticket analysis', {
+        ticket_id: ticket.id,
+        user_id: ticket.user_id,
+        subject_length: ticket.subject.length,
+        content_length: ticket.content.length,
+      });
 
-      if (data?.deflection_settings) {
-        this.settings = { ...this.settings, ...data.deflection_settings };
+      if (!this.openai) {
+        throw new Error('OpenAI API key not configured');
       }
+
+      // Generate embedding for similarity search
+      const ticketText = `${ticket.subject} ${ticket.content}`.trim();
+      const embedding = await generateEmbedding(ticketText);
+
+      // Find similar tickets
+      const similarTickets = findSimilarTickets(embedding, existingTickets, 0.8, 5);
+
+      // Perform AI analysis
+      const analysis = await this.performAIAnalysis(ticket, similarTickets);
+
+      // Validate analysis result
+      const validatedAnalysis = TicketAnalysisSchema.parse(analysis);
+
+      // Calculate costs
+      const tokensUsed = this.estimateTokensUsed(ticketText, analysis);
+      const costUsd = this.calculateCost(tokensUsed);
+
+      const result: AIAnalysisResult = {
+        ...validatedAnalysis,
+        similar_tickets: similarTickets.map(t => t.id),
+        model_used: this.config.AI.DEFAULT_MODEL,
+        tokens_used: tokensUsed,
+        cost_usd: costUsd,
+        analysis_timestamp: new Date().toISOString(),
+      };
+
+      const duration = Date.now() - startTime;
+      log.info('Ticket analysis completed', {
+        ticket_id: ticket.id,
+        duration_ms: duration,
+        tokens_used: tokensUsed,
+        cost_usd: costUsd,
+        confidence: result.confidence,
+        deflection_potential: result.deflection_potential,
+      });
+
+      return result;
+
     } catch (error) {
-      console.error('Error loading user settings:', error);
+      const duration = Date.now() - startTime;
+      log.error('Ticket analysis failed', error as Error, {
+        ticket_id: ticket.id,
+        user_id: ticket.user_id,
+        duration_ms: duration,
+      });
+      throw error;
     }
   }
 
-  async analyzeTicket(ticket: Ticket): Promise<DeflectionResult> {
-    if (!this.settings.enabled) {
-      return {
-        shouldDeflect: false,
-        confidence: 0,
-        response: '',
-        category: '',
-        reasoning: 'Deflection is disabled',
-        estimatedSavings: 0
-      };
+  private async performAIAnalysis(ticket: Ticket, similarTickets: Ticket[]): Promise<Partial<AIAnalysisResult>> {
+    if (!this.openai) {
+      throw new Error('OpenAI client not initialized');
+    }
+
+    const prompt = this.buildAnalysisPrompt(ticket, similarTickets);
+
+    const completion = await this.openai.chat.completions.create({
+      model: this.config.AI.DEFAULT_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert customer support analyst. Analyze support tickets and provide accurate categorization and deflection assessment.
+
+RESPONSE FORMAT: Return ONLY a valid JSON object with these exact fields:
+{
+  "category": "Account|Billing|Feature Request|Bug|How-to|Technical Issue|Other",
+  "subcategory": "specific subcategory",
+  "priority": "low|medium|high|urgent",
+  "sentiment": "positive|neutral|negative",
+  "sentiment_score": -1.0 to 1.0,
+  "deflection_potential": "high|medium|low",
+  "confidence": 0.0 to 1.0,
+  "keywords": ["keyword1", "keyword2"],
+  "intent": "what the user is trying to accomplish",
+  "estimated_resolution_time": minutes,
+  "requires_human": true/false,
+  "tags": ["tag1", "tag2"]
+}
+
+ANALYSIS GUIDELINES:
+- High deflection potential: FAQ questions, password resets, billing inquiries
+- Medium deflection potential: Feature requests, basic how-to questions
+- Low deflection potential: Complex bugs, account security issues
+- Requires human: Complex issues, sensitive topics, escalations
+- Confidence: Base on clarity of request and available information`,
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: this.config.AI.TEMPERATURE,
+      max_tokens: this.config.AI.MAX_TOKENS,
+    });
+
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error('No response from OpenAI');
+    }
+
+    try {
+      return JSON.parse(response);
+    } catch (error) {
+      log.error('Failed to parse AI response', error as Error, {
+        response,
+        ticket_id: ticket.id,
+      });
+      throw new Error('Invalid AI response format');
+    }
+  }
+
+  private buildAnalysisPrompt(ticket: Ticket, similarTickets: Ticket[]): string {
+    const similarTicketsContext = similarTickets.length > 0 
+      ? `\nSIMILAR TICKETS (for context):\n${similarTickets.map((t, i) => 
+          `${i + 1}. ${t.subject}: ${t.content.substring(0, 200)}...`
+        ).join('\n')}`
+      : '';
+
+    return `Analyze this customer support ticket:
+
+TICKET:
+Subject: ${ticket.subject}
+Content: ${ticket.content}
+Customer Email: ${ticket.customer_email}
+Created: ${ticket.created_at}${similarTicketsContext}
+
+Provide analysis in the exact JSON format specified.`;
+  }
+
+  async generateDeflectionResponse(analysis: AIAnalysisResult, ticket: Ticket): Promise<DeflectionResponse> {
+    const startTime = Date.now();
+
+    try {
+      log.info('Generating deflection response', {
+        ticket_id: ticket.id,
+        user_id: ticket.user_id,
+        deflection_potential: analysis.deflection_potential,
+        confidence: analysis.confidence,
+      });
+
+      // Check if we can deflect based on analysis and user settings
+      const canDeflect = await this.canDeflectTicket(analysis, ticket);
+
+      if (!canDeflect) {
+        return this.generateEscalationResponse(analysis, ticket);
+      }
+
+      // Generate automated response
+      const response = await this.generateAutomatedResponse(analysis, ticket);
+
+      const duration = Date.now() - startTime;
+      log.info('Deflection response generated', {
+        ticket_id: ticket.id,
+        duration_ms: duration,
+        can_deflect: true,
+        confidence: response.confidence,
+      });
+
+      return response;
+
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      log.error('Failed to generate deflection response', error as Error, {
+        ticket_id: ticket.id,
+        user_id: ticket.user_id,
+        duration_ms: duration,
+      });
+      throw error;
+    }
+  }
+
+  private async canDeflectTicket(analysis: AIAnalysisResult, ticket: Ticket): Promise<boolean> {
+    // Get user's deflection settings
+    const { data: userSettings } = await supabaseAdmin
+      .from('user_settings')
+      .select('deflection_settings')
+      .eq('user_id', ticket.user_id)
+      .single();
+
+    if (!userSettings?.deflection_settings?.auto_response_enabled) {
+      return false;
+    }
+
+    const settings = userSettings.deflection_settings;
+
+    // Check confidence threshold
+    if (analysis.confidence < settings.confidence_threshold) {
+      return false;
+    }
+
+    // Check if category is excluded
+    if (settings.excluded_categories.includes(analysis.category)) {
+      return false;
+    }
+
+    // Check if keywords are excluded
+    const hasExcludedKeywords = settings.excluded_keywords.some(keyword =>
+      ticket.content.toLowerCase().includes(keyword.toLowerCase()) ||
+      ticket.subject.toLowerCase().includes(keyword.toLowerCase())
+    );
+
+    if (hasExcludedKeywords) {
+      return false;
     }
 
     // Check working hours
-    if (this.settings.workingHours.enabled && !this.isWithinWorkingHours()) {
-      return {
-        shouldDeflect: false,
-        confidence: 0,
-        response: '',
-        category: '',
-        reasoning: 'Outside working hours',
-        estimatedSavings: 0
-      };
-    }
-
-    // Analyze ticket content
-    const analysis = await this.analyzeTicketContent(ticket);
-    
-    // Find best matching template
-    const template = this.findBestTemplate(ticket, analysis);
-    
-    // Calculate confidence
-    const confidence = this.calculateConfidence(analysis, template);
-    
-    // Determine if should deflect
-    const shouldDeflect = confidence >= this.settings.deflectionThreshold;
-    
-    // Generate response
-    const response = shouldDeflect ? this.generateResponse(ticket, template, analysis) : '';
-    
-    // Calculate estimated savings
-    const estimatedSavings = shouldDeflect ? this.calculateSavings(ticket) : 0;
-
-    return {
-      shouldDeflect,
-      confidence,
-      response,
-      category: analysis.category,
-      template_used: template?.id,
-      reasoning: this.generateReasoning(analysis, template, confidence),
-      estimatedSavings
-    };
-  }
-
-  private async analyzeTicketContent(ticket: Ticket): Promise<any> {
-    const prompt = `
-Analyze this support ticket and provide insights for automated response:
-
-Ticket Subject: ${ticket.subject}
-Ticket Body: ${ticket.body}
-Priority: ${ticket.priority}
-Category: ${ticket.category || 'unknown'}
-
-Please analyze and return a JSON object with:
-1. category: The most likely category (general, account, billing, technical, feature_request)
-2. complexity: Low, Medium, or High
-3. sentiment: Positive, Neutral, or Negative
-4. urgency: Low, Medium, or High
-5. keywords: Array of key terms that indicate the issue type
-6. can_auto_resolve: Boolean indicating if this can be automatically resolved
-7. confidence: Number between 0-1 indicating confidence in auto-resolution
-8. reasoning: Brief explanation of the analysis
-
-Focus on identifying tickets that can be resolved with standard responses, FAQ links, or simple instructions.
-`;
-
-    try {
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.3,
-        max_tokens: 500
-      });
-
-      const response = completion.choices[0]?.message?.content;
-      if (response) {
-        return JSON.parse(response);
-      }
-    } catch (error) {
-      console.error('Error analyzing ticket content:', error);
-    }
-
-    // Fallback analysis
-    return {
-      category: 'general',
-      complexity: 'Medium',
-      sentiment: 'Neutral',
-      urgency: 'Medium',
-      keywords: [],
-      can_auto_resolve: false,
-      confidence: 0.3,
-      reasoning: 'Analysis failed, defaulting to manual review'
-    };
-  }
-
-  private findBestTemplate(ticket: Ticket, analysis: any): ResponseTemplate | null {
-    const activeTemplates = this.settings.responseTemplates.filter(t => t.active);
-    
-    let bestTemplate: ResponseTemplate | null = null;
-    let bestScore = 0;
-
-    for (const template of activeTemplates) {
-      const score = this.calculateTemplateScore(ticket, template, analysis);
-      if (score > bestScore) {
-        bestScore = score;
-        bestTemplate = template;
-      }
-    }
-
-    return bestTemplate;
-  }
-
-  private calculateTemplateScore(ticket: Ticket, template: ResponseTemplate, analysis: any): number {
-    let score = 0;
-    
-    // Category match
-    if (template.category === analysis.category) {
-      score += 0.4;
-    }
-    
-    // Keyword matching
-    const ticketText = `${ticket.subject} ${ticket.body}`.toLowerCase();
-    const keywordMatches = template.keywords.filter(keyword => 
-      ticketText.includes(keyword.toLowerCase())
-    ).length;
-    
-    score += (keywordMatches / template.keywords.length) * 0.3;
-    
-    // Priority consideration
-    if (ticket.priority === 'low' || ticket.priority === 'medium') {
-      score += 0.2;
-    }
-    
-    // Complexity consideration
-    if (analysis.complexity === 'Low') {
-      score += 0.1;
-    }
-    
-    return Math.min(score, 1);
-  }
-
-  private calculateConfidence(analysis: any, template: ResponseTemplate | null): number {
-    let confidence = analysis.confidence || 0.3;
-    
-    if (template) {
-      confidence += 0.2; // Template match bonus
-    }
-    
-    // Adjust based on complexity
-    if (analysis.complexity === 'Low') {
-      confidence += 0.1;
-    } else if (analysis.complexity === 'High') {
-      confidence -= 0.2;
-    }
-    
-    // Adjust based on urgency
-    if (analysis.urgency === 'High') {
-      confidence -= 0.1;
-    }
-    
-    return Math.max(0, Math.min(1, confidence));
-  }
-
-  private generateResponse(ticket: Ticket, template: ResponseTemplate, analysis: any): string {
-    let response = template.content;
-    
-    // Personalize response
-    response = response.replace('[CUSTOMER_NAME]', this.extractCustomerName(ticket.customer_email));
-    
-    // Add relevant links based on category
-    response = this.addRelevantLinks(response, analysis.category);
-    
-    // Add follow-up based on confidence
-    if (analysis.confidence < 0.9) {
-      response += '\n\nIf this doesn\'t resolve your issue, please let me know and I\'ll connect you with our support team.';
-    }
-    
-    return response;
-  }
-
-  private extractCustomerName(email: string): string {
-    const name = email.split('@')[0];
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  }
-
-  private addRelevantLinks(response: string, category: string): string {
-    const links: { [key: string]: string } = {
-      general: 'https://support.example.com/faq',
-      account: 'https://support.example.com/account-help',
-      billing: 'https://support.example.com/billing',
-      technical: 'https://support.example.com/technical-support',
-      feature_request: 'https://support.example.com/feature-requests'
-    };
-    
-    return response.replace('[LINK]', links[category] || links.general);
-  }
-
-  private calculateSavings(ticket: Ticket): number {
-    // Base savings calculation: $25/hour * 0.1 hours per ticket
-    const baseSavings = 25 * 0.1;
-    
-    // Adjust based on priority
-    const priorityMultiplier = {
-      low: 1.0,
-      medium: 1.2,
-      high: 1.5,
-      urgent: 2.0
-    };
-    
-    return baseSavings * (priorityMultiplier[ticket.priority] || 1.0);
-  }
-
-  private generateReasoning(analysis: any, template: ResponseTemplate | null, confidence: number): string {
-    let reasoning = `Confidence: ${Math.round(confidence * 100)}%. `;
-    
-    if (template) {
-      reasoning += `Matched template: ${template.name}. `;
-    }
-    
-    reasoning += `Category: ${analysis.category}. `;
-    reasoning += `Complexity: ${analysis.complexity}. `;
-    reasoning += analysis.reasoning || 'Standard auto-resolution criteria met.';
-    
-    return reasoning;
-  }
-
-  private isWithinWorkingHours(): boolean {
-    if (!this.settings.workingHours.enabled) {
-      return true;
-    }
-
-    const now = new Date();
-    const timezone = this.settings.workingHours.timezone;
-    
-    // Convert to user's timezone
-    const userTime = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
-    const currentTime = userTime.getHours() * 60 + userTime.getMinutes();
-    
-    const [startHour, startMin] = this.settings.workingHours.startTime.split(':').map(Number);
-    const [endHour, endMin] = this.settings.workingHours.endTime.split(':').map(Number);
-    
-    const startMinutes = startHour * 60 + startMin;
-    const endMinutes = endHour * 60 + endMin;
-    
-    return currentTime >= startMinutes && currentTime <= endMinutes;
-  }
-
-  async sendIntercomResponse(ticketId: string, response: string, userId: string): Promise<boolean> {
-    try {
-      // Get Intercom access token from user settings
-      const { data: settings } = await this.supabase
-        .from('user_settings')
-        .select('intercom_settings')
-        .eq('user_id', userId)
-        .single();
-
-      if (!settings?.intercom_settings?.access_token) {
-        throw new Error('Intercom not connected');
-      }
-
-      // Send reply via Intercom API
-      const intercomResponse = await fetch(`https://api.intercom.io/conversations/${ticketId}/reply`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${settings.intercom_settings.access_token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          message_type: 'comment',
-          body: response,
-          type: 'admin'
-        })
-      });
-
-      if (!intercomResponse.ok) {
-        throw new Error(`Intercom API error: ${intercomResponse.status}`);
-      }
-
-      // Log the response
-      await this.logDeflectionResponse(ticketId, response, 1.0, 'auto_sent', userId);
-
-      return true;
-    } catch (error) {
-      console.error('Error sending Intercom response:', error);
+    if (settings.working_hours.enabled && !this.isWithinWorkingHours(settings.working_hours)) {
       return false;
     }
+
+    return analysis.deflection_potential === 'high' && !analysis.requires_human;
   }
 
-  private async logDeflectionResponse(
-    ticketId: string, 
-    response: string, 
-    confidence: number, 
-    category: string, 
-    userId: string
-  ): Promise<void> {
-    try {
-      await this.supabase
-        .from('deflection_responses')
-        .insert({
-          ticket_id: ticketId,
-          response,
-          confidence,
-          category,
-          auto_sent: true,
-          user_id: userId,
-          created_at: new Date().toISOString()
-        });
-    } catch (error) {
-      console.error('Error logging deflection response:', error);
+  private async generateAutomatedResponse(analysis: AIAnalysisResult, ticket: Ticket): Promise<DeflectionResponse> {
+    if (!this.openai) {
+      throw new Error('OpenAI client not initialized');
     }
-  }
 
-  async getDeflectionStats(userId: string, days: number = 30): Promise<any> {
+    const prompt = this.buildResponsePrompt(analysis, ticket);
+
+    const completion = await this.openai.chat.completions.create({
+      model: this.config.AI.DEFAULT_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a helpful customer support agent. Generate personalized, helpful responses that solve customer issues efficiently.
+
+RESPONSE GUIDELINES:
+- Be empathetic and professional
+- Provide specific, actionable steps
+- Include relevant links or resources when available
+- Keep responses concise but complete
+- Use the customer's language/tone appropriately
+- Always offer to escalate if needed
+
+RESPONSE FORMAT: Return ONLY a valid JSON object:
+{
+  "response_content": "the actual response to send to the customer",
+  "confidence": 0.0 to 1.0,
+  "response_type": "auto_resolve|follow_up|escalate",
+  "reasoning": "why this response was chosen",
+  "suggested_actions": ["action1", "action2"],
+  "follow_up_required": true/false,
+  "escalation_triggers": ["trigger1", "trigger2"]
+}`,
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 600,
+    });
+
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error('No response from OpenAI');
+    }
+
     try {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
-
-      const { data, error } = await this.supabase
-        .from('deflection_responses')
-        .select('*')
-        .eq('user_id', userId)
-        .gte('created_at', startDate.toISOString());
-
-      if (error) throw error;
-
-      const total = data.length;
-      const autoSent = data.filter(r => r.auto_sent).length;
-      const avgConfidence = data.reduce((sum, r) => sum + r.confidence, 0) / total;
+      const parsedResponse = JSON.parse(response);
+      const tokensUsed = this.estimateTokensUsed(prompt, parsedResponse);
+      const costUsd = this.calculateCost(tokensUsed);
 
       return {
-        total_responses: total,
-        auto_sent: autoSent,
-        manual_review: total - autoSent,
-        success_rate: total > 0 ? (autoSent / total) * 100 : 0,
-        avg_confidence: avgConfidence,
-        estimated_savings: autoSent * 2.5 // $2.50 per auto-resolved ticket
+        can_deflect: true,
+        response_content: parsedResponse.response_content,
+        confidence: parsedResponse.confidence,
+        response_type: parsedResponse.response_type,
+        reasoning: parsedResponse.reasoning,
+        suggested_actions: parsedResponse.suggested_actions,
+        follow_up_required: parsedResponse.follow_up_required,
+        escalation_triggers: parsedResponse.escalation_triggers,
+        estimated_cost: costUsd,
+        tokens_used: tokensUsed,
+        model_used: this.config.AI.DEFAULT_MODEL,
+        generated_at: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error getting deflection stats:', error);
-      return null;
+      log.error('Failed to parse response generation', error as Error, {
+        response,
+        ticket_id: ticket.id,
+      });
+      throw new Error('Invalid response generation format');
     }
   }
-} 
+
+  private buildResponsePrompt(analysis: AIAnalysisResult, ticket: Ticket): string {
+    return `Generate a helpful response for this customer support ticket:
+
+TICKET ANALYSIS:
+- Category: ${analysis.category}
+- Intent: ${analysis.intent}
+- Keywords: ${analysis.keywords.join(', ')}
+- Sentiment: ${analysis.sentiment}
+- Deflection Potential: ${analysis.deflection_potential}
+
+TICKET CONTENT:
+Subject: ${ticket.subject}
+Content: ${ticket.content}
+
+Generate a response that addresses the specific question/issue and provides clear, actionable steps.`;
+  }
+
+  private generateEscalationResponse(analysis: AIAnalysisResult, ticket: Ticket): DeflectionResponse {
+    return {
+      can_deflect: false,
+      response_content: `Thank you for reaching out! I understand your ${analysis.category.toLowerCase()} issue and want to make sure you get the best possible help.
+
+I'm going to escalate this to one of our support specialists who can provide you with personalized assistance. You should receive a response within the next few hours.
+
+In the meantime, if you have any additional details about your issue, please feel free to share them. This will help our team assist you more quickly.
+
+Thank you for your patience!`,
+      confidence: 0.9,
+      response_type: 'escalate',
+      reasoning: `Ticket requires human intervention: ${analysis.deflection_potential} deflection potential, requires_human: ${analysis.requires_human}`,
+      suggested_actions: ['Escalate to human agent'],
+      follow_up_required: true,
+      escalation_triggers: ['Complex issue', 'Requires human intervention'],
+      estimated_cost: 0,
+      tokens_used: 0,
+      model_used: 'escalation',
+      generated_at: new Date().toISOString(),
+    };
+  }
+
+  private isWithinWorkingHours(workingHours: any): boolean {
+    if (!workingHours.enabled) return true;
+
+    const now = new Date();
+    const timezone = workingHours.timezone || 'UTC';
+    const currentTime = now.toLocaleTimeString('en-US', { 
+      timeZone: timezone, 
+      hour12: false 
+    });
+    
+    const currentDay = now.getDay();
+    const isWorkingDay = workingHours.days_of_week.includes(currentDay);
+    
+    if (!isWorkingDay) return false;
+
+    const [currentHour, currentMinute] = currentTime.split(':').map(Number);
+    const [startHour, startMinute] = workingHours.start_time.split(':').map(Number);
+    const [endHour, endMinute] = workingHours.end_time.split(':').map(Number);
+
+    const currentMinutes = currentHour * 60 + currentMinute;
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+
+    return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  }
+
+  private estimateTokensUsed(text: string, response?: Record<string, unknown>): number {
+    // Rough estimation: 1 token ≈ 4 characters
+    const inputTokens = Math.ceil(text.length / 4);
+    const outputTokens = response ? Math.ceil(JSON.stringify(response).length / 4) : 0;
+    return inputTokens + outputTokens;
+  }
+
+  private calculateCost(tokensUsed: number): number {
+    // GPT-4o-mini pricing: $0.00015 per 1K input tokens, $0.0006 per 1K output tokens
+    const inputCost = (tokensUsed * 0.75) * 0.00015 / 1000; // Assume 75% input tokens
+    const outputCost = (tokensUsed * 0.25) * 0.0006 / 1000; // Assume 25% output tokens
+    return inputCost + outputCost;
+  }
+}
+
+// Export singleton instance
+export const ticketDeflectionEngine = new TicketDeflectionEngine(); 
