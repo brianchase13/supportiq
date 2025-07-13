@@ -70,3 +70,41 @@ export function LoadingPage() {
     </div>
   );
 }
+
+// Progress bar component
+interface ProgressBarProps {
+  progress: number; // 0-100
+  className?: string;
+  showPercentage?: boolean;
+  variant?: 'default' | 'success' | 'warning' | 'error';
+}
+
+export function ProgressBar({ 
+  progress, 
+  className = '', 
+  showPercentage = false,
+  variant = 'default' 
+}: ProgressBarProps) {
+  const variantClasses = {
+    default: 'bg-blue-600',
+    success: 'bg-green-600',
+    warning: 'bg-yellow-600',
+    error: 'bg-red-600'
+  };
+
+  return (
+    <div className={`w-full ${className}`}>
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div
+          className={`h-2 rounded-full transition-all duration-300 ${variantClasses[variant]}`}
+          style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+        />
+      </div>
+      {showPercentage && (
+        <p className="text-sm text-gray-600 mt-1">
+          {Math.round(progress)}% complete
+        </p>
+      )}
+    </div>
+  );
+}

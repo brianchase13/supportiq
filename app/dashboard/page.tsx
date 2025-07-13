@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useTickets, useInsights, useTicketStats } from '@/hooks/data/useSupabaseData';
 import { useAuth } from '@/components/auth/AuthContext';
+import { SyncStatus } from '@/components/dashboard/SyncStatus';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -140,6 +141,14 @@ export default function DashboardPage() {
             </div>
           </Card>
         </div>
+
+        {/* Sync Status */}
+        {user && (
+          <SyncStatus 
+            userId={user.id} 
+            className="border border-slate-200 shadow-lg bg-white"
+          />
+        )}
 
         {/* Performance Chart */}
         <Card className="p-8 border border-slate-200 shadow-lg bg-white">

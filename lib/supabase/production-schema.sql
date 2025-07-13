@@ -287,3 +287,81 @@ BEGIN
   RETURN ROUND(rate, 2);
 END;
 $$ LANGUAGE plpgsql;
+
+-- Rate limiting table
+CREATE TABLE IF NOT EXISTS rate_limits (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  key TEXT NOT NULL UNIQUE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  action TEXT NOT NULL,
+  requests INTEGER DEFAULT 1,
+  window_start TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for efficient rate limit lookups
+CREATE INDEX IF NOT EXISTS idx_rate_limits_key ON rate_limits(key);
+CREATE INDEX IF NOT EXISTS idx_rate_limits_user_action ON rate_limits(user_id, action);
+CREATE INDEX IF NOT EXISTS idx_rate_limits_window_start ON rate_limits(window_start);
+
+-- RLS policies for rate limits
+ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
+
+-- Users can only see their own rate limits
+CREATE POLICY "Users can view own rate limits" ON rate_limits
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Users can update their own rate limits
+CREATE POLICY "Users can update own rate limits" ON rate_limits
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- System can insert rate limits (for API operations)
+CREATE POLICY "System can insert rate limits" ON rate_limits
+  FOR INSERT WITH CHECK (true);
+
+-- User settings table
+CREATE TABLE IF NOT EXISTS user_settings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  deflection_settings JSONB DEFAULT '{}',
+  notification_settings JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- RLS policies for user settings
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+
+-- Users can only access their own settings
+CREATE POLICY "Users can manage own settings" ON user_settings
+  FOR ALL USING (auth.uid() = user_id);
+
+-- Error logs table
+CREATE TABLE IF NOT EXISTS error_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  error_id TEXT NOT NULL,
+  message TEXT NOT NULL,
+  stack TEXT,
+  component_stack TEXT,
+  url TEXT,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for error logs
+CREATE INDEX IF NOT EXISTS idx_error_logs_user_id ON error_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_error_logs_created_at ON error_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_error_logs_error_id ON error_logs(error_id);
+
+-- RLS policies for error logs
+ALTER TABLE error_logs ENABLE ROW LEVEL SECURITY;
+
+-- Users can only see their own error logs
+CREATE POLICY "Users can view own error logs" ON error_logs
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- System can insert error logs
+CREATE POLICY "System can insert error logs" ON error_logs
+  FOR INSERT WITH CHECK (true);

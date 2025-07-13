@@ -11,7 +11,8 @@ import {
   BarChart3,
   Users,
   HelpCircle,
-  Zap
+  Zap,
+  BookOpen
 } from 'lucide-react';
 import { useState } from 'react';
 import { clsx } from 'clsx';
@@ -24,8 +25,13 @@ const navItems = [
   },
   {
     name: 'Deflection',
-    href: '/deflection',
+    href: '/dashboard/deflection',
     icon: Zap,
+  },
+  {
+    name: 'Knowledge Base',
+    href: '/dashboard/knowledge-base',
+    icon: BookOpen,
   },
   {
     name: 'Insights',
