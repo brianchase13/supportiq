@@ -96,7 +96,13 @@ export async function GET(request: NextRequest) {
     }));
 
     // Recent activity (combine webhook logs and ticket creation)
-    const recentActivity = [];
+    const recentActivity: Array<{
+      id: string;
+      type: string;
+      description: string;
+      timestamp: string;
+      status: string;
+    }> = [];
     
     // Add webhook activities
     webhookLogs?.slice(0, 10).forEach(log => {
@@ -125,7 +131,11 @@ export async function GET(request: NextRequest) {
     const topRecentActivity = recentActivity.slice(0, 10);
 
     // Generate hourly activity data
-    const hourlyActivity = [];
+    const hourlyActivity: Array<{
+      hour: number;
+      tickets: number;
+      deflections: number;
+    }> = [];
     for (let hour = 0; hour < 24; hour++) {
       const hourStart = new Date(startDate);
       hourStart.setHours(hour, 0, 0, 0);
