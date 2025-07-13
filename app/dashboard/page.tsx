@@ -15,16 +15,20 @@ import {
 import Link from 'next/link';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useTickets, useInsights, useTicketStats } from '@/hooks/data/useSupabaseData';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useUser, useRequireAuth } from '@/lib/auth/user-context';
 import { SyncStatus } from '@/components/dashboard/SyncStatus';
+import { TicketDeflectionCalculator } from '@/components/dashboard/TicketDeflectionCalculator';
+import { AgentPerformanceScorecard } from '@/components/dashboard/AgentPerformanceScorecard';
+import { CrisisModeAlert } from '@/components/dashboard/CrisisModeAlert';
+import { ROIDashboard } from '@/components/dashboard/ROIDashboard';
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: userLoading } = useRequireAuth();
   const { tickets, loading: ticketsLoading } = useTickets();
   const { insights, loading: insightsLoading } = useInsights();
   const stats = useTicketStats(tickets);
 
-  const loading = authLoading || ticketsLoading || insightsLoading;
+  const loading = userLoading || ticketsLoading || insightsLoading;
 
   // Calculate metrics from real data
   const metrics = {
@@ -79,6 +83,11 @@ export default function DashboardPage() {
               : 'Connect your support channels to start getting AI insights'
             }
           </p>
+          {profile && (
+            <p className="text-sm text-slate-500 mt-2">
+              Welcome back, {profile.full_name || profile.email}
+            </p>
+          )}
         </div>
 
         {/* Key Metrics - Modern AI-First Design */}
@@ -335,6 +344,23 @@ export default function DashboardPage() {
             </Link>
           </div>
         </Card>
+
+        {/* Revenue-Driving Features */}
+        <div className="space-y-8">
+          <h2 className="text-2xl font-bold text-slate-900">Revenue & Performance Tools</h2>
+          
+          {/* Ticket Deflection Calculator */}
+          <TicketDeflectionCalculator />
+
+          {/* Agent Performance Scorecard */}
+          <AgentPerformanceScorecard />
+
+          {/* Crisis Mode Alert */}
+          <CrisisModeAlert />
+
+          {/* ROI Dashboard */}
+          <ROIDashboard />
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { supabaseAdmin } from '@/lib/supabase/client';
+import { ResponseTemplateEngine } from '@/lib/ai/response-templates';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -305,26 +306,14 @@ Provide a complete response with confidence scoring.
 
   private async getResponseTemplates(category?: string): Promise<any[]> {
     try {
-      const query = supabaseAdmin
-        .from('response_templates')
-        .select('*')
-        .eq('user_id', this.userId)
-        .eq('is_active', true);
-
-      if (category) {
-        query.eq('category', category);
-      }
-
-      const { data: templates, error } = await query
-        .order('success_rate', { ascending: false })
-        .limit(2);
-
-      if (error) {
-        console.error('Templates query error:', error);
-        return [];
-      }
-
-      return templates || [];
+      const templateEngine = new ResponseTemplateEngine(this.userId);
+      const templates = await templateEngine.getTemplates();
+      
+      // Filter by category if specified, otherwise return all active templates
+      return templates
+        .filter(t => t.is_active && (!category || t.category === category || t.category === 'general'))
+        .sort((a, b) => (b.success_rate || 0) - (a.success_rate || 0))
+        .slice(0, 3); // Return top 3 templates for context
     } catch (error) {
       console.error('Get response templates error:', error);
       return [];

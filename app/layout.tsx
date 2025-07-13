@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AutumnProvider } from "autumn-js/react";
-import { AuthProvider } from '@/components/auth/AuthContext';
+import { UserProvider } from '@/lib/auth/user-context';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,11 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
+        <UserProvider>
           <AutumnProvider backendUrl={process.env.NEXT_PUBLIC_AUTUMN_BACKEND_URL}>
             {children}
           </AutumnProvider>
-        </AuthProvider>
+        </UserProvider>
       </body>
     </html>
   );

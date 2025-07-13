@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { TicketDeflectionEngine, TicketData } from '@/lib/deflection/engine';
+import { deflectionProcessor } from '@/lib/queue/deflection-processor';
 import crypto from 'crypto';
 
 interface IntercomWebhookEvent {
@@ -150,6 +151,29 @@ function shouldProcessEvent(event: IntercomWebhookEvent): boolean {
   return processableTopics.includes(event.topic);
 }
 
+function determinePriority(conversationData: ConversationData, event: IntercomWebhookEvent): 'high' | 'normal' | 'low' {
+  // High priority conditions
+  if (conversationData.priority === 'priority') {
+    return 'high';
+  }
+
+  // Check for urgent keywords in the conversation
+  const urgentKeywords = ['urgent', 'emergency', 'critical', 'down', 'broken', 'not working'];
+  const conversationText = (conversationData.source?.body || '').toLowerCase();
+  
+  if (urgentKeywords.some(keyword => conversationText.includes(keyword))) {
+    return 'high';
+  }
+
+  // New conversations from user.created events get normal priority
+  if (event.topic === 'conversation.user.created') {
+    return 'normal';
+  }
+
+  // Default to low priority for other events
+  return 'low';
+}
+
 async function processConversationForDeflection(event: IntercomWebhookEvent): Promise<{
   success: boolean;
   message: string;
@@ -192,24 +216,40 @@ async function processConversationForDeflection(event: IntercomWebhookEvent): Pr
     // Store or update ticket in our database
     await upsertTicket(ticketData);
 
-    // Get user's deflection settings
-    const settings = await TicketDeflectionEngine.getUserSettings(userId);
+    // Check user's deflection settings to determine if we should queue this
+    const { data: settings } = await supabaseAdmin
+      .from('deflection_settings')
+      .select('auto_response_enabled')
+      .eq('user_id', userId)
+      .single();
 
-    // Create deflection engine and process
-    const engine = new TicketDeflectionEngine(userId, settings);
-    const deflectionResult = await engine.processTicket(ticketData);
-
-    // If successful deflection, send response back to Intercom
-    if (deflectionResult.shouldRespond && deflectionResult.response) {
-      await sendResponseToIntercom(conversationId, deflectionResult.response.response_content);
+    if (!settings?.auto_response_enabled) {
+      return {
+        success: true,
+        message: 'Auto-response disabled for this user',
+      };
     }
+
+    // Determine priority based on conversation urgency
+    const priority = determinePriority(conversationData, event);
+
+    // Queue the deflection job for background processing
+    const jobId = await deflectionProcessor.enqueueDeflection(
+      userId,
+      ticketData,
+      event,
+      priority
+    );
 
     return {
       success: true,
-      message: deflectionResult.shouldRespond 
-        ? 'Conversation deflected successfully'
-        : `Conversation escalated: ${deflectionResult.reason}`,
-      deflectionResult,
+      message: `Deflection job queued successfully (${jobId})`,
+      deflectionResult: { 
+        queued: true, 
+        jobId, 
+        priority,
+        expectedProcessingTime: priority === 'high' ? '< 30 seconds' : '< 2 minutes'
+      },
     };
 
   } catch (error) {
