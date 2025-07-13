@@ -51,12 +51,12 @@ export async function POST(request: NextRequest) {
     const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
     // Rate limiting for expensive AI operations
-    const rateLimitResult = await checkRateLimit(analysisLimiter, `${userId}:${clientIP}`);
-    if (!rateLimitResult.allowed) {
+    const rateLimitResult = await analysisLimiter.checkLimit(userId, 'analysis');
+    if (!rateLimitResult.success) {
       return NextResponse.json(
         { 
           error: 'Rate limit exceeded for AI analysis operations. Please try again later.',
-          retryAfter: rateLimitResult.msBeforeNext 
+          retryAfter: rateLimitResult.retryAfter 
         },
         { status: 429 }
       );
