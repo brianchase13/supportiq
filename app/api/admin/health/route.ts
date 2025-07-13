@@ -43,16 +43,16 @@ export async function GET(request: NextRequest) {
       .eq('status', 'canceled')
       .gte('canceled_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
 
-    const churnRate = totalCustomers > 0 ? (canceledThisMonth / totalCustomers) * 100 : 0;
+    const churnRate = (totalCustomers || 0) > 0 ? ((canceledThisMonth || 0) / (totalCustomers || 1)) * 100 : 0;
 
     // Determine system status based on various metrics
     let systemStatus: 'healthy' | 'warning' | 'critical' = 'healthy';
     
-    if (pastDueSubscriptions > 10 || churnRate > 5) {
+    if ((pastDueSubscriptions || 0) > 10 || churnRate > 5) {
       systemStatus = 'warning';
     }
     
-    if (pastDueSubscriptions > 20 || churnRate > 10) {
+    if ((pastDueSubscriptions || 0) > 20 || churnRate > 10) {
       systemStatus = 'critical';
     }
 
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
       past_due_subscriptions: pastDueSubscriptions || 0,
       trial_expiring_soon: trialExpiringSoon || 0,
       churn_risk_count: churnRiskCount,
-      conversion_rate: totalCustomers > 0 ? Math.round((activeSubscriptions / totalCustomers) * 10000) / 100 : 0
+      conversion_rate: (totalCustomers || 0) > 0 ? Math.round(((activeSubscriptions || 0) / (totalCustomers || 1)) * 10000) / 100 : 0
     });
 
   } catch (error) {
