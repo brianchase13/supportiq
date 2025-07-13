@@ -3,7 +3,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 
 export async function POST(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await supabaseServer();
@@ -13,7 +13,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const syncId = context.params.id;
+    const { id: syncId } = await params;
 
     // Get the sync log to verify ownership and status
     const { data: syncLog, error: fetchError } = await supabase
