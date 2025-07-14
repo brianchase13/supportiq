@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { date_range, start_date, end_date, granularity, metrics } = validationResult.data;
+    const { date_range, start_date, end_date, granularity, metrics = [] } = validationResult.data;
 
     // Calculate date range
     const dateRange = calculateDateRange(date_range, start_date, end_date);
