@@ -330,8 +330,8 @@ function extractCommonTheme(tickets: any[]): string {
 
   // Simple keyword extraction (in production, use more sophisticated NLP)
   const words = allText.split(/\s+/)
-    .filter(word => word.length > 3)
-    .filter(word => !['the', 'and', 'for', 'with', 'this', 'that', 'have', 'from', 'your', 'they', 'been', 'were', 'said', 'what', 'each', 'which', 'their', 'time', 'will', 'about', 'would', 'there', 'could', 'other', 'after', 'first', 'well', 'many', 'some', 'these', 'work', 'like', 'just', 'also', 'before', 'here', 'more', 'through', 'when', 'where', 'most', 'both', 'those', 'only', 'now', 'very', 'even', 'back', 'any', 'good', 'how', 'our', 'out', 'way', 'make', 'may', 'new', 'take', 'come', 'its', 'over', 'think', 'also', 'her', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word));
+    .filter((word: string) => word.length > 3)
+    .filter((word: string) => !['the', 'and', 'for', 'with', 'this', 'that', 'have', 'from', 'your', 'they', 'been', 'were', 'said', 'what', 'each', 'which', 'their', 'time', 'will', 'about', 'would', 'there', 'could', 'other', 'after', 'first', 'well', 'many', 'some', 'these', 'work', 'like', 'just', 'also', 'before', 'here', 'more', 'through', 'when', 'where', 'most', 'both', 'those', 'only', 'now', 'very', 'even', 'back', 'any', 'good', 'how', 'our', 'out', 'way', 'make', 'may', 'new', 'take', 'come', 'its', 'over', 'think', 'also', 'her', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word));
 
   const wordCounts = words.reduce((acc: Record<string, number>, word) => {
     acc[word] = (acc[word] || 0) + 1;

@@ -21,15 +21,17 @@ export async function POST(request: NextRequest) {
     const userId = user.id;
 
     const body = await request.json();
-    const clientIP = request.ip || 'unknown';
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
 
-    // Rate limiting - allow more frequent conversation syncs
-    const rateLimitResult = await checkRateLimit(syncLimiter, `conv_${clientIP}`);
-    if (!rateLimitResult.allowed) {
+    // Rate limiting
+    const rateLimitResult = await syncLimiter.checkLimit(`conv_${clientIP}`, 'sync_conversation');
+    if (!rateLimitResult.success) {
       return NextResponse.json(
-        { 
-          error: 'Conversation sync rate limit exceeded',
-          retryAfter: rateLimitResult.msBeforeNext 
+        {
+          error: 'Rate limit exceeded',
+          retryAfter: rateLimitResult.retryAfter,
         },
         { status: 429 }
       );
@@ -39,7 +41,7 @@ export async function POST(request: NextRequest) {
     const validationResult = ConversationSyncRequestSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request parameters', details: validationResult.error.errors },
+        { error: 'Invalid request parameters', details: validationResult.error.issues },
         { status: 400 }
       );
     }

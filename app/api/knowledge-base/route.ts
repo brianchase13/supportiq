@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: validationResult.error.errors },
+        { error: 'Invalid request data', details: validationResult.error.issues },
         { status: 400 }
       );
     }
@@ -144,7 +144,7 @@ export async function PUT(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: validationResult.error.errors },
+        { error: 'Invalid request data', details: validationResult.error.issues },
         { status: 400 }
       );
     }

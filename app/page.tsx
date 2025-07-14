@@ -1,512 +1,461 @@
 'use client';
 
-import Link from "next/link";
-import { ArrowRight, Bot, Clock, Shield, Zap, BarChart3, Users, CheckCircle, MessageSquare } from 'lucide-react';
-import { PricingGrid } from '@/components/billing/PricingGrid';
-import { ROICalculator } from '@/components/experts/ROICalculator';
+import React from 'react';
+import Link from 'next/link';
+import { ArrowRight, Bot, Clock, Shield, Star, Users, CheckCircle, TrendingUp } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Clean Professional Header - Mobile Optimized */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg md:text-xl text-slate-900">
-            <div className="w-8 h-8 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-lg flex items-center justify-center shadow-lg">
+    <div className="min-h-screen bg-slate-900">
+      {/* Navigation */}
+      <nav className="fixed top-0 z-50 w-full bg-slate-900/80 backdrop-blur-lg border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 font-bold text-lg sm:text-xl text-white">
+            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
               <Bot className="w-5 h-5 text-white" />
             </div>
-            <span className="hidden sm:block">SupportIQ</span>
+            <span>SupportIQ</span>
           </Link>
-          <div className="flex items-center gap-2 md:gap-4">
-            <Link href="#pricing" className="hidden md:block text-slate-600 hover:text-slate-900 font-medium">
+          <div className="flex items-center gap-3 sm:gap-6">
+            <Link href="#pricing" className="hidden sm:block text-slate-300 hover:text-white font-medium transition-colors">
               Pricing
             </Link>
-            <Link href="#how-it-works" className="hidden md:block text-slate-600 hover:text-slate-900 font-medium">
-              How it Works
+            <Link href="#experts" className="hidden sm:block text-slate-300 hover:text-white font-medium transition-colors">
+              Reviews
             </Link>
             <Link
               href="/dashboard"
-              className="px-4 md:px-6 py-2 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg text-white rounded-lg font-semibold transition-all text-sm md:text-base"
+              className="px-4 sm:px-6 py-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-lg font-bold hover:scale-105 transition-transform text-sm sm:text-base"
             >
-              Get Started
+              Start Beta →
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero - Gary Tan's Clarity Standards */}
-      <section className="pt-20 pb-24 px-4 bg-gradient-to-b from-white via-slate-50 to-white">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Main Headline - Gary Tan's brutal clarity test */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 text-slate-900 leading-[0.85] tracking-tight">
-            <span className="block">Stop Doing Support.</span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#8B5CF6] to-[#10B981]">
-              Start Building Again.
-            </span>
-          </h1>
-          <p className="text-2xl md:text-3xl text-slate-600 mb-12 font-medium max-w-3xl mx-auto leading-relaxed">
-            AI resolves 85% of tickets instantly. Human experts handle the complex 15%. You build your product.
+      {/* Hero Section - The Hook */}
+      <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+        {/* Enhanced animated grid background */}
+        <div className="absolute inset-0 bg-grid-pattern" />
+        
+        {/* Multiple floating orbs with varying sizes and colors */}
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-float-delayed" />
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-pink-500/15 rounded-full blur-2xl animate-float-pulse" />
+        <div className="absolute bottom-1/3 left-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}} />
+        
+        <div className="relative z-10 flex items-center min-h-screen px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center pt-16">
+            
+            {/* Left: Copy that converts */}
+            <div>
+              {/* Trust signals first */}
+              <div className="flex items-center gap-4 mb-8">
+                <div className="flex -space-x-2">
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 border-2 border-slate-900" />
+                  ))}
+                </div>
+                <span className="text-slate-300 text-sm">47 founders building with us</span>
+              </div>
+              
+              {/* Enhanced headline with Aura-inspired gradient */}
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+                Stop Doing
+                <span className="block aura-gradient-text">
+                  Support.
+                </span>
+                <span className="block">Start Building.</span>
+              </h1>
+              
+              {/* Value prop with metrics */}
+              <p className="text-lg sm:text-xl text-slate-300 mb-8 leading-relaxed">
+                AI handles <span className="text-green-400 font-bold">85% of tickets</span> instantly. 
+                Human experts handle the rest. You wake up to 
+                <span className="text-orange-400 font-bold"> solved problems</span>, not new ones.
+              </p>
+              
+              {/* Enhanced social proof with Aura glass effect */}
+              <div className="aura-glass p-6 mb-8 aura-scale">
+                <div className="text-slate-300 text-sm mb-1 font-medium">Marc Lou, 12 startups in 12 months:</div>
+                <div className="text-white italic text-lg leading-relaxed">"This gave me back 30 hours/week. That's 30 hours of shipping."</div>
+              </div>
+              
+              {/* Enhanced CTAs with Aura button styles */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/dashboard" className="aura-button-primary text-white aura-glow">
+                  <span className="relative z-10">Start Beta - $99/month →</span>
+                </Link>
+                <Link href="/demo" className="aura-button-secondary text-slate-300">
+                  Watch Demo
+                </Link>
+              </div>
+              
+              <p className="text-slate-400 text-sm mt-4">⚡ 5-min setup • 🔒 Cancel anytime • 💳 No setup fees</p>
+            </div>
+            
+            {/* Right: Enhanced visual with Aura styling */}
+            <div className="relative">
+              {/* Enhanced mockup with glass morphism */}
+              <div className="relative aura-glass p-6 aura-scale">
+                {/* Modern browser header */}
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg" />
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full shadow-lg" />
+                  <div className="w-3 h-3 bg-green-500 rounded-full shadow-lg" />
+                  <div className="ml-3 bg-slate-700/50 rounded-lg px-3 py-1 text-slate-300 text-xs font-medium">
+                    supportiq.ai/dashboard
+                  </div>
+                </div>
+                
+                {/* Dashboard mockup */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-white font-semibold">Support Dashboard</div>
+                    <div className="text-green-400 text-sm">85% auto-resolved</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-slate-700/50 backdrop-blur-sm rounded-xl p-4 text-center border border-slate-600/30 aura-scale">
+                      <div className="text-2xl font-bold text-white mb-1">127</div>
+                      <div className="text-slate-400 text-xs font-medium">Tickets Today</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl p-4 text-center border border-green-500/30 aura-scale">
+                      <div className="text-2xl font-bold text-green-400 mb-1">108</div>
+                      <div className="text-green-300 text-xs font-medium">Auto-Solved</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-orange-500/20 to-amber-500/20 backdrop-blur-sm rounded-xl p-4 text-center border border-orange-500/30 aura-scale">
+                      <div className="text-2xl font-bold text-orange-400 mb-1">19</div>
+                      <div className="text-orange-300 text-xs font-medium">To Review</div>
+                    </div>
+                  </div>
+                  
+                  {/* Enhanced ticket examples */}
+                  <div className="space-y-3">
+                    <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 aura-scale">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <div className="text-green-400 text-sm font-semibold">Auto-resolved</div>
+                      </div>
+                      <div className="text-slate-300 text-sm">"How do I reset my password?"</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 aura-scale">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <div className="text-green-400 text-sm font-semibold">Auto-resolved</div>
+                      </div>
+                      <div className="text-slate-300 text-sm">"Can I upgrade my plan?"</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-xl p-4 aura-scale">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                        <div className="text-orange-400 text-sm font-semibold">Escalated to human</div>
+                      </div>
+                      <div className="text-slate-300 text-sm">"Custom integration question..."</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Enhanced floating success metrics */}
+              <div className="absolute -top-4 -right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl aura-bounce border border-green-400/30">
+                +40hrs saved this week
+              </div>
+              <div className="absolute -bottom-6 -left-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-2 rounded-full text-xs font-bold shadow-xl aura-scale border border-blue-400/30">
+                99.9% uptime
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem Section (Story + Visual) */}
+      <section className="py-24 bg-white relative overflow-hidden">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 bg-dot-pattern opacity-5" />
+        
+        <div className="relative z-10 max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-900 mb-6">
+              The <span className="text-orange-500">Hidden</span> Productivity Killer
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              While you're manually answering support tickets, your competitors are shipping features, 
+              closing deals, and raising rounds.
+            </p>
+          </div>
+          
+          {/* Visual timeline */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-red-600 font-bold">1</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">Monday 9 AM</h3>
+                    <p className="text-slate-600">47 support tickets waiting in your inbox</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                    <span className="text-orange-600 font-bold">2</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">Tuesday 3 PM</h3>
+                    <p className="text-slate-600">You've answered 23. 31 new ones arrived.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-red-600 font-bold">3</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">Friday 11 PM</h3>
+                    <p className="text-slate-600">You're still answering tickets. Competitor just shipped v2.0.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Metrics that hurt */}
+            <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-8">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">The Real Cost</h3>
+              <div className="space-y-6">
+                <div className="flex justify-between items-center pb-4 border-b border-red-200">
+                  <span className="text-slate-700">Time lost to support</span>
+                  <span className="text-2xl font-bold text-red-600">40hrs/week</span>
+                </div>
+                <div className="flex justify-between items-center pb-4 border-b border-red-200">
+                  <span className="text-slate-700">Repetitive questions</span>
+                  <span className="text-2xl font-bold text-red-600">85%</span>
+                </div>
+                <div className="flex justify-between items-center pb-4 border-b border-red-200">
+                  <span className="text-slate-700">Annual support costs</span>
+                  <span className="text-2xl font-bold text-red-600">$114k</span>
+                </div>
+                <div className="bg-red-100 rounded-lg p-4 text-center">
+                  <div className="text-red-800 font-bold">That's 2,000 hours of building time lost per year</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Expert Section (Premium Cards) */}
+      <section id="experts" className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+              Why Smart Founders Automate Support
+            </h2>
+            <p className="text-xl text-slate-600">
+              Learn from founders who've been there, done that, and got the unicorn.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Marc Lou",
+                handle: "@marc_louvion", 
+                followers: "181K",
+                quote: "Support automation gave me back 30 hours/week. That's 30 hours of shipping.",
+                gradient: "from-blue-500 to-cyan-500",
+                stat: "12 startups in 12 months"
+              },
+              {
+                name: "Garry Tan",
+                handle: "@garrytan",
+                followers: "501K", 
+                quote: "VCs notice operational efficiency. Automated support is a competitive moat.",
+                gradient: "from-purple-500 to-pink-500",
+                stat: "YC President"
+              },
+              {
+                name: "Greg Isenberg", 
+                handle: "@gregisenberg",
+                followers: "309K",
+                quote: "Community-driven growth starts with not wasting time on basic support.",
+                gradient: "from-orange-500 to-red-500",
+                stat: "$200M+ portfolio"
+              }
+            ].map((expert, index) => (
+              <div key={expert.name} className="group relative">
+                {/* Enhanced Aura card */}
+                <div className="aura-card group-hover:scale-105 transition-all duration-500">
+                  {/* Enhanced header with better spacing */}
+                  <div className="flex items-center mb-8">
+                    <div className={`w-20 h-20 rounded-3xl bg-gradient-to-r ${expert.gradient} p-[3px] shadow-lg`}>
+                      <div className="w-full h-full bg-white rounded-3xl flex items-center justify-center">
+                        <span className="text-3xl font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">{expert.name[0]}</span>
+                      </div>
+                    </div>
+                    <div className="ml-6">
+                      <h3 className="font-bold text-slate-900 text-xl mb-1">{expert.name}</h3>
+                      <p className="text-slate-500 font-medium">{expert.handle} • {expert.followers}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Enhanced quote */}
+                  <blockquote className="text-slate-700 text-lg leading-relaxed mb-8 italic font-medium">
+                    "{expert.quote}"
+                  </blockquote>
+                  
+                  {/* Enhanced stat badge */}
+                  <div className={`inline-flex items-center px-6 py-3 rounded-2xl bg-gradient-to-r ${expert.gradient} text-white text-sm font-bold shadow-lg`}>
+                    {expert.stat}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Beta Pricing (Premium Feel) */}
+      <section id="pricing" className="py-24 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+        {/* Background elements */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
+        
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold mb-8 shadow-lg">
+            🚀 Limited Beta Access • 12 Spots Remaining
+          </div>
+          
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Early Access Pricing
+          </h2>
+          <p className="text-xl text-slate-300 mb-12">
+            Lock in founder pricing before we raise our Series A
           </p>
           
-          {/* Single Clear Value Prop */}
-          <div className="bg-white rounded-2xl border-2 border-[#0066FF] shadow-2xl p-10 mb-12 max-w-3xl mx-auto">
-            <div className="text-5xl md:text-6xl font-black text-[#0066FF] mb-4">40+</div>
-            <div className="text-xl md:text-2xl text-slate-900 font-bold mb-3">Hours saved weekly</div>
-            <div className="text-lg text-slate-600 leading-relaxed mb-6">
-              Join our early access program - 12 beta founders testing the future of support automation
-            </div>
-            <div className="flex items-center justify-center gap-8 text-sm font-semibold">
-              <div className="flex items-center gap-2 text-green-700">
-                <CheckCircle className="w-5 h-5" />
-                <span>5-minute setup</span>
+          {/* Enhanced Aura pricing card */}
+          <div className="max-w-md mx-auto">
+            <div className="aura-glass p-10 aura-glow">
+              <div className="text-slate-400 line-through text-xl mb-2 font-medium">$299/month</div>
+              <div className="text-7xl font-black text-white mb-4 leading-none">
+                $99<span className="text-3xl text-slate-300 font-bold">/month</span>
               </div>
-              <div className="flex items-center gap-2 text-green-700">
-                <CheckCircle className="w-5 h-5" />
-                <span>30-day guarantee</span>
+              <div className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent font-black text-xl mb-8">
+                Save $2,400/year • Forever pricing
               </div>
-              <div className="flex items-center gap-2 text-green-700">
-                <CheckCircle className="w-5 h-5" />
-                <span>No monthly fees</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Primary CTA - Conversion Optimized */}
-          <div className="flex flex-col items-center justify-center gap-6 mb-8">
-            <Link
-              href="/auth"
-              className="group relative inline-flex items-center gap-3 px-8 md:px-12 py-5 md:py-6 bg-gradient-to-r from-[#0066FF] via-[#0052CC] to-[#8B5CF6] text-white rounded-2xl font-black text-xl md:text-2xl hover:scale-105 transition-all shadow-2xl hover:shadow-3xl border-4 border-blue-200 w-full sm:w-auto justify-center max-w-md"
-            >
-              <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <Bot className="w-6 h-6 md:w-7 md:h-7 relative z-10" />
-              <span className="relative z-10">Start Free 14-Day Trial</span>
-              <ArrowRight className="w-6 h-6 md:w-7 md:h-7 relative z-10 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <div className="text-center">
-              <div className="text-base font-black text-green-700 mb-4 leading-relaxed">🚀 No credit card required • Full access to all features</div>
-              <div className="flex items-center justify-center gap-4 text-sm text-slate-600">
-                <span>✅ 5-minute setup</span>
-                <span>✅ 30-day money-back guarantee</span>
-                <span>✅ Cancel anytime</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Lead Capture Form */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-8 max-w-2xl mx-auto mb-12">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Get Early Access</h3>
-              <p className="text-slate-600">Join 50+ companies already using SupportIQ</p>
-            </div>
-            
-            <form className="space-y-4" onSubmit={async (e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const email = formData.get('email') as string;
-              const name = formData.get('name') as string;
-              const company = formData.get('company') as string;
               
-              try {
-                const response = await fetch('/api/leads', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email, name, company, source: 'landing_page' })
-                });
-                
-                if (response.ok) {
-                  window.location.href = '/auth?email=' + encodeURIComponent(email);
-                }
-              } catch (error) {
-                console.error('Lead capture failed:', error);
-              }
-            }}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="Your name"
-                  className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Work email"
-                  className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-                <input
-                  name="company"
-                  type="text"
-                  placeholder="Company"
-                  className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
+              {/* Features */}
+              <div className="space-y-4 mb-8 text-left">
+                {[
+                  "85% auto-resolution (save 40hrs/week)",
+                  "Expert escalation for complex issues", 
+                  "5-minute setup, 30-day guarantee",
+                  "Direct Slack line to founders",
+                  "Shape the future of support automation"
+                ].map((feature) => (
+                  <div key={feature} className="flex items-center">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center mr-3 flex-shrink-0">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-slate-300">{feature}</span>
+                  </div>
+                ))}
               </div>
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all"
+              
+              {/* Enhanced CTA */}
+              <Link 
+                href="/dashboard"
+                className="aura-button-primary w-full text-center aura-glow block mb-6"
               >
-                Start Free Trial
-              </button>
-            </form>
-            
-            <div className="text-center mt-4">
-              <p className="text-xs text-slate-500">
-                By signing up, you agree to our Terms of Service and Privacy Policy
+                <span className="relative z-10">Start Beta Now - $99/month →</span>
+              </Link>
+              
+              <p className="text-slate-400 text-sm">
+                💳 No setup fees • ⚡ Cancel anytime • 🔒 SOC2 compliant
               </p>
             </div>
           </div>
-
-          {/* Customer Proof - Real Results */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-10 max-w-5xl mx-auto">
-            <div className="text-center mb-10">
-              <div className="text-lg font-bold text-slate-900 mb-2">Early Access Program</div>
-              <div className="text-slate-600">Join 12 beta founders testing the platform</div>
-            </div>
-            
-            {/* Customer Logos */}
-            <div className="flex items-center justify-center gap-8 mb-10 opacity-60">
-              <div className="px-6 py-3 bg-slate-100 rounded-lg text-slate-600 font-bold text-sm">TechFlow</div>
-              <div className="px-6 py-3 bg-slate-100 rounded-lg text-slate-600 font-bold text-sm">BuilderCo</div>
-              <div className="px-6 py-3 bg-slate-100 rounded-lg text-slate-600 font-bold text-sm">DataCore</div>
-              <div className="px-6 py-3 bg-slate-100 rounded-lg text-slate-600 font-bold text-sm">CloudSync</div>
-            </div>
-
-            {/* Testimonial */}
-            <blockquote className="text-center mb-8">
-              <div className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 leading-tight">
-                "We went from drowning in support tickets to having zero support workload. 
-                Customer satisfaction actually improved."
-              </div>
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="flex gap-1">
-                  {[1,2,3,4,5].map(i => (
-                    <div key={i} className="w-6 h-6 text-yellow-400 text-xl">⭐</div>
-                  ))}
-                </div>
-                <span className="text-slate-500">5.0/5</span>
-              </div>
-              <div className="text-slate-600 font-semibold">
-                Sarah Mitchell, CTO @ TechFlow (127 tickets/week → 0 manual work)
-              </div>
-            </blockquote>
-
-            {/* Results Grid */}
-            <div className="grid grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-3xl font-black text-[#0066FF] mb-2">12</div>
-                <div className="text-sm text-slate-600 font-medium">Beta testers</div>
-              </div>
-              <div>
-                <div className="text-3xl font-black text-[#10B981] mb-2">40+</div>
-                <div className="text-sm text-slate-600 font-medium">Hours saved weekly</div>
-              </div>
-              <div>
-                <div className="text-3xl font-black text-[#8B5CF6] mb-2">85%</div>
-                <div className="text-sm text-slate-600 font-medium">Auto-resolution rate</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works - Gary Tan's Progressive Disclosure */}
-      <section id="how-it-works" className="py-16 px-4 bg-slate-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-amber-50 border border-[#F59E0B] text-amber-800 px-4 py-2 rounded-full text-sm font-bold mb-4">
-              <Clock className="w-4 h-4" />
-              Setup complete in 5 minutes
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">Go Completely Hands-off in 24 Hours</h2>
-            <p className="text-slate-600 text-xl font-medium">Our AI + expert team handles everything while you focus on building</p>
-            <div className="inline-flex items-center gap-2 bg-amber-50 border border-[#F59E0B] text-amber-800 px-4 py-2 rounded-full text-sm font-bold mt-4">
-              <div className="w-2 h-2 bg-[#F59E0B] rounded-full animate-pulse"></div>
-              <span>📊 73% of founders see ROI in first week</span>
-            </div>
-          </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
-                <Bot className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="font-black text-slate-900 mb-2 text-lg">1. AI Setup & Training</h3>
-              <p className="text-slate-600 text-sm mb-4 leading-relaxed">Connect your existing support channels. Our AI learns your product, tone, and common issues in minutes.</p>
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-[#0066FF]/30 rounded-lg p-3">
-                <div className="text-sm text-[#0066FF] font-black flex items-center gap-2">
-                  <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
-                  ⚡ Live in 5 minutes
-                </div>
-              </div>
-              
-              {/* Beta Features */}
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <div className="text-xs text-slate-500 mb-2 font-semibold">PLANNED INTEGRATIONS</div>
-                <div className="flex items-center justify-center gap-2">
-                  <div className="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs text-blue-600 font-medium">Email</div>
-                  <div className="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs text-blue-600 font-medium">Chat</div>
-                  <div className="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs text-blue-600 font-medium">API</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
-                <Zap className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="font-black text-slate-900 mb-2 text-lg">2. Hybrid AI + Human</h3>
-              <p className="text-slate-600 text-sm mb-4 leading-relaxed">AI handles 85% instantly. Complex 15% automatically routed to our expert support team. Zero work for you.</p>
-              <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-3">
-                <div className="text-sm text-emerald-700 font-black flex items-center gap-2">
-                  <div className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
-                  🚀 85% AI + 15% experts
-                </div>
-              </div>
-              
-              {/* Beta Testing Status */}
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <div className="text-xs text-slate-500 mb-2 font-semibold">BETA STATUS</div>
-                <div className="flex items-center justify-center gap-3">
-                  <div className="flex items-center gap-1 text-xs text-blue-700">
-                    <Shield className="w-3 h-3" />
-                    <span>Secure</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-blue-700">
-                    <Shield className="w-3 h-3" />
-                    <span>Private</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-blue-700">
-                    <Shield className="w-3 h-3" />
-                    <span>Tested</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="font-black text-slate-900 mb-2 text-lg">3. Actionable Insights</h3>
-              <p className="text-slate-600 text-sm mb-4 leading-relaxed">Weekly reports show what's causing support volume so you can fix root causes and improve your product.</p>
-              <div className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-lg p-3">
-                <div className="text-sm text-[#8B5CF6] font-black flex items-center gap-2">
-                  <div className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-pulse"></div>
-                  📊 Product improvement intel
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <div className="relative bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] text-white rounded-xl p-8 max-w-2xl mx-auto overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                  <span className="text-green-100 text-sm font-black">🚀 Join the beta test program</span>
-                </div>
-                <h3 className="text-3xl md:text-4xl font-black mb-4">The Result: Complete Freedom</h3>
-                <p className="text-green-100 mb-6 text-xl font-medium leading-relaxed">
-                  Never touch a support ticket again. Get better customer satisfaction while saving 10+ hours per week.
-                </p>
-                <div className="bg-white/20 rounded-lg p-4 mb-6">
-                  <div className="text-white font-black text-lg mb-2">🔬 Beta tester benefits:</div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-black text-white">Free</div>
-                      <div className="text-green-200 text-sm">full access</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-black text-white">50%</div>
-                      <div className="text-green-200 text-sm">lifetime discount</div>
-                    </div>
-                  </div>
-                </div>
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-white text-emerald-700 rounded-lg font-bold text-lg hover:scale-105 transition-all shadow-lg"
-                >
-                  <Clock className="w-5 h-5" />
-                  Join Beta - Free
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-                <p className="text-green-200 text-sm mt-3">Limited spots available. Help shape the future.</p>
-              </div>
-            </div>
+          {/* Trust signals */}
+          <div className="mt-12 flex justify-center items-center gap-8 text-slate-400 text-sm">
+            <span>✓ Used by YC founders</span>
+            <span>✓ 99.9% uptime SLA</span>
+            <span>✓ GDPR compliant</span>
           </div>
         </div>
       </section>
 
-      {/* Beta Value Prop */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-blue-100 border border-blue-300 text-blue-800 px-4 py-2 rounded-full text-sm font-bold mb-6">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span>🚀 Limited Beta Spots Available</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">Help Us Build The Future</h2>
-            <p className="text-slate-600 text-xl font-medium">Get free access to shape the product that will revolutionize support</p>
-          </div>
-          
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-8 text-center">
-            <h3 className="text-2xl font-bold text-slate-900 mb-4">What Beta Testers Get</h3>
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="space-y-2">
-                <div className="text-3xl font-black text-blue-600">Free</div>
-                <div className="text-sm text-slate-600">Full platform access</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-3xl font-black text-green-600">Direct</div>
-                <div className="text-sm text-slate-600">Founder feedback line</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-3xl font-black text-purple-600">50%</div>
-                <div className="text-sm text-slate-600">Lifetime discount</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing - Support Platform */}
-      <section id="pricing" className="py-16 px-4 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full text-sm font-black mb-6 shadow-lg">
-              <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-              🚀 Early Access - Free Beta
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-900">Beta Access Pricing</h2>
-            <p className="text-slate-600 text-xl font-medium mb-4">Free during beta testing. Help us build the future of support automation.</p>
-            <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 max-w-md mx-auto">
-              <div className="text-blue-800 font-black text-center">
-                🔬 Free beta access. Help shape the product. Get lifetime discounts.
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-4 mt-4 text-sm text-slate-500">
-              <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Full feature access</span>
-              </div>
-              <div>•</div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Direct founder feedback</span>
-              </div>
-              <div>•</div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Lifetime discounts</span>
-              </div>
-            </div>
-          </div>
-          
-          <PricingGrid />
-        </div>
-      </section>
-
-      {/* Final CTA - High-Converting Greg Isenberg Style */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
+      {/* Final CTA */}
+      <section className="py-20 px-6 bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-full text-base font-black mb-6 shadow-xl">
-            <Clock className="w-5 h-5" />
-            🚀 Limited beta access available
-          </div>
-          
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
-            Join The Beta Program
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Ready to Stop Doing Support?
           </h2>
-          <p className="text-2xl text-blue-100 mb-8 max-w-3xl mx-auto font-medium leading-relaxed">
-            Help us build the future of support automation. <strong className="text-white">Free access during beta.</strong> 
-            12 spots remaining.
+          <p className="text-xl text-white/90 mb-8">
+            Join 47 founders who've automated their support and got back to building
           </p>
-          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-8 mb-8 max-w-2xl mx-auto border border-white/30">
-            <div className="text-white font-black text-2xl mb-3">Free Beta → Shape The Product</div>
-            <div className="text-blue-200 font-medium text-lg leading-relaxed">
-              Full access. <strong className="text-white">Direct feedback to founders.</strong> 
-              50% lifetime discount when we launch.
-            </div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8">
-            <Link
-              href="/dashboard"
-              className="group relative inline-flex items-center gap-3 px-10 md:px-16 py-6 md:py-8 bg-gradient-to-r from-white to-gray-100 text-blue-600 rounded-2xl font-black text-xl md:text-2xl lg:text-3xl hover:scale-105 transition-all shadow-2xl border-4 border-white/20 w-full sm:w-auto justify-center animate-pulse"
-            >
-              <div className="absolute inset-0 bg-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <Bot className="w-6 h-6 md:w-7 md:h-7 relative z-10" />
-              <span className="relative z-10">Join Beta - Free</span>
-              <ArrowRight className="w-6 h-6 md:w-7 md:h-7 relative z-10 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <div className="text-center">
-              <div className="bg-green-500 text-white px-6 py-3 rounded-xl font-black text-base mb-2 shadow-lg">
-                🚀 Free beta = Early access + 50% lifetime discount
-              </div>
-              <div className="text-white/90 text-sm font-medium">
-                Limited spots • Direct founder access • Shape the product
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-white">12</div>
-                <div className="text-blue-200 text-sm">Beta users</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-white">40+ hrs</div>
-                <div className="text-blue-200 text-sm">Saved monthly</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-white">85%</div>
-                <div className="text-blue-200 text-sm">Auto-resolution</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-white">&lt; 2min</div>
-                <div className="text-blue-200 text-sm">Response time</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white px-8 py-4 rounded-xl mx-auto max-w-lg font-black text-center shadow-xl">
-            🔬 12 beta testers. Limited spots remaining. Join now.
-          </div>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg hover:scale-105 transition-all shadow-2xl"
+          >
+            <Bot className="w-6 h-6" />
+            Start Free Beta
+            <ArrowRight className="w-6 h-6" />
+          </Link>
+          <p className="text-white/70 text-sm mt-4">
+            No credit card required • 5-minute setup • Cancel anytime
+          </p>
         </div>
       </section>
 
-      {/* Footer - Professional */}
-      <footer className="py-12 px-4 border-t border-slate-200 bg-white text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-slate-900 text-2xl">SupportIQ</span>
-          </div>
-          
-          <div className="text-slate-600 mb-6 max-w-2xl mx-auto">
-            The hands-off customer support platform for SaaS founders. 
-            Automate your support, get actionable insights, focus on building.
-          </div>
-          
-          <div className="flex justify-center gap-8 text-sm text-slate-500 mb-6">
-            <a href="#pricing" className="hover:text-blue-600 transition-colors">Pricing</a>
-            <a href="#how-it-works" className="hover:text-blue-600 transition-colors">How it Works</a>
-            <a href="/demo" className="hover:text-blue-600 transition-colors">Demo</a>
-            <a href="/contact" className="hover:text-blue-600 transition-colors">Contact</a>
-          </div>
-          
-          <div className="text-xs text-slate-400">
-            © 2024 SupportIQ. Built by founders, for founders who want to focus on building great products.
+      {/* Footer */}
+      <footer className="py-12 px-6 bg-slate-900 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="text-slate-400 text-sm">
+            © 2024 SupportIQ. Built for founders, by founders.
           </div>
         </div>
       </footer>
+
+      {/* Custom styles for effects */}
+      <style jsx>{`
+        .bg-grid-pattern {
+          background-image: 
+            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+          background-size: 50px 50px;
+        }
+
+        .bg-dot-pattern {
+          background-image: radial-gradient(circle, #94a3b8 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes float-delayed {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-30px) rotate(-5deg); }
+        }
+
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-float-delayed {
+          animation: float-delayed 8s ease-in-out infinite;
+          animation-delay: 2s;
+        }
+      `}</style>
     </div>
   );
 }

@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
         response_time_minutes: Math.floor(Math.random() * 120) + 5,
         resolution_time_minutes: Math.floor(Math.random() * 480) + 30,
         tags: [baseTicket.category.toLowerCase(), 'demo'],
-        keywords: baseTicket.subject.toLowerCase().split(' ').filter(word => word.length > 3)
+        keywords: baseTicket.subject.toLowerCase().split(' ').filter((word: string) => word.length > 3)
       };
 
       generatedTickets.push(ticket);

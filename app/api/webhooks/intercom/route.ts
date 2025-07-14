@@ -59,9 +59,9 @@ export async function POST(request: NextRequest) {
     const validationResult = IntercomWebhookSchema.safeParse(rawEvent);
     
     if (!validationResult.success) {
-      console.error('Invalid webhook payload:', validationResult.error.errors);
+      console.error('Invalid webhook payload:', validationResult.error.issues);
       return NextResponse.json(
-        { error: 'Invalid webhook payload', details: validationResult.error.errors },
+        { error: 'Invalid webhook payload', details: validationResult.error.issues },
         { status: 400 }
       );
     }

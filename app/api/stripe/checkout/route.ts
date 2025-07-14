@@ -44,19 +44,21 @@ const PRICING_TIERS = {
 export async function POST(request: NextRequest) {
   try {
     const user = await auth.getUser(); const userId = user?.id;
-    const clientIP = request.ip || 'unknown';
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Rate limiting
-    const rateLimitResult = await checkRateLimit(apiLimiter, clientIP);
-    if (!rateLimitResult.allowed) {
+    const rateLimitResult = await apiLimiter.checkLimit(clientIP, 'stripe_checkout');
+    if (!rateLimitResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Rate limit exceeded',
-          retryAfter: rateLimitResult.msBeforeNext 
+          retryAfter: rateLimitResult.retryAfter,
         },
         { status: 429 }
       );
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
     
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request', details: validationResult.error.errors },
+        { error: 'Invalid request', details: validationResult.error.issues },
         { status: 400 }
       );
     }

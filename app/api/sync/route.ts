@@ -71,15 +71,17 @@ export async function POST(request: NextRequest) {
     const userId = user.id;
 
     const body = await request.json();
-    const clientIP = request.ip || 'unknown';
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
 
     // Rate limiting
-    const rateLimitResult = await checkRateLimit(syncLimiter, clientIP);
-    if (!rateLimitResult.allowed) {
+    const rateLimitResult = await syncLimiter.checkLimit(clientIP, 'sync_operation');
+    if (!rateLimitResult.success) {
       return NextResponse.json(
-        { 
-          error: 'Sync rate limit exceeded. Please wait before retrying.',
-          retryAfter: rateLimitResult.msBeforeNext 
+        {
+          error: 'Rate limit exceeded',
+          retryAfter: rateLimitResult.retryAfter,
         },
         { status: 429 }
       );
@@ -89,7 +91,7 @@ export async function POST(request: NextRequest) {
     const validationResult = SyncRequestSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request parameters', details: validationResult.error.errors },
+        { error: 'Invalid request parameters', details: validationResult.error.issues },
         { status: 400 }
       );
     }
