@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
     const error = searchParams.get('error');
-    const clientIP = request.ip || 'unknown';
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
 
     // Rate limiting
     const rateLimitResult = await checkRateLimit(authLimiter, clientIP);
