@@ -21,15 +21,17 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const returnUrl = searchParams.get('returnUrl') || '/dashboard';
-    const clientIP = request.ip || 'unknown';
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
 
     // Rate limiting
-    const rateLimitResult = await checkRateLimit(authLimiter, clientIP);
-    if (!rateLimitResult.allowed) {
+    const rateLimitResult = await authLimiter.checkLimit(clientIP, 'oauth_init');
+    if (!rateLimitResult.success) {
       return NextResponse.json(
         { 
           error: 'Rate limit exceeded. Please try again later.',
-          retryAfter: rateLimitResult.msBeforeNext 
+          retryAfter: rateLimitResult.retryAfter 
         },
         { status: 429 }
       );
