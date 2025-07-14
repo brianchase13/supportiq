@@ -231,6 +231,7 @@ async function updateDeflectionMetrics(
         ),
         cost_savings_usd: existingMetrics.cost_savings_usd + 
           (customerSatisfied && aiResponse ? estimateCostSavings(aiResponse) : 0),
+        deflection_rate: 0,
       };
 
       updatedMetrics.deflection_rate = updatedMetrics.auto_resolved / updatedMetrics.total_tickets;
