@@ -6,7 +6,9 @@ import { dashboardLimiter, checkRateLimit } from '@/lib/rate-limit';
 export async function GET(request: NextRequest) {
   try {
     const user = await auth.getUser();
-    const clientIP = request.ip || 'unknown';
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -15,12 +17,12 @@ export async function GET(request: NextRequest) {
     const userId = user.id;
 
     // Rate limiting
-    const rateLimitResult = await checkRateLimit(dashboardLimiter, clientIP);
-    if (!rateLimitResult.allowed) {
+    const rateLimitResult = await dashboardLimiter.checkLimit(clientIP, 'dashboard_metrics');
+    if (!rateLimitResult.success) {
       return NextResponse.json(
         { 
           error: 'Dashboard rate limit exceeded',
-          retryAfter: rateLimitResult.msBeforeNext 
+          retryAfter: rateLimitResult.retryAfter 
         },
         { status: 429 }
       );
