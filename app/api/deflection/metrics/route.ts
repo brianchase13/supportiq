@@ -334,7 +334,7 @@ async function getCategoryBreakdown(
   try {
     const { data: tickets, error } = await supabaseAdmin
       .from('tickets')
-      .select('category, status')
+      .select('id, category, status')
       .eq('user_id', userId)
       .gte('created_at', dateRange.start)
       .lte('created_at', dateRange.end);
