@@ -291,7 +291,7 @@ async function updateBenchmarkData() {
       'starter': 'small',
       'growth': 'medium',
       'enterprise': 'large'
-    }[user.subscription_plan] || 'medium';
+    }[user.subscription_plan as string] || 'medium';
 
     // Contribute anonymized data
     await supabaseAdmin.rpc('contribute_benchmark_data', {
