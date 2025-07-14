@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Common subjects analysis
     const subjectCounts = tickets.reduce((acc, ticket) => {
       const subject = ticket.subject?.toLowerCase() || '';
-      const words = subject.split(' ').filter(word => word.length > 3);
+      const words = subject.split(' ').filter((word: string) => word.length > 3);
       words.forEach(word => {
         acc[word] = (acc[word] || 0) + 1;
       });
