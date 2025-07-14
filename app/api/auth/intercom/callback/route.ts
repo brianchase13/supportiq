@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
                     'unknown';
 
     // Rate limiting
-    const rateLimitResult = await checkRateLimit(authLimiter, clientIP);
-    if (!rateLimitResult.allowed) {
+    const rateLimitResult = await authLimiter.checkLimit(clientIP, 'oauth_callback');
+    if (!rateLimitResult.success) {
       return NextResponse.redirect('/settings?error=rate_limited');
     }
 
