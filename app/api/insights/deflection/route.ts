@@ -54,19 +54,21 @@ interface DeflectionAnalysis {
 export async function GET(request: NextRequest) {
   try {
     const user = await auth.getUser(); const userId = user?.id;
-    const clientIP = request.ip || 'unknown';
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Rate limiting
-    const rateLimitResult = await checkRateLimit(apiLimiter, clientIP);
-    if (!rateLimitResult.allowed) {
+    const rateLimitResult = await apiLimiter.checkLimit(clientIP, 'insights_deflection');
+    if (!rateLimitResult.success) {
       return NextResponse.json(
         { 
           error: 'Rate limit exceeded',
-          retryAfter: rateLimitResult.msBeforeNext 
+          retryAfter: rateLimitResult.retryAfter 
         },
         { status: 429 }
       );
@@ -83,7 +85,7 @@ export async function GET(request: NextRequest) {
     const validationResult = DeflectionRequestSchema.safeParse(params);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid parameters', details: validationResult.error.errors },
+        { error: 'Invalid parameters', details: validationResult.error.issues },
         { status: 400 }
       );
     }
