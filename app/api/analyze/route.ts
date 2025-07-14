@@ -250,7 +250,7 @@ async function smartBatchFiltering(
   // Get existing analyzed tickets for similarity comparison
   const { data: existingTickets } = await supabaseAdmin
     .from('tickets')
-    .select('id, category, sentiment, embedding')
+    .select('id, category, sentiment, embedding, content')
     .eq('user_id', userId)
     .not('category', 'is', null)
     .not('embedding', 'is', null)
