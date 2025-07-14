@@ -384,7 +384,7 @@ async function updateTicketsWithAnalysis(
       analysis_version: 1,
       cached_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     };
-  }).filter(Boolean);
+  }).filter((update): update is NonNullable<typeof update> => update !== null);
 
   // Batch update
   for (const update of updates) {
