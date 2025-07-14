@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       .filter(t => t.response_time_minutes)
       .reduce((sum, t) => sum + (t.response_time_minutes || 0), 0) / tickets.filter(t => t.response_time_minutes).length;
     const frequentIssues = Object.entries(categoryBreakdown)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([,a], [,b]) => Number(b) - Number(a))
       .slice(0, 5);
 
     // Common subjects analysis
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }, {} as Record<string, number>);
 
     const commonTopics = Object.entries(subjectCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([,a], [,b]) => Number(b) - Number(a))
       .slice(0, 10);
 
     // Generate insights using GPT-4
