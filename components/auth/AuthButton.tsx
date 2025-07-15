@@ -27,9 +27,11 @@ export function AuthButton({ redirectTo = '/dashboard' }: AuthButtonProps) {
     try {
       const supabase = createClient()
       
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+      
       if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/reset-password`
+          redirectTo: `${appUrl}/auth/reset-password`
         })
         
         if (error) {
@@ -45,7 +47,7 @@ export function AuthButton({ redirectTo = '/dashboard' }: AuthButtonProps) {
             email,
             password,
             options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`
+              emailRedirectTo: `${appUrl}/auth/callback?redirectTo=${redirectTo}`
             }
           })
         : await supabase.auth.signInWithPassword({
