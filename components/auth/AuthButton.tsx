@@ -27,7 +27,8 @@ export function AuthButton({ redirectTo = '/dashboard' }: AuthButtonProps) {
     try {
       const supabase = createClient()
       
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+      // Use production URL directly for now
+      const appUrl = 'https://supportiq-l0b421rnc-brianfprojects.vercel.app'
       
       if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -59,7 +60,7 @@ export function AuthButton({ redirectTo = '/dashboard' }: AuthButtonProps) {
         setMessage(error.message)
       } else {
         if (isSignUp) {
-          setMessage('Check your email for the confirmation link!')
+          setMessage('Check your email for the confirmation link! Once confirmed, you\'ll get 14 days free trial access.')
         } else {
           window.location.href = redirectTo
         }
