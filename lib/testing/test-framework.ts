@@ -227,7 +227,7 @@ export class TestUtils {
   }
 
   // Mock utilities
-  static createMock<T>(defaultImplementation: Partial<T> = {}): T {
+  static createMock<T extends object>(defaultImplementation: Partial<T> = {}): T {
     return new Proxy({} as T, {
       get(target, prop) {
         if (prop in target) {
@@ -237,7 +237,7 @@ export class TestUtils {
           return defaultImplementation[prop as keyof T];
         }
         // Return a mock function for any missing property
-        return jest.fn();
+        return () => {};
       },
     });
   }

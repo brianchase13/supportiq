@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Track the results
-    await resultsTracker.trackCustomerResults(userId, metrics);
+    await resultsTracker.instance.trackCustomerResults(userId, metrics);
 
     // Handle specific event types for additional tracking
     if (eventType) {
@@ -58,18 +58,18 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type'); // 'aggregate', 'topPerformers', 'testimonialCandidates'
 
     if (type === 'aggregate') {
-      const metrics = await resultsTracker.getAggregateMetrics();
+      const metrics = await resultsTracker.instance.getAggregateMetrics();
       return NextResponse.json({ metrics });
     }
 
     if (type === 'topPerformers') {
       const limit = parseInt(searchParams.get('limit') || '5');
-      const performers = await resultsTracker.getTopPerformers(limit);
+      const performers = await resultsTracker.instance.getTopPerformers(limit);
       return NextResponse.json({ performers });
     }
 
     if (type === 'testimonialCandidates') {
-      const candidates = await resultsTracker.identifyTestimonialCandidates();
+      const candidates = await resultsTracker.instance.identifyTestimonialCandidates();
       return NextResponse.json({ candidates });
     }
 
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all results
-    const allResults = await resultsTracker.getAllResults();
+    const allResults = await resultsTracker.instance.getAllResults();
     return NextResponse.json({ results: allResults });
 
   } catch (error) {
@@ -105,7 +105,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    await resultsTracker.updateCustomerFeedback(userId, feedback);
+    await resultsTracker.instance.updateCustomerFeedback(userId, feedback);
 
     return NextResponse.json(
       { 

@@ -83,10 +83,6 @@
     {
       "path": "/api/cron/trial-expiration",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/daily-analysis",
-      "schedule": "0 2 * * *"
     }
   ]
 }

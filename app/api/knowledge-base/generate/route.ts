@@ -5,25 +5,22 @@ import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting for expensive operations
-    const rateLimitResult = await rateLimit(request, {
-      interval: '1h',
-      uniqueTokenPerInterval: 5, // 5 FAQ generations per hour per user
-    });
+    // Authenticate user
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limiting for expensive operations
+    const { analysisLimiter } = await import('@/lib/rate-limit');
+    const rateLimitResult = await analysisLimiter.checkLimit(user.id, 'faq_generate');
     if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Try again later.' },
         { status: 429 }
       );
-    }
-
-    // Authenticate user
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -52,14 +49,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize FAQ generator
-    const faqGenerator = new FAQGenerator(user.id);
+    const faqGenerator = new FAQGenerator();
 
     // Generate FAQs
-    const generatedFAQs = await faqGenerator.generateFAQsFromTickets({
-      daysBack,
-      minTicketCount,
-      maxFAQs
-    });
+    const generatedFAQs = await faqGenerator.generateFAQFromTickets(user.id, daysBack);
 
     return NextResponse.json({
       success: true,
@@ -83,15 +76,15 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Get user's knowledge base
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const faqGenerator = new FAQGenerator(user.id);
-    const knowledgeBase = await faqGenerator.getKnowledgeBase();
+    const faqGenerator = new FAQGenerator();
+    const knowledgeBase = await faqGenerator.generateKnowledgeBaseArticles(user.id);
 
     return NextResponse.json({
       knowledgeBase,

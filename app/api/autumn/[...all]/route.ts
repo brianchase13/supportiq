@@ -5,7 +5,8 @@ export const { GET, POST } = autumnHandler({
   identify: async (request) => {
     try {
       // Get the user from Supabase Auth
-      const user = await auth.getUser();
+      const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore);
 
       if (!user) {
         // Return null for unauthenticated users

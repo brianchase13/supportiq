@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
   let syncLogId: string | null = null;
   
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

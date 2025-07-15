@@ -95,14 +95,14 @@ export class TestimonialsSystem {
 
       // Filter and rank users
       const qualifiedUsers = users
-        .filter(user => {
+        .filter((user: any) => {
           const avgROI = user.daily_metrics.reduce((sum: number, m: any) => sum + m.roi_percentage, 0) / user.daily_metrics.length;
           const avgDeflection = user.daily_metrics.reduce((sum: number, m: any) => sum + m.deflection_rate, 0) / user.daily_metrics.length;
           const avgSatisfaction = user.daily_metrics.reduce((sum: number, m: any) => sum + m.customer_satisfaction_score, 0) / user.daily_metrics.length;
           
           return avgROI >= minROI && avgDeflection >= 50 && avgSatisfaction >= 4.0;
         })
-        .map(user => {
+        .map((user: any) => {
           const avgROI = user.daily_metrics.reduce((sum: number, m: any) => sum + m.roi_percentage, 0) / user.daily_metrics.length;
           const avgDeflection = user.daily_metrics.reduce((sum: number, m: any) => sum + m.deflection_rate, 0) / user.daily_metrics.length;
           
@@ -113,7 +113,7 @@ export class TestimonialsSystem {
             priority_score: (avgROI / 100) + (avgDeflection / 10)
           };
         })
-        .sort((a, b) => b.priority_score - a.priority_score);
+        .sort((a: any, b: any) => b.priority_score - a.priority_score);
 
       return qualifiedUsers;
     } catch (error) {
@@ -388,16 +388,16 @@ The SupportIQ Team`;
       if (!testimonials || !requests) return null;
 
       const totalTestimonials = testimonials.length;
-      const publishedTestimonials = testimonials.filter(t => t.status === 'published').length;
-      const featuredTestimonials = testimonials.filter(t => t.featured).length;
-      const avgRating = testimonials.reduce((sum, t) => sum + t.rating, 0) / totalTestimonials;
+      const publishedTestimonials = testimonials.filter((t: any) => t.status === 'published').length;
+      const featuredTestimonials = testimonials.filter((t: any) => t.featured).length;
+      const avgRating = testimonials.reduce((sum: number, t: any) => sum + t.rating, 0) / totalTestimonials;
 
       const totalRequests = requests.length;
-      const completedRequests = requests.filter(r => r.status === 'completed').length;
+      const completedRequests = requests.filter((r: any) => r.status === 'completed').length;
       const responseRate = totalRequests > 0 ? (completedRequests / totalRequests) * 100 : 0;
 
       // Industry breakdown
-      const industryBreakdown = testimonials.reduce((acc: any, t) => {
+      const industryBreakdown = testimonials.reduce((acc: any, t: any) => {
         acc[t.industry] = (acc[t.industry] || 0) + 1;
         return acc;
       }, {});
@@ -503,7 +503,7 @@ The SupportIQ Team`;
 
       if (!testimonials) return [];
 
-      const industryGroups = testimonials.reduce((acc: any, testimonial) => {
+      const industryGroups = testimonials.reduce((acc: any, testimonial: any) => {
         if (!acc[testimonial.industry]) {
           acc[testimonial.industry] = [];
         }
@@ -511,10 +511,10 @@ The SupportIQ Team`;
         return acc;
       }, {});
 
-      return Object.entries(industryGroups).map(([industry, testimonials]) => ({
+      return Object.entries(industryGroups).map(([industry, testimonials]: [string, any]) => ({
         industry,
-        testimonials: testimonials.slice(0, 3), // Top 3 per industry
-        count: testimonials.length
+        testimonials: (testimonials as any[]).slice(0, 3), // Top 3 per industry
+        count: (testimonials as any[]).length
       }));
     } catch (error) {
       console.error('Error getting testimonials by industry:', error);

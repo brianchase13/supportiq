@@ -409,25 +409,25 @@ Mind if I DM you a quick case study? Takes 2 min to read but might save you mont
       if (!customers) return this.getDefaultMetrics();
 
       const total = customers.length;
-      const accepted = customers.filter(c => ['accepted', 'onboarding', 'active'].includes(c.status)).length;
-      const active = customers.filter(c => c.status === 'active').length;
+      const accepted = customers.filter((c: any) => ['accepted', 'onboarding', 'active'].includes(c.status)).length;
+      const active = customers.filter((c: any) => c.status === 'active').length;
       
-      const customersWithValue = customers.filter(c => c.first_value_date);
+      const customersWithValue = customers.filter((c: any) => c.first_value_date);
       const avgTimeToValue = customersWithValue.length > 0 
-        ? customersWithValue.reduce((sum, c) => {
+        ? customersWithValue.reduce((sum: number, c: any) => {
             const days = Math.floor((new Date(c.first_value_date!).getTime() - new Date(c.onboarding_date || c.application_date).getTime()) / (1000 * 60 * 60 * 24));
             return sum + days;
           }, 0) / customersWithValue.length
         : 0;
 
-      const satisfactionScores = customers.filter(c => c.feedback_score).map(c => c.feedback_score!);
+      const satisfactionScores = customers.filter((c: any) => c.feedback_score).map((c: any) => c.feedback_score!);
       const avgSatisfaction = satisfactionScores.length > 0 
-        ? satisfactionScores.reduce((sum, score) => sum + score, 0) / satisfactionScores.length
+        ? satisfactionScores.reduce((sum: number, score: number) => sum + score, 0) / satisfactionScores.length
         : 0;
 
-      const totalCostSavings = customers.reduce((sum, c) => sum + (c.metrics?.cost_savings || 0), 0);
-      const totalReferrals = customers.reduce((sum, c) => sum + (c.referrals || 0), 0);
-      const testimonialsCollected = customers.filter(c => c.testimonial).length;
+      const totalCostSavings = customers.reduce((sum: number, c: any) => sum + (c.metrics?.cost_savings || 0), 0);
+      const totalReferrals = customers.reduce((sum: number, c: any) => sum + (c.referrals || 0), 0);
+      const testimonialsCollected = customers.filter((c: any) => c.testimonial).length;
 
       return {
         total_applications: total,
@@ -464,8 +464,8 @@ Mind if I DM you a quick case study? Takes 2 min to read but might save you mont
     const metrics = await this.getBetaMetrics();
     const customers = await this.getBetaCustomers();
     const topCustomers = customers
-      .filter(c => c.status === 'active')
-      .sort((a, b) => (b.metrics?.cost_savings || 0) - (a.metrics?.cost_savings || 0))
+      .filter((c: any) => c.status === 'active')
+      .sort((a: any, b: any) => (b.metrics?.cost_savings || 0) - (a.metrics?.cost_savings || 0))
       .slice(0, 5);
 
     const timestamp = new Date().toISOString();
@@ -487,7 +487,7 @@ Generated: ${timestamp}
 - **Monthly Retention:** ${metrics.monthly_retention}%
 
 ## Top Performing Beta Customers
-${topCustomers.map((customer, index) => `
+${topCustomers.map((customer: any, index: number) => `
 ### ${index + 1}. ${customer.company}
 - **Contact:** ${customer.name} (${customer.role})
 - **Industry:** ${customer.industry}

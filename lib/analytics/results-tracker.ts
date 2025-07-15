@@ -423,5 +423,14 @@ export class ResultsTracker {
   }
 }
 
-// Singleton instance
-export const resultsTracker = new ResultsTracker();
+// Lazy singleton instance to avoid build-time errors
+let resultsTrackerInstance: ResultsTracker | null = null;
+
+export const resultsTracker = {
+  get instance(): ResultsTracker {
+    if (!resultsTrackerInstance) {
+      resultsTrackerInstance = new ResultsTracker();
+    }
+    return resultsTrackerInstance;
+  }
+};

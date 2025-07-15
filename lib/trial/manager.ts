@@ -149,7 +149,7 @@ export class TrialManager {
     const { error } = await supabaseAdmin
       .from('trials')
       .update({
-        usage: supabaseAdmin.sql`usage || jsonb_build_object(${operation}, (usage->>${operation})::int + ${amount})`
+        usage: `usage || jsonb_build_object('${operation}', (usage->>'${operation}')::int + ${amount})`
       })
       .eq('user_id', userId)
       .eq('status', 'active');
@@ -277,7 +277,7 @@ export class TrialManager {
           const start = new Date(trial.started_at);
           const end = trial.conversion_data?.converted_at 
             ? new Date(trial.conversion_data.converted_at)
-            : new Date(trial.expires_at);
+            : new Date((trial as any).expires_at);
           return sum + (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
         }, 0) / completedTrials.length
       : 0;

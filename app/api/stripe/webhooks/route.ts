@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 import { SubscriptionSync } from '@/lib/stripe/sync-subscription';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2024-04-10',
 });
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -13,7 +13,7 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
-    const signature = headers().get('stripe-signature');
+    const signature = request.headers.get('stripe-signature');
 
     if (!signature) {
       return NextResponse.json({ error: 'Missing signature' }, { status: 400 });

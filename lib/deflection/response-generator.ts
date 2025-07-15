@@ -1,9 +1,17 @@
 import OpenAI from 'openai';
 import { supabaseAdmin } from '@/lib/supabase/client';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// Lazy initialization to avoid build-time errors
+let openai: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY!,
+    });
+  }
+  return openai;
+}
 
 export interface ResponseGenerationRequest {
   ticketContent: string;
@@ -66,7 +74,7 @@ export class AIResponseGenerator {
       const prompt = this.buildPrompt(request, context);
       
       // Generate response using OpenAI
-      const completion = await openai.chat.completions.create({
+      const completion = await getOpenAI().chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           {
@@ -261,13 +269,13 @@ ${conversationHistory.length > 0
 
 CUSTOMER HISTORY:
 ${context.userHistory.length > 0
-  ? context.userHistory.slice(0, 3).map(ticket => `Previous Issue: ${ticket.subject || 'No subject'} (${ticket.status})`).join('\n')
+  ? context.userHistory.slice(0, 3).map((ticket: any) => `Previous Issue: ${ticket.subject || 'No subject'} (${ticket.status})`).join('\n')
   : 'No previous support history found.'
 }
 
 RELEVANT KNOWLEDGE BASE:
 ${context.knowledgeBase.length > 0
-  ? context.knowledgeBase.map(kb => `
+  ? context.knowledgeBase.map((kb: any) => `
 Title: ${kb.title}
 Content: ${kb.content}
 Success Rate: ${Math.round((kb.success_rate || 0) * 100)}%
@@ -278,7 +286,7 @@ Usage Count: ${kb.usage_count || 0}
 
 AVAILABLE TEMPLATES:
 ${context.templates.length > 0
-  ? context.templates.map(template => `
+  ? context.templates.map((template: any) => `
 Template: ${template.name}
 Category: ${template.category}
 Content: ${template.template_content}
@@ -289,7 +297,7 @@ Success Rate: ${Math.round((template.success_rate || 0) * 100)}%
 
 SIMILAR RESOLVED TICKETS:
 ${context.similarTickets.length > 0
-  ? context.similarTickets.map(ticket => `
+  ? context.similarTickets.map((ticket: any) => `
 Issue: ${ticket.subject || 'No subject'}
 Resolution: ${ticket.resolution_summary || 'No resolution summary'}
 Satisfaction: ${ticket.satisfaction_score || 'Unknown'}/5

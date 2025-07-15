@@ -47,9 +47,9 @@ export function ResultsTrackingDashboard() {
     setLoading(true);
     try {
       const [aggregateMetrics, performers, candidates] = await Promise.all([
-        resultsTracker.getAggregateMetrics(),
-        resultsTracker.getTopPerformers(5),
-        resultsTracker.identifyTestimonialCandidates()
+        resultsTracker.instance.getAggregateMetrics(),
+        resultsTracker.instance.getTopPerformers(5),
+        resultsTracker.instance.identifyTestimonialCandidates()
       ]);
 
       setMetrics(aggregateMetrics);

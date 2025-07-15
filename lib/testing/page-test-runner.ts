@@ -362,7 +362,7 @@ Generated: ${timestamp}
 
     if (summary.criticalFailures.length > 0) {
       report += `## 🚨 Critical Failures
-${summary.criticalFailures.map(f => `- ${f}`).join('\n')}
+${summary.criticalFailures.map((f: string) => `- ${f}`).join('\n')}
 
 `;
     }

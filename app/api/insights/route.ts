@@ -9,7 +9,7 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -72,10 +72,10 @@ TICKET ANALYTICS (Last 30 days):
 - Average response time: ${Math.round(avgResponseTime || 0)} minutes
 
 CATEGORY BREAKDOWN:
-${Object.entries(categoryBreakdown).map(([cat, count]) => `- ${cat}: ${count} tickets (${Math.round(count/totalTickets*100)}%)`).join('\n')}
+${Object.entries(categoryBreakdown).map(([cat, count]) => `- ${cat}: ${count} tickets (${Math.round((count as number)/totalTickets*100)}%)`).join('\n')}
 
 SENTIMENT BREAKDOWN:
-${Object.entries(sentimentBreakdown).map(([sent, count]) => `- ${sent}: ${count} tickets (${Math.round(count/totalTickets*100)}%)`).join('\n')}
+${Object.entries(sentimentBreakdown).map(([sent, count]) => `- ${sent}: ${count} tickets (${Math.round((count as number)/totalTickets*100)}%)`).join('\n')}
 
 TOP ISSUES:
 ${frequentIssues.map(([cat, count], i) => `${i+1}. ${cat}: ${count} tickets`).join('\n')}
@@ -214,7 +214,7 @@ Make insights specific, actionable, and tied to real metrics.`;
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

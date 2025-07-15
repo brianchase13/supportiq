@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { ResponseTemplateEngine } from '@/lib/ai/response-templates';
+import { ResponseTemplateSystem } from '@/lib/ai/response-templates';
 import { z } from 'zod';
 
 const CreateTemplateSchema = z.object({
@@ -8,7 +8,7 @@ const CreateTemplateSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   template_content: z.string().min(10, 'Template content must be at least 10 characters'),
   trigger_keywords: z.array(z.string()).min(1, 'At least one trigger keyword is required'),
-  variables: z.record(z.any()).optional().default({})
+  variables: z.record(z.string(), z.unknown()).optional()
 });
 
 const UpdateTemplateSchema = z.object({
@@ -16,13 +16,13 @@ const UpdateTemplateSchema = z.object({
   category: z.string().min(1).optional(),
   template_content: z.string().min(10).optional(),
   trigger_keywords: z.array(z.string()).optional(),
-  variables: z.record(z.any()).optional(),
+  variables: z.record(z.string(), z.unknown()).optional(),
   is_active: z.boolean().optional()
 });
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -32,12 +32,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const includeAnalytics = searchParams.get('analytics') === 'true';
 
-    const templateEngine = new ResponseTemplateEngine(user.id);
-    const templates = await templateEngine.getTemplates();
+    const templateSystem = new ResponseTemplateSystem();
+    const templates = await templateSystem.getTemplates(user.id);
 
     let analytics = null;
     if (includeAnalytics) {
-      analytics = await templateEngine.getTemplateAnalytics();
+      analytics = await templateSystem.getTemplateAnalytics(user.id);
     }
 
     return NextResponse.json({
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -74,8 +74,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const templateEngine = new ResponseTemplateEngine(user.id);
-    const template = await templateEngine.createTemplate(validationResult.data);
+    const templateSystem = new ResponseTemplateSystem();
+    const { template_content, trigger_keywords, variables, ...rest } = validationResult.data;
+    const variablesArray = variables
+      ? Object.entries(variables).map(([name, value]) => ({
+          name,
+          type: 'text' as const, // ensure correct type
+          placeholder: '',
+          required: false,
+          ...((typeof value === 'object' && value !== null) ? value : {})
+        }))
+      : [];
+    const template = await templateSystem.createTemplate({
+      ...rest,
+      user_id: user.id,
+      content: template_content,
+      keywords: trigger_keywords,
+      variables: variablesArray,
+      active: true,
+      priority: 1,
+      tags: [],
+    });
 
     return NextResponse.json({
       success: true,
@@ -94,7 +113,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -108,7 +127,9 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
     }
 
-    const validationResult = UpdateTemplateSchema.safeParse(updateData);
+    const templateSystem = new ResponseTemplateSystem();
+    const { variables, ...restUpdate } = updateData;
+    const validationResult = UpdateTemplateSchema.safeParse(restUpdate);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -117,8 +138,21 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const templateEngine = new ResponseTemplateEngine(user.id);
-    const template = await templateEngine.updateTemplate(id, validationResult.data);
+    // Only add variables if present and converted to array
+    let updatePayload: any = { ...validationResult.data };
+    if (variables) {
+      const variablesArray = Object.entries(variables).map(([name, value]) => ({
+        name,
+        type: 'text' as const,
+        placeholder: '',
+        required: false,
+        ...((typeof value === 'object' && value !== null) ? value : {})
+      }));
+      if (variablesArray.length > 0) {
+        updatePayload.variables = variablesArray;
+      }
+    }
+    const template = await templateSystem.updateTemplate(id, updatePayload);
 
     return NextResponse.json({
       success: true,
@@ -137,7 +171,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -151,8 +185,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
     }
 
-    const templateEngine = new ResponseTemplateEngine(user.id);
-    await templateEngine.deleteTemplate(id);
+    const templateSystem = new ResponseTemplateSystem();
+    await templateSystem.deleteTemplate(id);
 
     return NextResponse.json({
       success: true,

@@ -114,16 +114,16 @@ export class ResultsTrackingSystem {
 
       // Calculate average response time
       const responseTimes = tickets
-        ?.filter(t => t.resolution_time_hours)
-        .map(t => t.resolution_time_hours) || [];
+        ?.filter((t: any) => t.resolution_time_hours)
+        .map((t: any) => t.resolution_time_hours) || [];
       const avgResponseTime = responseTimes.length > 0 
-        ? responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length 
+        ? responseTimes.reduce((sum: number, time: number) => sum + time, 0) / responseTimes.length 
         : 0;
 
       // Calculate customer satisfaction
-      const satisfactionScores = feedback?.map(f => f.satisfaction_score) || [];
+      const satisfactionScores = feedback?.map((f: any) => f.satisfaction_score) || [];
       const avgSatisfaction = satisfactionScores.length > 0
-        ? satisfactionScores.reduce((sum, score) => sum + score, 0) / satisfactionScores.length
+        ? satisfactionScores.reduce((sum: number, score: number) => sum + score, 0) / satisfactionScores.length
         : 0;
 
       // Calculate cost savings
@@ -394,20 +394,20 @@ export class ResultsTrackingSystem {
       if (!metrics || metrics.length === 0) return null;
 
       // Calculate summary statistics
-      const totalTickets = metrics.reduce((sum, m) => sum + m.tickets_processed, 0);
-      const totalDeflected = metrics.reduce((sum, m) => sum + m.tickets_deflected, 0);
+      const totalTickets = metrics.reduce((sum: number, m: any) => sum + m.tickets_processed, 0);
+      const totalDeflected = metrics.reduce((sum: number, m: any) => sum + m.tickets_deflected, 0);
       const avgDeflectionRate = totalTickets > 0 ? (totalDeflected / totalTickets) * 100 : 0;
-      const avgResponseTime = metrics.reduce((sum, m) => sum + m.avg_response_time_hours, 0) / metrics.length;
-      const avgSatisfaction = metrics.reduce((sum, m) => sum + m.customer_satisfaction_score, 0) / metrics.length;
-      const totalSavings = metrics.reduce((sum, m) => sum + m.cost_savings, 0);
-      const avgROI = metrics.reduce((sum, m) => sum + m.roi_percentage, 0) / metrics.length;
+      const avgResponseTime = metrics.reduce((sum: number, m: any) => sum + m.avg_response_time_hours, 0) / metrics.length;
+      const avgSatisfaction = metrics.reduce((sum: number, m: any) => sum + m.customer_satisfaction_score, 0) / metrics.length;
+      const totalSavings = metrics.reduce((sum: number, m: any) => sum + m.cost_savings, 0);
+      const avgROI = metrics.reduce((sum: number, m: any) => sum + m.roi_percentage, 0) / metrics.length;
 
       // Calculate trends
       const recentMetrics = metrics.slice(-7); // Last 7 days
       const olderMetrics = metrics.slice(0, -7); // Previous 7 days
 
-      const recentAvgDeflection = recentMetrics.reduce((sum, m) => sum + m.deflection_rate, 0) / recentMetrics.length;
-      const olderAvgDeflection = olderMetrics.reduce((sum, m) => sum + m.deflection_rate, 0) / olderMetrics.length;
+      const recentAvgDeflection = recentMetrics.reduce((sum: number, m: any) => sum + m.deflection_rate, 0) / recentMetrics.length;
+      const olderAvgDeflection = olderMetrics.reduce((sum: number, m: any) => sum + m.deflection_rate, 0) / olderMetrics.length;
       const deflectionTrend = recentAvgDeflection - olderAvgDeflection;
 
       return {
@@ -424,12 +424,15 @@ export class ResultsTrackingSystem {
           deflection_trend: deflectionTrend,
           improving: deflectionTrend > 0
         },
-        daily_breakdown: metrics.map(m => ({
+        daily_breakdown: metrics.map((m: any) => ({
           date: m.date,
           tickets: m.tickets_processed,
           deflected: m.tickets_deflected,
           deflection_rate: m.deflection_rate,
-          savings: m.cost_savings
+          avg_response_time: m.avg_response_time_hours,
+          satisfaction: m.customer_satisfaction_score,
+          cost_savings: m.cost_savings,
+          roi: m.roi_percentage
         }))
       };
     } catch (error) {

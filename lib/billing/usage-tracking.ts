@@ -47,12 +47,17 @@ export function useUsageTracking() {
     metadata?: Record<string, any>
   ) => {
     try {
-      if (!autumn.customer) {
-        console.warn('No customer found for usage tracking');
+      // Check if autumn is available and has the track method
+      if (!autumn || typeof autumn.track !== 'function') {
+        console.warn('Autumn not available for usage tracking');
         return;
       }
 
-      await autumn.track(USAGE_EVENTS[event], quantity, metadata);
+      await autumn.track({
+        eventName: USAGE_EVENTS[event],
+        value: quantity,
+        entityData: metadata
+      });
     } catch (error) {
       console.error(`Error tracking client usage for ${event}:`, error);
     }
@@ -60,9 +65,9 @@ export function useUsageTracking() {
 
   return {
     trackClientUsage,
-    customer: autumn.customer,
-    hasAccess: autumn.hasAccess,
-    usage: autumn.usage
+    customer: (autumn as any)?.customer,
+    hasAccess: (autumn as any)?.hasAccess,
+    usage: (autumn as any)?.usage
   };
 }
 

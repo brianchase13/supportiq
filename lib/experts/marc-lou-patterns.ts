@@ -28,6 +28,12 @@ export const MARC_LOU_STRIPE_CONFIG = {
   ]
 };
 
+// API response format type
+export type ApiResponseFormat = {
+  success: { data: unknown; message?: string };
+  error: { error: string; code?: number };
+};
+
 // 2. Rapid Development Patterns
 export const RAPID_DEV_PATTERNS = {
   // Marc's file structure for speed
@@ -40,10 +46,8 @@ export const RAPID_DEV_PATTERNS = {
   // API route patterns
   api: {
     prefixes: ['auth', 'stripe', 'analytics', 'billing'],
-    responseFormat: {
-      success: { data: any, message: string | undefined },
-      error: { error: string, code: number | undefined }
-    }
+    // Type only, not a runtime value
+    // responseFormat: ApiResponseFormat
   }
 };
 

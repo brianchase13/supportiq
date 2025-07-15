@@ -1,279 +1,287 @@
-# 🚀 SupportIQ - Stop Losing Money on Repetitive Tickets
+# SupportIQ 🚀
 
-> **The AI that cuts support costs by 30% in 30 days**
+AI-powered support analytics that cuts ticket costs by 30% through intelligent deflection and automation.
 
-Transform your support chaos into profit. SupportIQ uses advanced AI to identify exactly where your team is wasting time and money, then shows you how to fix it.
+## 🎯 Quick Start
 
-## 💰 What You Get
-
-- **Instant ROI Analysis**: See exactly how much money you're losing on repetitive tickets
-- **AI-Powered Deflection**: Automatically identify which tickets could be prevented
-- **Bulletproof Intercom Integration**: Secure, encrypted connection to your support data
-- **Real-Time Dashboard**: Beautiful analytics that update automatically
-- **Competitive Benchmarking**: Compare your performance against industry standards
-
-## 🎯 Built for Results
-
-**The Greg Isenberg Test**: Does this make you money immediately? ✅  
-**The Gary Tan Test**: Can you see the value in 5 minutes? ✅  
-**The Marc Lou Test**: Does it solve a real problem people pay for? ✅  
-
-### Real Results from Real Companies
-
-- **TechCorp**: Identified $47K in annual savings in first month
-- **GrowthSaaS**: Reduced password reset tickets by 80% in 2 weeks
-- **ScaleUp**: Cut support costs by 35% while improving satisfaction
-
-## 🛠 Tech Stack
-
-**Frontend**: Next.js 14, TypeScript, Tailwind CSS, Tremor Charts  
-**Backend**: Node.js, Supabase, OpenAI GPT-4, Embeddings  
-**Infrastructure**: Vercel, Supabase, Stripe, PostHog, Sentry  
-**Security**: Row-level security, encrypted tokens, rate limiting  
-
-## 🚀 Quick Start
-
-### 1. Clone & Install
-
+### Automated Setup (Recommended)
 ```bash
+# Clone the repository
 git clone https://github.com/yourusername/supportiq.git
 cd supportiq
-npm install --legacy-peer-deps
+
+# Run automated setup
+npm run setup
 ```
 
-### 2. Environment Setup
-
+### Manual Setup
 ```bash
-cp .env.example .env.local
-```
+# Install dependencies
+npm install
 
-Configure your environment variables (see [Environment Setup](#environment-setup) below).
+# Copy environment template
+cp config/environment/env.example .env.local
 
-### 3. Database Setup
+# Edit .env.local with your API keys
+nano .env.local
 
-```bash
-# Initialize Supabase
-npx supabase init
-npx supabase start
-
-# Run migrations
-npx supabase db push
-```
-
-### 4. Start Development
-
-```bash
+# Start development server
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see the app.
+## 🛠️ Development Tools
 
-## 📋 Environment Setup
+### Interactive Development Menu
+```bash
+npm run tools
+```
+Access all development tools through an interactive menu:
+- 🚀 Start Development Server
+- 🧪 Run Tests
+- 🔍 Run Linting
+- 🏗️ Build Project
+- 🗄️ Database Tools
+- 💳 Stripe Tools
+- 💬 Intercom Tools
+- 🔧 Environment Check
+- 📊 Bundle Analysis
+- 🧹 Clean Project
+- 📦 Update Dependencies
+- 🔒 Security Audit
 
-### Required Environment Variables
+### Essential Commands
 
-```env
-# Database
-DATABASE_URL="postgresql://..."
-NEXT_PUBLIC_SUPABASE_URL="https://..."
-NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
-SUPABASE_SERVICE_ROLE_KEY="..."
-
-# Authentication
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key"
-
-# Intercom Integration
-INTERCOM_CLIENT_ID="your-client-id"
-INTERCOM_CLIENT_SECRET="your-client-secret"
-
-# OpenAI
-OPENAI_API_KEY="sk-..."
-
-# Stripe
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
-
-# Analytics
-NEXT_PUBLIC_POSTHOG_KEY="phc_..."
-NEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"
-
-# Monitoring
-NEXT_PUBLIC_SENTRY_DSN="https://..."
+#### Development
+```bash
+npm run dev              # Start development server with Turbopack
+npm run build            # Build for production
+npm run start            # Start production server
+npm run clean            # Clean build cache
+npm run clean:all        # Clean everything and reinstall
 ```
 
-### Service Setup Guides
-
-#### Supabase Setup
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Copy your project URL and anon key
-3. Generate a service role key
-4. Run the database migrations
-
-#### Intercom Setup
-1. Create an Intercom app at [developers.intercom.com](https://developers.intercom.com)
-2. Configure OAuth with redirect URL: `https://yourapp.com/api/auth/intercom/callback`
-3. Copy your client ID and secret
-
-#### OpenAI Setup
-1. Get your API key from [platform.openai.com](https://platform.openai.com)
-2. Make sure you have credits available
-3. We use both GPT-4 and text-embedding-3-small
-
-#### Stripe Setup
-1. Create account at [stripe.com](https://stripe.com)
-2. Get your secret key and publishable key
-3. Set up webhook endpoint: `https://yourapp.com/api/stripe/webhook`
-4. Copy the webhook secret
-
-## 🏗 Architecture
-
-### Key Components
-
-- **`/app/api/auth/intercom/`**: OAuth flow with bulletproof error handling
-- **`/app/api/insights/deflection/`**: The money-making AI analysis
-- **`/app/api/stripe/checkout/`**: Dynamic ROI-based pricing
-- **`/app/demo/`**: Impressive demo mode with fake data
-- **`/lib/analytics.ts`**: Comprehensive success metrics tracking
-
-### Security Features
-
-- **Encrypted Token Storage**: All sensitive data encrypted at rest
-- **Rate Limiting**: Prevents abuse with exponential backoff
-- **Row-Level Security**: Users can only access their own data
-- **Webhook Validation**: All webhooks cryptographically verified
-
-### Performance Optimizations
-
-- **Smart Caching**: Multi-layer cache with fallback strategies
-- **Embedding Similarity**: Cost-optimized duplicate detection
-- **Batch Processing**: Efficient data processing with queues
-- **CDN Integration**: Static assets served from edge locations
-
-## 🔄 Deployment
-
-### Vercel (Recommended)
-
+#### Code Quality
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+npm run lint             # Run ESLint
+npm run lint:fix         # Fix linting issues
+npm run format           # Format code with Prettier
+npm run type-check       # TypeScript type checking
+npm run test:all         # Run all tests and checks
+```
 
-# Deploy
+#### Testing
+```bash
+npm run test             # Run unit tests
+npm run test:watch       # Run tests in watch mode
+npm run test:coverage    # Run tests with coverage
+npm run test:e2e         # Run end-to-end tests
+```
+
+#### Database
+```bash
+npm run db:migrate       # Run database migrations
+npm run db:reset         # Reset database
+npm run db:types         # Generate TypeScript types
+npm run db:studio        # Open Supabase Studio
+```
+
+#### Integrations
+```bash
+npm run stripe:setup     # Setup Stripe products
+npm run stripe:webhook   # Setup Stripe webhooks
+npm run intercom:setup   # Setup Intercom integration
+npm run admin:create     # Create admin user
+```
+
+#### Monitoring & Performance
+```bash
+npm run monitor:performance  # Run performance analysis
+npm run analyze             # Analyze bundle size
+npm run check:env           # Validate environment
+npm run check:health        # Check API health
+```
+
+#### Security & Maintenance
+```bash
+npm run security:audit      # Run security audit
+npm run deps:check          # Check for dependency updates
+npm run deps:update         # Update all dependencies
+```
+
+## 🏗️ Project Structure
+
+```
+supportiq/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── dashboard/         # Dashboard pages
+│   └── ...
+├── components/            # React components
+│   ├── ui/               # Base UI components
+│   ├── dashboard/        # Dashboard components
+│   └── ...
+├── lib/                  # Core libraries
+│   ├── ai/              # AI processing
+│   ├── analytics/       # Analytics
+│   ├── auth/            # Authentication
+│   └── ...
+├── config/               # Configuration files
+│   ├── build/           # Build configs
+│   ├── database/        # Database configs
+│   ├── environment/     # Environment templates
+│   └── ...
+├── scripts/              # Automation scripts
+│   ├── setup/           # Setup scripts
+│   ├── deployment/      # Deployment scripts
+│   ├── monitoring/      # Monitoring scripts
+│   └── ...
+├── docs/                 # Documentation
+│   ├── guides/          # Setup guides
+│   ├── api/             # API documentation
+│   └── ...
+└── ...
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+Copy `config/environment/env.example` to `.env.local` and configure:
+
+#### Required
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
+- `OPENAI_API_KEY` - OpenAI API key
+
+#### Optional
+- `STRIPE_SECRET_KEY` - Stripe secret key
+- `INTERCOM_CLIENT_ID` - Intercom client ID
+- `RESEND_API_KEY` - Email service API key
+
+### Database Setup
+```bash
+# Initialize Supabase
+npx supabase init
+
+# Start local development
+npx supabase start
+
+# Run migrations
+npm run db:migrate
+
+# Generate types
+npm run db:types
+```
+
+## 🚀 Deployment
+
+### Automated Deployment
+```bash
+# Deploy to production
+npm run deploy
+
+# Deploy to staging
+npm run deploy:staging
+```
+
+### Manual Deployment
+```bash
+# Build the project
+npm run build
+
+# Deploy to Vercel
 vercel --prod
-```
-
-### Environment Variables in Production
-
-Set all environment variables in your deployment platform:
-
-- Vercel: Dashboard → Settings → Environment Variables
-- Railway: Dashboard → Variables
-- Heroku: Dashboard → Settings → Config Vars
-
-### Database Migrations
-
-```bash
-# Production migrations
-npx supabase db push --linked
 ```
 
 ## 🧪 Testing
 
-### Unit Tests
+### Test Structure
+- **Unit Tests**: `__tests__/` directory and `*.test.ts` files
+- **E2E Tests**: Playwright tests in `tests/` directory
+- **API Tests**: API route tests
 
+### Running Tests
 ```bash
+# All tests
+npm run test:all
+
+# Unit tests only
 npm run test
-```
 
-### Integration Tests
-
-```bash
-npm run test:integration
-```
-
-### E2E Tests
-
-```bash
+# E2E tests only
 npm run test:e2e
+
+# With coverage
+npm run test:coverage
 ```
 
-## 📊 Monitoring
+## 📊 Monitoring & Analytics
 
-### PostHog Analytics
+### Performance Monitoring
+```bash
+npm run monitor:performance
+```
+Checks:
+- Build size optimization
+- Bundle analysis
+- Database performance
+- API response times
+- Memory usage
+- Security vulnerabilities
+- Test coverage
 
-Track all critical business metrics:
-- Time to first insight
-- Activation rate
-- Conversion rates
-- User engagement
+### Health Checks
+```bash
+npm run check:health
+```
 
-### Sentry Error Tracking
+## 🔒 Security
 
-Automatic error capture and performance monitoring:
-- Frontend errors
-- API errors
-- Performance issues
-- User context
+### Security Features
+- Environment variable validation
+- API rate limiting
+- Input sanitization
+- CORS configuration
+- Security headers
+- Dependency vulnerability scanning
 
-### Custom Metrics
-
-Monitor business-critical metrics:
-- Daily active users
-- Monthly recurring revenue
-- Customer lifetime value
-- Churn prediction
+### Security Audit
+```bash
+npm run security:audit
+```
 
 ## 🤝 Contributing
 
 ### Development Workflow
-
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
+2. Create a feature branch
 3. Make your changes
-4. Run tests: `npm run test`
-5. Commit: `git commit -m 'Add amazing feature'`
-6. Push: `git push origin feature/amazing-feature`
-7. Create a Pull Request
+4. Run tests: `npm run test:all`
+5. Submit a pull request
 
-### Code Style
+### Code Quality
+- Pre-commit hooks run automatically
+- ESLint and Prettier configured
+- TypeScript strict mode enabled
+- Test coverage requirements
 
-- Use TypeScript for all new code
-- Follow the existing code style
-- Add tests for new features
-- Update documentation as needed
+## 📚 Documentation
 
-### Commit Messages
-
-Use conventional commits:
-- `feat: add new feature`
-- `fix: bug fix`
-- `docs: update documentation`
-- `style: formatting changes`
-- `refactor: code refactoring`
-- `test: add tests`
-
-## 📜 License
-
-MIT License - see [LICENSE](LICENSE) for details.
+- [Quick Setup Guide](docs/guides/quick-setup.md)
+- [Integration Guides](docs/guides/integration-guides.md)
+- [API Documentation](docs/api/)
+- [Deployment Guide](docs/deployment/)
 
 ## 🆘 Support
 
-- 📧 Email: support@supportiq.com
-- 💬 Discord: [Join our community](https://discord.gg/supportiq)
-- 📖 Docs: [docs.supportiq.com](https://docs.supportiq.com)
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/supportiq/issues)
+- **Documentation**: Check the `docs/` directory
+- **Issues**: Create a GitHub issue
+- **Discussions**: Use GitHub Discussions
 
-## 🎉 What's Next?
+## 📄 License
 
-- [ ] Multi-language support
-- [ ] Slack integration
-- [ ] Custom webhook endpoints
-- [ ] Advanced AI models
-- [ ] White-label solution
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Made with ❤️ by developers who understand the pain of support tickets**
-
-*SupportIQ helps you turn support costs into competitive advantage*
+**Built with ❤️ by the SupportIQ Team**

@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { createClientComponentClient } from '@supabase/ssr';
-import { User, Session } from '@supabase/supabase-js';
+import { createClient } from '@/lib/auth';
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 
 interface UserProfile {
   id: string;
@@ -12,6 +12,7 @@ interface UserProfile {
   role?: string;
   intercom_connected?: boolean;
   subscription_status?: string;
+  avatar?: string;
   created_at: string;
   updated_at: string;
 }
@@ -35,10 +36,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const supabase = createClientComponentClient();
+  const [supabase, setSupabase] = useState<any>(null);
 
   useEffect(() => {
+    // Lazy initialization to avoid build-time errors
+    if (typeof window !== 'undefined') {
+      setSupabase(createClient());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return;
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -65,7 +74,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
@@ -81,9 +90,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const loadUserProfile = async (userId: string) => {
+    if (!supabase) return;
+    
     try {
       const { data, error } = await supabase
         .from('users')
@@ -109,6 +120,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const createUserProfile = async (userId: string) => {
+    if (!supabase) return;
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -144,8 +157,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) {
-      setError('No user logged in');
+    if (!user || !supabase) {
+      setError('No user logged in or Supabase not initialized');
       return;
     }
 
@@ -173,6 +186,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    if (!supabase) return;
+    
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {

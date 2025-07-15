@@ -26,6 +26,8 @@ import {
   Shield,
   Database
 } from 'lucide-react';
+import { ModernNavigation } from '@/components/layout/ModernNavigation';
+import { useRequireAuth } from '@/lib/auth/user-context';
 
 interface Customer {
   id: string;
@@ -44,10 +46,9 @@ interface Customer {
 interface SystemHealth {
   total_customers: number;
   active_subscriptions: number;
-  trial_users: number;
   revenue_mtd: number;
-  churn_rate: number;
   system_status: 'healthy' | 'warning' | 'critical';
+  churn_rate: number;
 }
 
 export default function AdminDashboard() {
@@ -58,6 +59,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const { loading: authLoading } = useRequireAuth();
 
   useEffect(() => {
     fetchAdminData();
@@ -169,362 +171,251 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-      </div>
+      <ModernNavigation>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+        </div>
+      </ModernNavigation>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage customers, subscriptions, and system health</p>
+    <ModernNavigation>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600">Manage customers, subscriptions, and system health</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Export Data
+            </Button>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Customer
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="w-4 h-4 mr-2" />
-            Export Data
-          </Button>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Customer
-          </Button>
-        </div>
-      </div>
 
-      {/* System Health Overview */}
-      {systemHealth && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{systemHealth.total_customers.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
-                +12% from last month
-              </p>
-            </CardContent>
-          </Card>
+        {/* System Health Overview */}
+        {systemHealth && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+                <Users className="h-4 w-4 text-gray-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{systemHealth.total_customers.toLocaleString()}</div>
+                <p className="text-xs text-gray-500">
+                  +12% from last month
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{systemHealth.active_subscriptions.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
-                {((systemHealth.active_subscriptions / systemHealth.total_customers) * 100).toFixed(1)}% conversion
-              </p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
+                <CreditCard className="h-4 w-4 text-gray-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{systemHealth.active_subscriptions.toLocaleString()}</div>
+                <p className="text-xs text-gray-500">
+                  {((systemHealth.active_subscriptions / systemHealth.total_customers) * 100).toFixed(1)}% conversion
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue MTD</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${systemHealth.revenue_mtd.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
-                +8% from last month
-              </p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Revenue MTD</CardTitle>
+                <DollarSign className="h-4 w-4 text-gray-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">${systemHealth.revenue_mtd.toLocaleString()}</div>
+                <p className="text-xs text-gray-500">
+                  +8% from last month
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">System Status</CardTitle>
-              {getSystemHealthIcon(systemHealth.system_status)}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold capitalize">{systemHealth.system_status}</div>
-              <p className="text-xs text-muted-foreground">
-                Churn rate: {systemHealth.churn_rate}%
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">System Status</CardTitle>
+                {getSystemHealthIcon(systemHealth.system_status)}
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold capitalize">{systemHealth.system_status}</div>
+                <p className="text-xs text-gray-500">
+                  Churn rate: {systemHealth.churn_rate}%
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="customers" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="customers">Customers</TabsTrigger>
-          <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="system">System Health</TabsTrigger>
-        </TabsList>
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="customers" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="customers">Customers</TabsTrigger>
+            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="system">System Health</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="customers" className="space-y-4">
-          {/* Customer Filters */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer Management</CardTitle>
-              <CardDescription>
-                View and manage all customers and their subscription status
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-4 mb-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <Input
-                      placeholder="Search customers..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
+          <TabsContent value="customers" className="space-y-4">
+            {/* Customer Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Customer Management</CardTitle>
+                <CardDescription>
+                  View and manage all customers and their subscription status
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4 mb-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        placeholder="Search customers..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="trialing">Trial</SelectItem>
+                      <SelectItem value="past_due">Past Due</SelectItem>
+                      <SelectItem value="canceled">Canceled</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="trialing">Trial</SelectItem>
-                    <SelectItem value="past_due">Past Due</SelectItem>
-                    <SelectItem value="canceled">Canceled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
-              {/* Customers Table */}
-              <div className="border rounded-lg">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Customer</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Status</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Plan</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Usage</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Revenue</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {filteredCustomers.map((customer) => (
-                        <tr key={customer.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3">
-                            <div>
-                              <div className="font-medium">{customer.name}</div>
-                              <div className="text-sm text-gray-500">{customer.email}</div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            {getStatusBadge(customer.subscription_status)}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="capitalize">{customer.subscription_plan}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="text-sm">
-                              {customer.ai_responses_used}/{customer.ai_responses_limit} AI responses
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                              <div 
-                                className="bg-blue-600 h-2 rounded-full" 
-                                style={{ width: `${Math.min((customer.ai_responses_used / customer.ai_responses_limit) * 100, 100)}%` }}
-                              ></div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="font-medium">${customer.total_spent}</div>
-                            <div className="text-sm text-gray-500">
-                              {new Date(customer.created_at).toLocaleDateString()}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedCustomer(customer)}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleExtendTrial(customer.id, 7)}
-                              >
-                                <Clock className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </td>
+                {/* Customers Table */}
+                <div className="border rounded-lg">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Customer</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Plan</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Usage</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Revenue</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="subscriptions" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Subscription Management</CardTitle>
-              <CardDescription>
-                Monitor subscription health and manage billing issues
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Past Due</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-yellow-600">12</div>
-                    <p className="text-sm text-gray-500">Requires attention</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Trial Expiring</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">8</div>
-                    <p className="text-sm text-gray-500">In next 3 days</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Churn Risk</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-red-600">3</div>
-                    <p className="text-sm text-gray-500">High risk customers</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Business Analytics</CardTitle>
-              <CardDescription>
-                Key metrics and performance indicators
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium mb-2">Conversion Funnel</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Trial Starts</span>
-                      <span className="font-medium">1,234</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>First AI Use</span>
-                      <span className="font-medium">987 (80%)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Hit Limits</span>
-                      <span className="font-medium">456 (37%)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Upgraded</span>
-                      <span className="font-medium">234 (19%)</span>
-                    </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {filteredCustomers.map((customer) => (
+                          <tr key={customer.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <div>
+                                <div className="font-medium">{customer.name}</div>
+                                <div className="text-sm text-gray-500">{customer.email}</div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              {getStatusBadge(customer.subscription_status)}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="capitalize">{customer.subscription_plan}</span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="text-sm">
+                                {customer.ai_responses_used}/{customer.ai_responses_limit} AI responses
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div 
+                                  className="bg-black h-2 rounded-full" 
+                                  style={{ width: `${Math.min((customer.ai_responses_used / customer.ai_responses_limit) * 100, 100)}%` }}
+                                ></div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="font-medium">${customer.total_spent}</div>
+                              <div className="text-sm text-gray-500">
+                                {new Date(customer.created_at).toLocaleDateString()}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                <div>
-                  <h3 className="font-medium mb-2">Revenue Metrics</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>MRR</span>
-                      <span className="font-medium">$45,678</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>ARR</span>
-                      <span className="font-medium">$548,136</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>LTV</span>
-                      <span className="font-medium">$2,456</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>CAC</span>
-                      <span className="font-medium">$234</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="subscriptions" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscription Management</CardTitle>
+                <CardDescription>
+                  Monitor and manage customer subscriptions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Subscription management features coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="system" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Health</CardTitle>
-              <CardDescription>
-                Monitor system performance and infrastructure
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium mb-2">API Performance</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Response Time</span>
-                      <span className="font-medium text-green-600">245ms</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Success Rate</span>
-                      <span className="font-medium text-green-600">99.8%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Error Rate</span>
-                      <span className="font-medium text-red-600">0.2%</span>
-                    </div>
-                  </div>
-                </div>
+          <TabsContent value="analytics" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Analytics Dashboard</CardTitle>
+                <CardDescription>
+                  View detailed analytics and insights
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Analytics dashboard coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                <div>
-                  <h3 className="font-medium mb-2">Database</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Connection Pool</span>
-                      <span className="font-medium text-green-600">85%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Query Performance</span>
-                      <span className="font-medium text-green-600">Good</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Storage Used</span>
-                      <span className="font-medium text-yellow-600">67%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="system" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>System Health</CardTitle>
+                <CardDescription>
+                  Monitor system performance and health metrics
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">System health monitoring coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </ModernNavigation>
   );
 } 

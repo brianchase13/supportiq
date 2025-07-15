@@ -236,7 +236,7 @@ export const ErrorTypes = {
 // Error handling utilities
 export class ErrorHandler {
   static logError(error: Error, context?: Record<string, any>) {
-    const errorData = {
+    const errorData: any = {
       message: error.message,
       stack: error.stack,
       timestamp: new Date().toISOString(),

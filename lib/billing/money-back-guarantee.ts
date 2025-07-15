@@ -465,18 +465,18 @@ export class MoneyBackGuaranteeSystem {
         .select('*');
 
       const totalSubscriptions = guaranteeStatuses.length;
-      const refundsRequested = refundRequests?.filter(r => r.status !== 'rejected').length || 0;
-      const refundsProcessed = refundRequests?.filter(r => r.status === 'processed').length || 0;
+      const refundsRequested = refundRequests?.filter((r: any) => r.status !== 'rejected').length || 0;
+      const refundsProcessed = refundRequests?.filter((r: any) => r.status === 'processed').length || 0;
       const guaranteeSuccessRate = totalSubscriptions > 0 ? 
         ((totalSubscriptions - refundsProcessed) / totalSubscriptions) * 100 : 0;
 
-      const avgRoi = guaranteeStatuses.reduce((sum, g) => sum + g.roi_achieved, 0) / totalSubscriptions;
-      const avgSatisfaction = guaranteeStatuses.reduce((sum, g) => sum + g.satisfaction_achieved, 0) / totalSubscriptions;
-      const avgDeflection = guaranteeStatuses.reduce((sum, g) => sum + g.deflection_achieved, 0) / totalSubscriptions;
+      const avgRoi = guaranteeStatuses.reduce((sum: number, g: any) => sum + g.roi_achieved, 0) / totalSubscriptions;
+      const avgSatisfaction = guaranteeStatuses.reduce((sum: number, g: any) => sum + g.satisfaction_achieved, 0) / totalSubscriptions;
+      const avgDeflection = guaranteeStatuses.reduce((sum: number, g: any) => sum + g.deflection_achieved, 0) / totalSubscriptions;
 
       const totalRefundAmount = refundRequests
-        ?.filter(r => r.status === 'processed')
-        .reduce((sum, r) => sum + r.amount, 0) || 0;
+        ?.filter((r: any) => r.status === 'processed')
+        .reduce((sum: number, r: any) => sum + r.amount, 0) || 0;
 
       return {
         total_subscriptions: totalSubscriptions,

@@ -129,7 +129,7 @@ export class SlackNotifier {
           text: `Alert generated at ${new Date().toLocaleString()}`
         }
       ]
-    });
+    } as any);
 
     await this.sendMessage({
       text: `🚨 Crisis Alert: ${alert.title}`,
@@ -191,9 +191,10 @@ export class SlackNotifier {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `*Key Highlights:*\n${highlightsText}`
+          text: `*Key Highlights:*
+${highlightsText}`
         }
-      });
+      } as any);
     }
 
     await this.sendMessage({
@@ -238,7 +239,7 @@ export class SlackNotifier {
           type: 'mrkdwn',
           text: `*Records Processed:* ${status.recordsProcessed.toLocaleString()}`
         }
-      });
+      } as any);
     }
 
     if (status.errors !== undefined) {
@@ -248,7 +249,7 @@ export class SlackNotifier {
           type: 'mrkdwn',
           text: `*Errors:* ${status.errors}`
         }
-      });
+      } as any);
     }
 
     if (status.duration !== undefined) {
@@ -258,7 +259,7 @@ export class SlackNotifier {
           type: 'mrkdwn',
           text: `*Duration:* ${Math.round(status.duration / 1000)}s`
         }
-      });
+      } as any);
     }
 
     await this.sendMessage({

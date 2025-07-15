@@ -18,7 +18,8 @@ const SettingsUpdateSchema = z.object({
 // GET endpoint to retrieve current settings
 export async function GET(request: NextRequest) {
   try {
-    const user = await auth.getUser();
+    const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore);
     const userId = user?.id;
 
     if (!userId) {
@@ -101,7 +102,8 @@ export async function GET(request: NextRequest) {
 // PUT endpoint to update settings
 export async function PUT(request: NextRequest) {
   try {
-    const user = await auth.getUser();
+    const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore);
     const userId = user?.id;
     const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
                     request.headers.get('x-real-ip') || 
@@ -242,7 +244,8 @@ export async function PUT(request: NextRequest) {
 // POST endpoint to reset settings to defaults
 export async function POST(request: NextRequest) {
   try {
-    const user = await auth.getUser();
+    const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore);
     const userId = user?.id;
 
     if (!userId) {

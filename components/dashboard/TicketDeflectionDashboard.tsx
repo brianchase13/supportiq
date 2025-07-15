@@ -207,14 +207,14 @@ export default function TicketDeflectionDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Ticket Deflection</h2>
-          <p className="text-slate-400">AI-powered ticket analysis and automated responses</p>
+          <h2 className="text-2xl font-bold text-gray-900">Ticket Deflection</h2>
+          <p className="text-gray-600">AI-powered ticket analysis and automated responses</p>
         </div>
         <div className="flex gap-3">
           <Button
             onClick={fetchDeflectionData}
             variant="outline"
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            className="border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
@@ -222,7 +222,7 @@ export default function TicketDeflectionDashboard() {
           <Button
             onClick={generateDemoTickets}
             variant="outline"
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            className="border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             <Users className="w-4 h-4 mr-2" />
             Generate Demo Data
@@ -230,7 +230,7 @@ export default function TicketDeflectionDashboard() {
           <Button
             onClick={runDeflectionAnalysis}
             disabled={runningAnalysis}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-black hover:bg-gray-800"
           >
             {runningAnalysis ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -244,15 +244,15 @@ export default function TicketDeflectionDashboard() {
 
       {/* Progress Bar */}
       {runningAnalysis && (
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-gray-200">
           <div className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-300">Analyzing tickets...</span>
-              <span className="text-sm text-slate-400">{analysisProgress}%</span>
+              <span className="text-sm text-gray-700">Analyzing tickets...</span>
+              <span className="text-sm text-gray-500">{analysisProgress}%</span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                className="bg-black h-2 rounded-full transition-all duration-300"
                 style={{ width: `${analysisProgress}%` }}
               ></div>
             </div>
@@ -262,84 +262,84 @@ export default function TicketDeflectionDashboard() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-gray-200">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Deflection Rate</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-gray-600">Deflection Rate</p>
+                <p className="text-2xl font-bold text-gray-900">
                   {metrics.deflectionRate.toFixed(1)}%
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-green-500" />
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-green-600" />
               </div>
             </div>
             <div className="mt-4">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-gray-500">
                 {metrics.deflectedTickets} of {metrics.totalTickets} tickets deflected
               </p>
             </div>
           </div>
         </Card>
 
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-gray-200">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Avg Response Time</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-gray-600">Avg Response Time</p>
+                <p className="text-2xl font-bold text-gray-900">
                   {Math.round(metrics.avgResponseTime)}m
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                <Clock className="w-6 h-6 text-blue-500" />
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-blue-600" />
               </div>
             </div>
             <div className="mt-4">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-gray-500">
                 Faster than industry average
               </p>
             </div>
           </div>
         </Card>
 
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-gray-200">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Total Tickets</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-gray-600">Total Tickets</p>
+                <p className="text-2xl font-bold text-gray-900">
                   {metrics.totalTickets.toLocaleString()}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-6 h-6 text-purple-500" />
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-purple-600" />
               </div>
             </div>
             <div className="mt-4">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-gray-500">
                 Analyzed this month
               </p>
             </div>
           </div>
         </Card>
 
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-gray-200">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Engine Status</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-gray-600">Engine Status</p>
+                <p className="text-2xl font-bold text-gray-900">
                   {deflectionEngine.status}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-500" />
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
             </div>
             <div className="mt-4">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-gray-500">
                 v{deflectionEngine.version}
               </p>
             </div>
@@ -350,22 +350,22 @@ export default function TicketDeflectionDashboard() {
       {/* Charts and Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Categories */}
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-gray-200">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-4">
-              <BarChart3 className="w-5 h-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Top Categories</h3>
+              <BarChart3 className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Top Categories</h3>
             </div>
             <div className="space-y-3">
               {metrics.topCategories.map((category, index) => (
                 <div key={category.category} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <span className="text-slate-300">{category.category}</span>
+                    <span className="text-gray-700">{category.category}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-400">{category.count}</span>
-                    <span className="text-xs text-slate-500">({category.percentage.toFixed(1)}%)</span>
+                    <span className="text-sm text-gray-600">{category.count}</span>
+                    <span className="text-xs text-gray-500">({category.percentage.toFixed(1)}%)</span>
                   </div>
                 </div>
               ))}
@@ -374,11 +374,11 @@ export default function TicketDeflectionDashboard() {
         </Card>
 
         {/* Sentiment Breakdown */}
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-gray-200">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Target className="w-5 h-5 text-green-400" />
-              <h3 className="text-lg font-semibold text-white">Sentiment Analysis</h3>
+              <Target className="w-5 h-5 text-green-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Sentiment Analysis</h3>
             </div>
             <div className="space-y-3">
               {metrics.sentimentBreakdown.map((sentiment, index) => (
@@ -388,11 +388,11 @@ export default function TicketDeflectionDashboard() {
                       sentiment.sentiment === 'positive' ? 'bg-green-500' :
                       sentiment.sentiment === 'negative' ? 'bg-red-500' : 'bg-yellow-500'
                     }`}></div>
-                    <span className="text-slate-300 capitalize">{sentiment.sentiment}</span>
+                    <span className="text-gray-700 capitalize">{sentiment.sentiment}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-400">{sentiment.count}</span>
-                    <span className="text-xs text-slate-500">({sentiment.percentage.toFixed(1)}%)</span>
+                    <span className="text-sm text-gray-600">{sentiment.count}</span>
+                    <span className="text-xs text-gray-500">({sentiment.percentage.toFixed(1)}%)</span>
                   </div>
                 </div>
               ))}
@@ -402,38 +402,38 @@ export default function TicketDeflectionDashboard() {
       </div>
 
       {/* Recent Deflections */}
-      <Card className="bg-slate-900 border-slate-800">
+      <Card className="bg-white border-gray-200">
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Users className="w-5 h-5 text-purple-400" />
-            <h3 className="text-lg font-semibold text-white">Recent Deflection Activity</h3>
+            <Users className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Recent Deflection Activity</h3>
           </div>
           <div className="space-y-3">
             {recentDeflections.length > 0 ? (
               recentDeflections.map((deflection) => (
-                <div key={deflection.id} className="flex items-center justify-between p-3 bg-slate-800 rounded-lg">
+                <div key={deflection.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1">
-                    <p className="text-white font-medium">{deflection.subject}</p>
+                    <p className="text-gray-900 font-medium">{deflection.subject}</p>
                     <div className="flex items-center gap-4 mt-1">
-                      <span className="text-sm text-slate-400">{deflection.category}</span>
-                      <span className="text-sm text-slate-400">
+                      <span className="text-sm text-gray-600">{deflection.category}</span>
+                      <span className="text-sm text-gray-600">
                         {new Date(deflection.created_at).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {deflection.deflected ? (
-                      <div className="flex items-center gap-1 text-green-400">
+                      <div className="flex items-center gap-1 text-green-600">
                         <CheckCircle className="w-4 h-4" />
                         <span className="text-sm">Deflected</span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1 text-yellow-400">
+                      <div className="flex items-center gap-1 text-yellow-600">
                         <AlertTriangle className="w-4 h-4" />
                         <span className="text-sm">Escalated</span>
                       </div>
                     )}
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-gray-500">
                       {(deflection.deflection_confidence * 100).toFixed(0)}%
                     </span>
                   </div>
@@ -441,9 +441,9 @@ export default function TicketDeflectionDashboard() {
               ))
             ) : (
               <div className="text-center py-8">
-                <MessageSquare className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                <p className="text-slate-400">No recent deflection activity</p>
-                <p className="text-sm text-slate-500 mt-1">
+                <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No recent deflection activity</p>
+                <p className="text-sm text-gray-500 mt-1">
                   Run an analysis to see deflection results
                 </p>
               </div>

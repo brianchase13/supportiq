@@ -23,11 +23,11 @@ export function AutumnCheckout({ planId, ycBatch }: AutumnCheckoutProps) {
       setIsLoading(true);
       
       // Use Autumn to handle checkout
-      await autumn.attach(plan.id, {
+      await autumn.attach({
+        productId: plan.id,
         successUrl: `${window.location.origin}/dashboard/success`,
-        cancelUrl: `${window.location.origin}/checkout`,
         metadata: {
-          ycBatch: ycBatch || null,
+          ycBatch: ycBatch || "",
           planName: plan.name,
           planFeatures: Object.keys(plan.features).join(',')
         }
@@ -114,7 +114,7 @@ export function AutumnCheckout({ planId, ycBatch }: AutumnCheckoutProps) {
         {/* CTA Button */}
         <Button 
           onClick={handleCheckout}
-          disabled={isLoading || !autumn.customer}
+          disabled={isLoading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
         >
           {isLoading ? (

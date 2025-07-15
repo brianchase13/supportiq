@@ -266,7 +266,7 @@ export function DemoROIDashboard({ scenario }: DemoROIDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {achievedMilestones.map((milestone, index) => (
+              {achievedMilestones.map((milestone: string, index: number) => (
                 <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <div className="flex-1">
@@ -312,7 +312,7 @@ export function DemoROIDashboard({ scenario }: DemoROIDashboardProps) {
                 
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold">
-                    {scenario.testimonial.author.split(' ').map(n => n[0]).join('')}
+                    {scenario.testimonial.author.split(' ').map((n: string) => n[0]).join('')}
                   </div>
                   <div>
                     <div className="font-semibold text-purple-800">

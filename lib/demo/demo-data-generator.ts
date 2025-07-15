@@ -9,7 +9,7 @@ interface DemoCompany {
   avg_ticket_cost: number;
 }
 
-interface DemoScenario {
+export interface DemoScenario {
   id: string;
   name: string;
   description: string;
@@ -302,7 +302,7 @@ export class DemoDataGenerator {
         month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         savings: monthlySavings,
         tickets_deflected: ticketsDeflected,
-        deflection_rate,
+        deflection_rate: deflectionRate,
         cumulative_savings: cumulativeSavings
       });
     }

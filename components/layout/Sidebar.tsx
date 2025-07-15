@@ -13,10 +13,12 @@ import {
   HelpCircle,
   Zap,
   BookOpen,
-  User
+  User,
+  Shield
 } from 'lucide-react';
 import { useState } from 'react';
 import { clsx } from 'clsx';
+import { useUser } from '@/lib/auth/user-context';
 
 const navItems = [
   {
@@ -54,31 +56,32 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { profile } = useUser();
 
   return (
     <aside className={clsx(
-      'h-screen bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col',
+      'h-screen bg-black border-r border-white transition-all duration-300 flex flex-col',
       isCollapsed ? 'w-16' : 'w-64'
     )}>
       {/* Logo */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-white">
         <Link href="/dashboard" className={clsx(
           'flex items-center gap-2 transition-opacity',
           isCollapsed && 'opacity-0'
         )}>
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <BarChart3 className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <BarChart3 className="w-5 h-5 text-black" />
           </div>
-          <span className="font-semibold text-lg">SupportIQ</span>
+          <span className="font-semibold text-lg text-white">SupportIQ</span>
         </Link>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
         >
           {isCollapsed ? (
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 text-white" />
           ) : (
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 text-white" />
           )}
         </button>
       </div>
@@ -95,8 +98,8 @@ export function Sidebar() {
                   className={clsx(
                     'flex items-center gap-3 px-3 py-2 rounded-lg transition-all',
                     isActive
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                      ? 'bg-white text-black'
+                      : 'text-white hover:text-black hover:bg-white/10'
                   )}
                 >
                   <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -108,19 +111,39 @@ export function Sidebar() {
               </li>
             );
           })}
+          {/* Admin tab, only for admin users */}
+          {profile?.role === 'admin' && (
+            <li key="/admin">
+              <Link
+                href="/admin"
+                className={clsx(
+                  'flex items-center gap-3 px-3 py-2 rounded-lg transition-all',
+                  pathname === '/admin'
+                    ? 'bg-white text-black'
+                    : 'text-white hover:text-black hover:bg-white/10'
+                )}
+              >
+                <Shield className="w-5 h-5 flex-shrink-0" />
+                <span className={clsx(
+                  'transition-opacity',
+                  isCollapsed && 'opacity-0 w-0'
+                )}>Admin</span>
+              </Link>
+            </li>
+          )}
         </ul>
       </nav>
 
       {/* Footer */}
       <div className={clsx(
-        'p-4 border-t border-slate-800',
+        'p-4 border-t border-white',
         isCollapsed && 'hidden'
       )}>
-        <div className="flex items-center gap-3 text-slate-400 text-sm">
+        <div className="flex items-center gap-3 text-white text-sm">
           <Users className="w-4 h-4" />
           <span>5 team members</span>
         </div>
-        <div className="flex items-center gap-3 text-slate-400 text-sm mt-2">
+        <div className="flex items-center gap-3 text-white text-sm mt-2">
           <HelpCircle className="w-4 h-4" />
           <span>Get help</span>
         </div>

@@ -13,7 +13,7 @@ const DeflectionRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -118,7 +118,6 @@ export async function POST(request: NextRequest) {
               estimated_resolution_time: analysis.estimatedResolutionTime,
               requires_human: analysis.requiresHuman,
               tags: analysis.tags,
-              embedding: analysis.embedding,
               similar_tickets: analysis.similarTickets,
               deflected: deflectionResponse.canDeflect,
               deflection_response: deflectionResponse.response,
@@ -172,7 +171,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -402,8 +402,8 @@ Thank you for your patience!`;
     const topCategories = Object.entries(categoryCounts)
       .map(([category, count]) => ({
         category,
-        count,
-        percentage: (count / totalTickets) * 100
+        count: count as number,
+        percentage: ((count as number) / totalTickets) * 100
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
@@ -418,8 +418,8 @@ Thank you for your patience!`;
     const sentimentBreakdown = Object.entries(sentimentCounts)
       .map(([sentiment, count]) => ({
         sentiment,
-        count,
-        percentage: (count / totalTickets) * 100
+        count: count as number,
+        percentage: ((count as number) / totalTickets) * 100
       }))
       .sort((a, b) => b.count - a.count);
 

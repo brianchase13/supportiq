@@ -83,7 +83,7 @@ export const DateRangeSchema = z.object({
 
 export const SearchSchema = z.object({
   query: z.string().min(1, 'Search query required').max(500, 'Search query too long'),
-  filters: z.record(z.unknown()).optional(),
+  filters: z.record(z.string(), z.unknown()).optional(),
 });
 
 // Intercom validation schemas
@@ -94,7 +94,7 @@ export const IntercomConnectSchema = z.object({
 
 export const IntercomWebhookSchema = z.object({
   type: z.string().min(1, 'Webhook type required'),
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
   timestamp: z.number().int().positive('Invalid timestamp'),
   signature: z.string().min(1, 'Signature required').optional(),
 });
@@ -147,9 +147,9 @@ export class SecurityValidator {
       return schema.parse(data);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const validationError = new Error(`Validation failed: ${error.errors.map(e => e.message).join(', ')}`);
+        const validationError = new Error(`Validation failed: ${error.issues.map(e => e.message).join(', ')}`);
         log.warn('Input validation failed', {
-          errors: error.errors,
+          errors: error.issues,
           data: this.sanitizeForLogging(data),
         });
         throw validationError;

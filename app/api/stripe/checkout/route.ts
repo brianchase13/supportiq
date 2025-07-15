@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 import { z } from 'zod';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2024-04-10',
 });
 
 const CheckoutRequestSchema = z.object({
@@ -19,31 +19,55 @@ const CheckoutRequestSchema = z.object({
   trialEndDate: z.string().optional(),
 });
 
-// Dynamic pricing based on ticket volume and ROI
+// Dynamic pricing based on ticket volume and ROI - Expert-Grade Support Analytics
 const PRICING_TIERS = {
   starter: {
-    monthly: { price: 14900, priceId: 'price_starter_monthly' }, // $149
-    yearly: { price: 13410, priceId: 'price_starter_yearly' }, // $134.10 (10% off)
+    monthly: { price: 14900, priceId: 'price_1RksivG0iVv5fC3s1g8dt8sc' }, // $149
+    yearly: { price: 134100, priceId: 'price_1RksiwG0iVv5fC3sBSPJ4Np1' }, // $1,341 (10% off)
     maxTickets: 1000,
-    features: ['Basic Analytics', 'Ticket Deflection', 'Email Support'],
+    features: [
+      'AI-Powered Ticket Analysis',
+      'Smart Deflection Engine', 
+      'Real-time Analytics Dashboard',
+      'Email Support',
+      'ROI Calculator'
+    ],
+    description: 'Perfect for growing teams. AI-powered support analytics that pay for themselves through ticket deflection and improved response times.',
   },
   growth: {
-    monthly: { price: 44900, priceId: 'price_growth_monthly' }, // $449
-    yearly: { price: 40410, priceId: 'price_growth_yearly' }, // $404.10 (10% off)
+    monthly: { price: 44900, priceId: 'price_1RksiwG0iVv5fC3sV3R5JhJ8' }, // $449
+    yearly: { price: 404100, priceId: 'price_1RksixG0iVv5fC3sBicbG5Hv' }, // $4,041 (10% off)
     maxTickets: 10000,
-    features: ['Advanced Analytics', 'AI Insights', 'Priority Support', 'Custom Integrations'],
+    features: [
+      'Advanced AI Insights & Predictions',
+      'Custom Knowledge Base Generation',
+      'Priority Support & Onboarding',
+      'Custom Integrations (Slack, Teams)',
+      'Team Performance Analytics',
+      'Predictive Ticket Routing'
+    ],
+    description: 'For scaling support teams. Advanced AI that learns your patterns and predicts issues before they become tickets.',
   },
   enterprise: {
-    monthly: { price: 124900, priceId: 'price_enterprise_monthly' }, // $1,249
-    yearly: { price: 112410, priceId: 'price_enterprise_yearly' }, // $1,124.10 (10% off)
+    monthly: { price: 124900, priceId: 'price_1RksiyG0iVv5fC3s1bMq3ELj' }, // $1,249
+    yearly: { price: 1124100, priceId: 'price_1RksiyG0iVv5fC3smkrQ9ZIQ' }, // $11,241 (10% off)
     maxTickets: 999999,
-    features: ['Everything', 'White-label', 'Dedicated Support', 'Custom Development'],
+    features: [
+      'Enterprise AI with Custom Training',
+      'White-label Solutions',
+      'Dedicated Success Manager',
+      'Custom Development & API Access',
+      'Advanced Security & Compliance',
+      'Multi-workspace Management'
+    ],
+    description: 'Enterprise-grade support intelligence. Custom AI models trained on your data with dedicated support and white-label options.',
   },
 };
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await auth.getUser(); const userId = user?.id;
+    const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore); const userId = user?.id;
     const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
                     request.headers.get('x-real-ip') || 
                     'unknown';
@@ -99,18 +123,7 @@ export async function POST(request: NextRequest) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `SupportIQ ${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan`,
-              description: pricingInfo.description,
-              images: ['https://yourdomain.com/logo.png'],
-            },
-            unit_amount: pricingInfo.price,
-            recurring: {
-              interval: billingCycle === 'yearly' ? 'year' : 'month',
-            },
-          },
+          price: pricingInfo.priceId, // Use actual Stripe price ID
           quantity: 1,
         },
       ],
@@ -153,10 +166,7 @@ export async function POST(request: NextRequest) {
           key: 'monthly_tickets',
           label: { type: 'custom', custom: 'Monthly Ticket Volume' },
           type: 'numeric',
-          numeric: {
-            minimum: 0,
-            maximum: 100000,
-          },
+          numeric: {},
           optional: true,
         },
       ],
@@ -229,27 +239,21 @@ function calculateDynamicPricing(
   
   let roiMultiplier = 0;
   let monthlySavings = '$0';
-  let description = `${plan.features.join(', ')}`;
+  let description = plan.description || `${plan.features.join(', ')}`;
   
   if (projectedSavings && projectedSavings > 0) {
     const monthlySavingsAmount = Math.round(projectedSavings / 12);
     monthlySavings = `$${monthlySavingsAmount.toLocaleString()}`;
     roiMultiplier = Math.round((monthlySavingsAmount / monthlyPrice) * 10) / 10;
     
-    description = `Save ${monthlySavings}/month with AI-powered ticket deflection. ${plan.features.join(', ')}`;
-  }
-  
-  // Dynamic pricing based on ticket volume (enterprise pricing)
-  let adjustedPrice = pricing.price;
-  if (ticketVolume && ticketVolume > 50000) {
-    adjustedPrice = Math.round(pricing.price * 1.5); // 50% premium for high volume
-    description += ' (High Volume Premium)';
+    description = `Save ${monthlySavings}/month with AI-powered ticket deflection. ${plan.description}`;
   }
   
   return {
-    price: adjustedPrice,
-    monthlyPrice: `$${Math.round(adjustedPrice / 100)}`,
-    annualPrice: `$${Math.round(adjustedPrice * yearlyMultiplier / 100)}`,
+    price: pricing.price,
+    priceId: pricing.priceId, // Return the actual Stripe price ID
+    monthlyPrice: `$${Math.round(pricing.price / 100)}`,
+    annualPrice: `$${Math.round(pricing.price * yearlyMultiplier / 100)}`,
     roiMultiplier,
     monthlySavings,
     description,
@@ -292,7 +296,8 @@ async function getOrCreateStripeCustomer(userData: any) {
 // GET endpoint for pricing information
 export async function GET(request: NextRequest) {
   try {
-    const user = await auth.getUser(); const userId = user?.id;
+    const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore); const userId = user?.id;
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

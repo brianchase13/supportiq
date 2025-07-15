@@ -1,360 +1,288 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
-import { Brain, TrendingUp, Clock, AlertTriangle, CheckCircle, ArrowRight, Lightbulb, Target, Zap, Users, Loader2, MessageSquare } from 'lucide-react';
-import { useState } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { useInsights } from '@/hooks/data/useSupabaseData';
-import { useAuth } from '@/components/auth/AuthContext';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Brain,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Clock,
+  Users,
+  MessageSquare,
+  Zap,
+  AlertTriangle,
+  CheckCircle,
+  ArrowRight,
+  Download,
+  Filter,
+  Calendar
+} from 'lucide-react';
+import { ModernNavigation } from '@/components/layout/ModernNavigation';
+import { useRequireAuth } from '@/lib/auth/user-context';
 
 interface Insight {
   id: string;
   title: string;
   description: string;
+  type: 'positive' | 'negative' | 'neutral';
   impact: 'high' | 'medium' | 'low';
-  category: 'prevention' | 'efficiency' | 'satisfaction';
-  impactScore: number;
-  action: string;
-  icon: React.ElementType;
-  color: string;
+  category: string;
+  timestamp: string;
+  metrics: {
+    before: number;
+    after: number;
+    change: number;
+  };
 }
 
-// Fallback insights for demo purposes
-const fallbackInsights: Insight[] = [
-  {
-    id: '1',
-    title: '27% of tickets could be prevented with a docs update',
-    description: 'Most common questions about password reset, billing cycles, and API integration could be resolved with improved documentation.',
-    impact: 'high',
-    category: 'prevention',
-    impactScore: 89,
-    action: 'Update documentation sections for password reset, billing FAQ, and API guides',
-    icon: Brain,
-    color: 'blue'
-  },
-  {
-    id: '2',
-    title: 'Response time affects satisfaction by 2.3x',
-    description: 'Tickets responded to within 15 minutes have 2.3x higher satisfaction scores compared to those taking over 1 hour.',
-    impact: 'high',
-    category: 'efficiency',
-    impactScore: 92,
-    action: 'Implement auto-routing for high-priority tickets and add response time alerts',
-    icon: Clock,
-    color: 'green'
-  },
-  {
-    id: '3',
-    title: 'Billing questions spike on the 1st of each month',
-    description: 'Invoice-related tickets increase 340% during the first 3 days of each month, overwhelming the support team.',
-    impact: 'medium',
-    category: 'prevention',
-    impactScore: 76,
-    action: 'Send proactive billing reminders and create automated invoice explanations',
-    icon: TrendingUp,
-    color: 'yellow'
-  },
-  {
-    id: '4',
-    title: 'Mobile app crashes drive 18% of bug reports',
-    description: 'iOS and Android app crashes in the checkout flow are the leading cause of urgent support tickets.',
-    impact: 'high',
-    category: 'prevention',
-    impactScore: 85,
-    action: 'Prioritize mobile app stability fixes and add crash reporting dashboard',
-    icon: AlertTriangle,
-    color: 'red'
-  },
-  {
-    id: '5',
-    title: 'Feature request patterns show user workflow gaps',
-    description: 'Analysis of 200+ feature requests reveals 3 common workflow bottlenecks that could be addressed.',
-    impact: 'medium',
-    category: 'satisfaction',
-    impactScore: 71,
-    action: 'Review product roadmap to address bulk actions, search filters, and export options',
-    icon: Lightbulb,
-    color: 'purple'
-  }
-];
-
 export default function InsightsPage() {
-  const { user, loading: authLoading } = useAuth();
-  const { insights: realInsights, loading: insightsLoading } = useInsights();
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const { loading: authLoading } = useRequireAuth();
 
-  const loading = authLoading || insightsLoading;
+  useEffect(() => {
+    // Simulate loading insights data
+    setTimeout(() => {
+      setInsights([
+        {
+          id: '1',
+          title: 'Response Time Improved by 40%',
+          description: 'AI automation has reduced average response time from 2.5 hours to 1.5 hours',
+          type: 'positive',
+          impact: 'high',
+          category: 'Performance',
+          timestamp: '2024-01-15T10:30:00Z',
+          metrics: { before: 2.5, after: 1.5, change: 40 }
+        },
+        {
+          id: '2',
+          title: 'Ticket Volume Increased 15%',
+          description: 'Customer inquiries have increased, but AI is handling 85% automatically',
+          type: 'neutral',
+          impact: 'medium',
+          category: 'Volume',
+          timestamp: '2024-01-14T14:20:00Z',
+          metrics: { before: 100, after: 115, change: 15 }
+        },
+        {
+          id: '3',
+          title: 'Customer Satisfaction Dropped 5%',
+          description: 'Some customers prefer human interaction for complex issues',
+          type: 'negative',
+          impact: 'medium',
+          category: 'Satisfaction',
+          timestamp: '2024-01-13T09:15:00Z',
+          metrics: { before: 4.8, after: 4.6, change: -5 }
+        }
+      ]);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
-  // Use real insights if available, otherwise fallback to demo insights
-  const insights = realInsights.length > 0 ? realInsights : fallbackInsights;
+  const getInsightIcon = (type: string) => {
+    switch (type) {
+      case 'positive':
+        return <TrendingUp className="w-5 h-5 text-green-600" />;
+      case 'negative':
+        return <TrendingDown className="w-5 h-5 text-red-600" />;
+      default:
+        return <Target className="w-5 h-5 text-blue-600" />;
+    }
+  };
 
-  const filteredInsights = selectedCategory === 'all' 
+  const getImpactBadge = (impact: string) => {
+    const colors = {
+      high: 'bg-red-100 text-red-800',
+      medium: 'bg-yellow-100 text-yellow-800',
+      low: 'bg-green-100 text-green-800'
+    };
+    return <Badge className={colors[impact as keyof typeof colors]}>{impact}</Badge>;
+  };
+
+  const filteredInsights = filter === 'all' 
     ? insights 
-    : insights.filter(insight => insight.category === selectedCategory);
+    : insights.filter(insight => insight.type === filter);
 
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case 'high': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
-    }
-  };
-
-  const getIconColor = (color: string) => {
-    switch (color) {
-      case 'blue': return 'text-blue-400';
-      case 'green': return 'text-green-400';
-      case 'yellow': return 'text-yellow-400';
-      case 'red': return 'text-red-400';
-      case 'purple': return 'text-purple-400';
-      default: return 'text-slate-400';
-    }
-  };
-
-  if (loading) {
+  if (authLoading || loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
-            <p className="text-slate-400">Loading insights...</p>
-          </div>
+      <ModernNavigation>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
         </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!user) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-slate-400 mb-4">Please sign in to view insights</p>
-            <Link 
-              href="/auth"
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </DashboardLayout>
+      </ModernNavigation>
     );
   }
 
   return (
-    <DashboardLayout>
+    <ModernNavigation>
       <div className="space-y-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-3">AI Insights</h1>
-          <p className="text-lg text-slate-600 leading-relaxed">
-            {realInsights.length > 0 
-              ? 'Intelligent recommendations to optimize your support performance'
-              : 'Demo insights showing how AI can help optimize your support performance'
-            }
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">AI Insights</h1>
+            <p className="text-gray-600">Intelligent analysis of your support performance</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Export Report
+            </Button>
+            <Button>
+              <Brain className="w-4 h-4 mr-2" />
+              Generate Insights
+            </Button>
+          </div>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-slate-600 mb-1">Total Insights</div>
-                <div className="text-3xl font-bold text-slate-900">{insights.length}</div>
-                <div className="text-sm text-blue-600">Active recommendations</div>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Brain className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Auto-Resolution Rate</CardTitle>
+              <Zap className="h-4 w-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">85%</div>
+              <p className="text-xs text-green-600">
+                +12% from last month
+              </p>
+            </CardContent>
           </Card>
 
-          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-red-50 to-orange-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-slate-600 mb-1">High Impact</div>
-                <div className="text-3xl font-bold text-slate-900">{insights.filter(i => i.impact === 'high').length}</div>
-                <div className="text-sm text-red-600">Critical actions</div>
-              </div>
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
+              <Clock className="h-4 w-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">1.5h</div>
+              <p className="text-xs text-green-600">
+                -40% from last month
+              </p>
+            </CardContent>
           </Card>
 
-          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-slate-600 mb-1">Ticket Reduction</div>
-                <div className="text-3xl font-bold text-slate-900">34%</div>
-                <div className="text-sm text-green-600">Potential savings</div>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Customer Satisfaction</CardTitle>
+              <Users className="h-4 w-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">4.6/5</div>
+              <p className="text-xs text-red-600">
+                -5% from last month
+              </p>
+            </CardContent>
           </Card>
 
-          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-purple-50 to-pink-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-slate-600 mb-1">Ready to Act</div>
-                <div className="text-3xl font-bold text-slate-900">{insights.filter(i => i.impactScore > 80).length}</div>
-                <div className="text-sm text-purple-600">High-confidence</div>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Target className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Cost Savings</CardTitle>
+              <TrendingUp className="h-4 w-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">$12.5K</div>
+              <p className="text-xs text-green-600">
+                +18% from last month
+              </p>
+            </CardContent>
           </Card>
         </div>
-
-        {/* Demo Notice */}
-        {realInsights.length === 0 && (
-          <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-yellow-50 to-orange-50">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-slate-900 mb-1">Demo Mode</h3>
-                <p className="text-slate-600 mb-3">
-                  These are sample insights. Connect your support channels to get personalized AI recommendations based on your actual data.
-                </p>
-                <Link 
-                  href="/settings"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
-                >
-                  Connect Support Channel
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </Card>
-        )}
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              selectedCategory === 'all' 
-                ? 'bg-blue-600 text-white shadow-sm' 
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-            }`}
-          >
-            All Insights
-          </button>
-          <button
-            onClick={() => setSelectedCategory('prevention')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              selectedCategory === 'prevention' 
-                ? 'bg-blue-600 text-white shadow-sm' 
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-            }`}
-          >
-            <AlertTriangle className="w-4 h-4 mr-2 inline" />
-            Prevention
-          </button>
-          <button
-            onClick={() => setSelectedCategory('efficiency')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              selectedCategory === 'efficiency' 
-                ? 'bg-blue-600 text-white shadow-sm' 
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-            }`}
-          >
-            <Zap className="w-4 h-4 mr-2 inline" />
-            Efficiency
-          </button>
-          <button
-            onClick={() => setSelectedCategory('satisfaction')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              selectedCategory === 'satisfaction' 
-                ? 'bg-blue-600 text-white shadow-sm' 
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-            }`}
-          >
-            <Users className="w-4 h-4 mr-2 inline" />
-            Satisfaction
-          </button>
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-medium text-gray-700">Filter by:</span>
+          <div className="flex gap-2">
+            {[
+              { value: 'all', label: 'All Insights' },
+              { value: 'positive', label: 'Positive' },
+              { value: 'negative', label: 'Negative' },
+              { value: 'neutral', label: 'Neutral' }
+            ].map((filterOption) => (
+              <Button
+                key={filterOption.value}
+                variant={filter === filterOption.value ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilter(filterOption.value)}
+              >
+                {filterOption.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
-        {/* Insights Grid */}
-        <div className="space-y-6">
-          {filteredInsights.map((insight) => {
-            const Icon = insight.icon;
-            return (
-              <Card key={insight.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                <div className="p-6">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                      insight.color === 'blue' ? 'bg-blue-100' :
-                      insight.color === 'green' ? 'bg-green-100' :
-                      insight.color === 'yellow' ? 'bg-yellow-100' :
-                      insight.color === 'red' ? 'bg-red-100' :
-                      insight.color === 'purple' ? 'bg-purple-100' : 'bg-slate-100'
-                    }`}>
-                      <Icon className={`w-6 h-6 ${getIconColor(insight.color)}`} />
+        {/* Insights List */}
+        <div className="space-y-4">
+          {filteredInsights.map((insight) => (
+            <Card key={insight.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      {getInsightIcon(insight.type)}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-slate-900 leading-tight">{insight.title}</h3>
-                        <div className={`px-3 py-1 rounded-full text-xs font-semibold border ${getImpactColor(insight.impact)}`}>
-                          {insight.impact.toUpperCase()} IMPACT
-                        </div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{insight.title}</h3>
+                        {getImpactBadge(insight.impact)}
                       </div>
-                      <p className="text-slate-600 mb-4 leading-relaxed">{insight.description}</p>
-                      
-                      {/* Impact Score */}
-                      <div className="mb-4">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium text-slate-700">Confidence Score</span>
-                          <span className="text-sm font-bold text-slate-900">{insight.impactScore}/100</span>
-                        </div>
-                        <div className="w-full bg-slate-200 rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              insight.color === 'blue' ? 'bg-blue-500' :
-                              insight.color === 'green' ? 'bg-green-500' :
-                              insight.color === 'yellow' ? 'bg-yellow-500' :
-                              insight.color === 'red' ? 'bg-red-500' :
-                              insight.color === 'purple' ? 'bg-purple-500' : 'bg-slate-500'
-                            }`}
-                            style={{ width: `${insight.impactScore}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Action Box */}
-                      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-slate-900 mb-1">Recommended Action</p>
-                            <p className="text-sm text-slate-600 leading-relaxed">{insight.action}</p>
-                          </div>
-                        </div>
+                      <p className="text-gray-600 mb-3">{insight.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>{insight.category}</span>
+                        <span>•</span>
+                        <span>{new Date(insight.timestamp).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex justify-end">
-                    <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium">
-                      Implement Now
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900">
+                      {insight.metrics.change > 0 ? '+' : ''}{insight.metrics.change}%
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {insight.metrics.before} → {insight.metrics.after}
+                    </div>
                   </div>
                 </div>
-              </Card>
-            );
-          })}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
+            <CardContent className="p-6 text-center">
+              <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Generate Custom Insights</h3>
+              <p className="text-gray-600 mb-4">
+                Ask AI to analyze specific aspects of your support data
+              </p>
+              <Button variant="outline">
+                <Brain className="w-4 h-4 mr-2" />
+                Create Insight
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
+            <CardContent className="p-6 text-center">
+              <Download className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Export Insights Report</h3>
+              <p className="text-gray-600 mb-4">
+                Download a comprehensive report of all insights
+              </p>
+              <Button variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Export Report
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </DashboardLayout>
+    </ModernNavigation>
   );
 }

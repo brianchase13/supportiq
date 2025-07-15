@@ -24,14 +24,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    supabase.auth.getUser().then(({ data, error }) => {
+    async function fetchAndSetUser() {
+      const { data, error } = await supabase.auth.getUser();
+      let user: User | null = null;
+      if (data?.user) {
+        // Fetch user profile from 'users' table
+        const { data: profile, error: profileError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+        if (profile && !profileError) {
+          user = profile as User;
+        }
+      }
       if (mounted) {
-        setUser(data?.user ?? null);
+        setUser(user);
         setLoading(false);
       }
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    }
+    fetchAndSetUser();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      let user: User | null = null;
+      if (session?.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        if (profile && !profileError) {
+          user = profile as User;
+        }
+      }
+      setUser(user);
       setLoading(false);
     });
     return () => {

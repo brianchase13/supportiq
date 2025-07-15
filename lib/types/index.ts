@@ -24,6 +24,7 @@ export interface UserProfile {
   team_size?: number;
   support_channels: string[];
   preferences: UserPreferences;
+  avatar?: string;
   created_at: string;
   updated_at: string;
 }

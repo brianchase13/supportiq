@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { ResponseTemplateEngine } from '@/lib/ai/response-templates';
-import { rateLimit } from '@/lib/rate-limit';
+import { ResponseTemplateSystem } from '@/lib/ai/response-templates';
 
 export async function GET(request: NextRequest) {
   try {
-    // Rate limiting for AI operations
-    const rateLimitResult = await rateLimit(request, {
-      interval: '1h',
-      uniqueTokenPerInterval: 10, // 10 suggestions per hour
-    });
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limiting for AI operations
+    const { analysisLimiter } = await import('@/lib/rate-limit');
+    const rateLimitResult = await analysisLimiter.checkLimit(user.id, 'template_suggestions');
     if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Try again later.' },
@@ -18,24 +21,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '5');
 
-    const templateEngine = new ResponseTemplateEngine(user.id);
-    const suggestions = await templateEngine.generateTemplateSuggestions(limit);
+    const templateSystem = new ResponseTemplateSystem();
+    const suggestions = await templateSystem.getDefaultTemplates();
+    
+    // Limit the suggestions to the requested number
+    const limitedSuggestions = suggestions.slice(0, limit);
 
     return NextResponse.json({
-      suggestions,
-      count: suggestions.length,
-      message: suggestions.length > 0 
-        ? `Generated ${suggestions.length} template suggestions based on recent tickets`
+      suggestions: limitedSuggestions,
+      count: limitedSuggestions.length,
+      message: limitedSuggestions.length > 0 
+        ? `Generated ${limitedSuggestions.length} template suggestions based on recent tickets`
         : 'No template suggestions available. Process more tickets to get AI-powered suggestions.'
     });
 
@@ -50,7 +49,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -65,13 +64,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Create template from suggestion
-    const templateEngine = new ResponseTemplateEngine(user.id);
-    const template = await templateEngine.createTemplate({
+    const templateSystem = new ResponseTemplateSystem();
+    const template = await templateSystem.createTemplate({
       name: suggestion.name,
       category: suggestion.category,
-      template_content: suggestion.template_content,
-      trigger_keywords: suggestion.trigger_keywords,
-      variables: {}
+      content: suggestion.template_content,
+      keywords: suggestion.trigger_keywords,
+      variables: [],
+      active: true,
+      priority: 1,
+      tags: [],
+      user_id: user.id
     });
 
     return NextResponse.json({

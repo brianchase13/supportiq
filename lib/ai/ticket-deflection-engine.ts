@@ -60,10 +60,22 @@ export class TicketDeflectionEngine {
       const embedding = await generateEmbedding(ticketText);
 
       // Find similar tickets
-      const similarTickets = findSimilarTickets(embedding, existingTickets, 0.8, 5);
+      const similarTickets = findSimilarTickets(
+        embedding,
+        existingTickets.map(t => ({
+          id: t.id,
+          embedding: (t as any).embedding || [],
+          category: t.category,
+          content: t.content
+        })),
+        0.8,
+        5
+      );
 
-      // Perform AI analysis
-      const analysis = await this.performAIAnalysis(ticket, similarTickets);
+      // Map similarTickets back to Ticket objects
+      const similarTicketIds = similarTickets.map(t => t.ticketId);
+      const similarTicketObjs = existingTickets.filter(t => similarTicketIds.includes(t.id));
+      const analysis = await this.performAIAnalysis(ticket, similarTicketObjs);
 
       // Validate analysis result
       const validatedAnalysis = TicketAnalysisSchema.parse(analysis);
@@ -74,7 +86,7 @@ export class TicketDeflectionEngine {
 
       const result: AIAnalysisResult = {
         ...validatedAnalysis,
-        similar_tickets: similarTickets.map(t => t.id),
+        similar_tickets: similarTickets.map(t => t.ticketId),
         model_used: this.config.AI.DEFAULT_MODEL,
         tokens_used: tokensUsed,
         cost_usd: costUsd,
@@ -251,7 +263,7 @@ Provide analysis in the exact JSON format specified.`;
     }
 
     // Check if keywords are excluded
-    const hasExcludedKeywords = settings.excluded_keywords.some(keyword =>
+    const hasExcludedKeywords = settings.excluded_keywords.some((keyword: string) =>
       ticket.content.toLowerCase().includes(keyword.toLowerCase()) ||
       ticket.subject.toLowerCase().includes(keyword.toLowerCase())
     );

@@ -328,14 +328,14 @@ The SupportIQ Team`;
       if (!customers || !feedback) return null;
 
       const totalCustomers = customers.length;
-      const activeCustomers = customers.filter(c => c.status === 'active').length;
-      const avgSatisfaction = feedback.reduce((sum, f) => sum + f.satisfaction_score, 0) / feedback.length;
-      const wouldRecommend = feedback.filter(f => f.would_recommend).length / feedback.length * 100;
+      const activeCustomers = customers.filter((c: any) => c.status === 'active').length;
+      const avgSatisfaction = feedback.reduce((sum: number, f: any) => sum + f.satisfaction_score, 0) / feedback.length;
+      const wouldRecommend = feedback.filter((f: any) => f.would_recommend).length / feedback.length * 100;
 
       // Collect common feedback themes
-      const allFeatureRequests = feedback.flatMap(f => f.feature_requests);
-      const allPainPoints = feedback.flatMap(f => f.pain_points);
-      const allSuggestions = feedback.flatMap(f => f.suggestions);
+      const allFeatureRequests = feedback.flatMap((f: any) => f.feature_requests);
+      const allPainPoints = feedback.flatMap((f: any) => f.pain_points);
+      const allSuggestions = feedback.flatMap((f: any) => f.suggestions);
 
       return {
         total_customers: totalCustomers,
@@ -362,7 +362,7 @@ The SupportIQ Team`;
 
     return Object.entries(itemCounts)
       .map(([item, count]) => ({ item, count }))
-      .sort((a, b) => b.count - a.count)
+      .sort((a: any, b: any) => b.count - a.count)
       .slice(0, limit);
   }
 
@@ -428,21 +428,21 @@ The SupportIQ Team`;
       const customers = await this.supabase
         .from('beta_customers')
         .select('*')
-        .then(result => result.data || []);
+        .then((result: any) => result.data || []);
 
       const feedback = await this.supabase
         .from('feedback_sessions')
         .select('*')
-        .then(result => result.data || []);
+        .then((result: any) => result.data || []);
 
       return {
         summary: {
           total_beta_customers: customers.length,
-          active_customers: customers.filter(c => c.status === 'active').length,
+          active_customers: customers.filter((c: any) => c.status === 'active').length,
           avg_satisfaction: metrics?.avg_satisfaction || 0,
           recommendation_rate: metrics?.recommendation_rate || 0
         },
-        customer_profiles: customers.map(c => ({
+        customer_profiles: customers.map((c: any) => ({
           company: c.company_name,
           industry: c.industry,
           team_size: c.team_size,
@@ -467,8 +467,8 @@ The SupportIQ Team`;
     const recommendations: string[] = [];
 
     // Analyze customer profiles
-    const avgTeamSize = customers.reduce((sum, c) => sum + c.team_size, 0) / customers.length;
-    const avgTickets = customers.reduce((sum, c) => sum + c.monthly_tickets, 0) / customers.length;
+    const avgTeamSize = customers.reduce((sum: number, c: any) => sum + c.team_size, 0) / customers.length;
+    const avgTickets = customers.reduce((sum: number, c: any) => sum + c.monthly_tickets, 0) / customers.length;
 
     if (avgTeamSize > 10) {
       recommendations.push('Focus on enterprise features and team collaboration tools');
@@ -479,7 +479,7 @@ The SupportIQ Team`;
     }
 
     // Analyze feedback
-    const avgSatisfaction = feedback.reduce((sum, f) => sum + f.satisfaction_score, 0) / feedback.length;
+    const avgSatisfaction = feedback.reduce((sum: number, f: any) => sum + f.satisfaction_score, 0) / feedback.length;
     if (avgSatisfaction < 4.0) {
       recommendations.push('Address onboarding and user experience issues');
     }

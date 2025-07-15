@@ -457,7 +457,7 @@ All plans include 30-day money-back guarantee and achieve 500%+ ROI.`,
         .eq('featured', true)
         .limit(3);
 
-      const contentMap = content?.reduce((acc: any, item) => {
+      const contentMap = content?.reduce((acc: any, item: LaunchContent) => {
         acc[item.type] = item.content;
         return acc;
       }, {}) || {};
@@ -502,19 +502,19 @@ All plans include 30-day money-back guarantee and achieve 500%+ ROI.`,
       if (!tasks || !assets || !content) return null;
 
       const totalTasks = tasks.length;
-      const completedTasks = tasks.filter(t => t.status === 'completed').length;
+      const completedTasks = tasks.filter((t: LaunchTask) => t.status === 'completed').length;
       const taskProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
       const totalAssets = assets.length;
-      const approvedAssets = assets.filter(a => a.status === 'approved').length;
+      const approvedAssets = assets.filter((a: LaunchAsset) => a.status === 'approved').length;
       const assetProgress = totalAssets > 0 ? (approvedAssets / totalAssets) * 100 : 0;
 
       const totalContent = content.length;
-      const approvedContent = content.filter(c => c.status === 'approved').length;
+      const approvedContent = content.filter((c: LaunchContent) => c.status === 'approved').length;
       const contentProgress = totalContent > 0 ? (approvedContent / totalContent) * 100 : 0;
 
-      const criticalTasks = tasks.filter(t => t.priority === 'critical');
-      const completedCriticalTasks = criticalTasks.filter(t => t.status === 'completed').length;
+      const criticalTasks = tasks.filter((t: LaunchTask) => t.priority === 'critical');
+      const completedCriticalTasks = criticalTasks.filter((t: LaunchTask) => t.status === 'completed').length;
       const criticalProgress = criticalTasks.length > 0 ? (completedCriticalTasks / criticalTasks.length) * 100 : 0;
 
       return {

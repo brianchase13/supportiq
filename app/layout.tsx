@@ -30,9 +30,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-          <AutumnProvider backendUrl={process.env.NEXT_PUBLIC_AUTUMN_BACKEND_URL}>
-            {children}
-          </AutumnProvider>
+          {process.env.NEXT_PUBLIC_AUTUMN_BACKEND_URL ? (
+            <AutumnProvider backendUrl={process.env.NEXT_PUBLIC_AUTUMN_BACKEND_URL}>
+              {children}
+            </AutumnProvider>
+          ) : (
+            children
+          )}
         </UserProvider>
       </body>
     </html>

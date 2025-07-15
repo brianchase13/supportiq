@@ -20,7 +20,7 @@ interface TicketCluster {
   category: string;
   frequency: number;
   avg_satisfaction: number;
-  embeddings: number[];
+  embeddings: number[][];
 }
 
 interface FAQEntry {
@@ -206,9 +206,7 @@ export class FAQGenerator {
           cluster.tickets.push(tickets[j]);
           cluster.embeddings.push(embeddings[j]);
           cluster.frequency++;
-          if (tickets[j].satisfaction_score) {
-            cluster.avg_satisfaction += tickets[j].satisfaction_score;
-          }
+          cluster.avg_satisfaction += tickets[j].satisfaction_score ?? 0;
           visited.add(j);
         }
       }
@@ -471,7 +469,7 @@ The article should be comprehensive, well-structured, and provide value beyond t
       if (!faqEntries) return [];
 
       // Calculate similarity scores
-      const entriesWithScores = faqEntries.map(entry => {
+      const entriesWithScores = faqEntries.map((entry: FAQEntry) => {
         // For now, use simple text matching since we don't store embeddings
         const text = `${entry.question} ${entry.answer}`.toLowerCase();
         const queryLower = query.toLowerCase();
@@ -490,9 +488,9 @@ The article should be comprehensive, well-structured, and provide value beyond t
 
       // Sort by similarity and return top results
       return entriesWithScores
-        .sort((a, b) => b.similarity - a.similarity)
+        .sort((a: { similarity: number }, b: { similarity: number }) => b.similarity - a.similarity)
         .slice(0, limit)
-        .map(({ similarity, ...entry }) => entry);
+        .map(({ similarity, ...entry }: { similarity: number } & FAQEntry) => entry);
     } catch (error) {
       console.error('Error searching FAQ:', error);
       return [];
@@ -528,13 +526,13 @@ The article should be comprehensive, well-structured, and provide value beyond t
       if (!faqEntries) return null;
 
       const totalEntries = faqEntries.length;
-      const totalViews = faqEntries.reduce((sum, entry) => sum + entry.view_count, 0);
-      const totalHelpful = faqEntries.reduce((sum, entry) => sum + entry.helpful_count, 0);
-      const avgConfidence = faqEntries.reduce((sum, entry) => sum + entry.confidence, 0) / totalEntries;
+      const totalViews = faqEntries.reduce((sum: number, entry: FAQEntry) => sum + entry.view_count, 0);
+      const totalHelpful = faqEntries.reduce((sum: number, entry: FAQEntry) => sum + entry.helpful_count, 0);
+      const avgConfidence = faqEntries.reduce((sum: number, entry: FAQEntry) => sum + entry.confidence, 0) / totalEntries;
 
       // Category breakdown
       const categoryStats: { [key: string]: number } = {};
-      faqEntries.forEach(entry => {
+      faqEntries.forEach((entry: FAQEntry) => {
         categoryStats[entry.category] = (categoryStats[entry.category] || 0) + 1;
       });
 
@@ -546,7 +544,7 @@ The article should be comprehensive, well-structured, and provide value beyond t
         helpful_rate: totalViews > 0 ? (totalHelpful / totalViews) * 100 : 0,
         category_breakdown: categoryStats,
         top_performers: faqEntries
-          .sort((a, b) => b.view_count - a.view_count)
+          .sort((a: FAQEntry, b: FAQEntry) => b.view_count - a.view_count)
           .slice(0, 5)
       };
     } catch (error) {

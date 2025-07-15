@@ -105,35 +105,75 @@ export function useUser() {
   return { user, loading, error };
 }
 
-export function useTicketStats(tickets: Ticket[]) {
-  return {
-    totalTickets: tickets.length,
-    openTickets: tickets.filter(t => t.status === 'open').length,
-    avgResponseTime: Math.round(
-      tickets
-        .filter(t => t.response_time_minutes)
-        .reduce((sum, t) => sum + (t.response_time_minutes || 0), 0) /
-      tickets.filter(t => t.response_time_minutes).length || 0
-    ),
-    satisfactionScore: Number((
-      tickets
-        .filter(t => t.satisfaction_score)
-        .reduce((sum, t) => sum + (t.satisfaction_score || 0), 0) /
-      tickets.filter(t => t.satisfaction_score).length || 0
-    ).toFixed(1)),
-    categoryBreakdown: tickets.reduce((acc, ticket) => {
-      if (ticket.category) {
-        acc[ticket.category] = (acc[ticket.category] || 0) + 1;
+export function useTicketStats() {
+  const { user } = useAuth();
+  const [metrics, setMetrics] = useState({
+    totalTickets: 0,
+    openTickets: 0,
+    avgResponseTime: 0,
+    satisfactionScore: 0,
+    deflectionRate: 85,
+    categoryBreakdown: {} as Record<string, number>,
+    sentimentBreakdown: {} as Record<string, number>,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchTicketStats = async () => {
+      try {
+        setLoading(true);
+        const { data: tickets, error } = await supabase
+          .from('tickets')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        const ticketStats = {
+          totalTickets: tickets?.length || 0,
+          openTickets: tickets?.filter(t => t.status === 'open').length || 0,
+          avgResponseTime: Math.round(
+            tickets
+              ?.filter(t => t.response_time_minutes)
+              .reduce((sum, t) => sum + (t.response_time_minutes || 0), 0) /
+            (tickets?.filter(t => t.response_time_minutes).length || 1) || 0
+          ),
+          satisfactionScore: Number((
+            tickets
+              ?.filter(t => t.satisfaction_score)
+              .reduce((sum, t) => sum + (t.satisfaction_score || 0), 0) /
+            (tickets?.filter(t => t.satisfaction_score).length || 1) || 0
+          ).toFixed(1)),
+          deflectionRate: 85, // Default value, could be calculated from actual data
+          categoryBreakdown: tickets?.reduce((acc, ticket) => {
+            if (ticket.category) {
+              acc[ticket.category] = (acc[ticket.category] || 0) + 1;
+            }
+            return acc;
+          }, {} as Record<string, number>) || {},
+          sentimentBreakdown: tickets?.reduce((acc, ticket) => {
+            if (ticket.sentiment) {
+              acc[ticket.sentiment] = (acc[ticket.sentiment] || 0) + 1;
+            }
+            return acc;
+          }, {} as Record<string, number>) || {},
+        };
+
+        setMetrics(ticketStats);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch ticket stats');
+      } finally {
+        setLoading(false);
       }
-      return acc;
-    }, {} as Record<string, number>),
-    sentimentBreakdown: tickets.reduce((acc, ticket) => {
-      if (ticket.sentiment) {
-        acc[ticket.sentiment] = (acc[ticket.sentiment] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<string, number>),
-  };
+    };
+
+    fetchTicketStats();
+  }, [user?.id]);
+
+  return { metrics, loading, error };
 }
 
 export async function syncIntercomData() {

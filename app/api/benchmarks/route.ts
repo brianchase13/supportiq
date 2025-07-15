@@ -44,7 +44,8 @@ interface BenchmarkResponse {
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await auth.getUser(); const userId = user?.id;
+    const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore); const userId = user?.id;
     const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
                     request.headers.get('x-real-ip') || 
                     'unknown';

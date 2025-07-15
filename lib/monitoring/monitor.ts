@@ -162,7 +162,7 @@ export class MonitoringSystem {
         user_id: metric.user_id,
         created_at: new Date().toISOString(),
         status: 'active',
-        metadata: metric,
+        metadata: metric as unknown as Record<string, unknown>,
       });
     }
 
@@ -178,7 +178,7 @@ export class MonitoringSystem {
         user_id: metric.user_id,
         created_at: new Date().toISOString(),
         status: 'active',
-        metadata: metric,
+        metadata: metric as unknown as Record<string, unknown>,
       });
     }
 
@@ -194,7 +194,7 @@ export class MonitoringSystem {
         user_id: metric.user_id,
         created_at: new Date().toISOString(),
         status: 'active',
-        metadata: metric,
+        metadata: metric as unknown as Record<string, unknown>,
       });
     }
 
@@ -210,7 +210,7 @@ export class MonitoringSystem {
         user_id: metric.user_id,
         created_at: new Date().toISOString(),
         status: 'active',
-        metadata: metric,
+        metadata: metric as unknown as Record<string, unknown>,
       });
     }
 
@@ -457,7 +457,7 @@ export class MonitoringSystem {
         .update({
           status: 'resolved',
           resolved_at: new Date().toISOString(),
-          metadata: { resolution_note },
+          metadata: { resolutionNote },
         })
         .eq('id', alertId);
 
@@ -465,7 +465,7 @@ export class MonitoringSystem {
         throw error;
       }
 
-      log.info(`Alert resolved: ${alertId}`, { resolution_note });
+      log.info(`Alert resolved: ${alertId}`, { resolutionNote });
     } catch (error) {
       log.error('Failed to resolve alert', error as Error, { alert_id: alertId });
       throw error;

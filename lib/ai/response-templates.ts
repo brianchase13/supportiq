@@ -329,22 +329,22 @@ export class ResponseTemplateSystem {
       }
 
       const totalUses = usageLogs.length;
-      const successfulUses = usageLogs.filter(log => log.success).length;
+      const successfulUses = usageLogs.filter((log: any) => log.success).length;
       const successRate = totalUses > 0 ? successfulUses / totalUses : 0;
-      const avgResponseTime = usageLogs.reduce((sum, log) => sum + log.response_time, 0) / totalUses;
+      const avgResponseTime = usageLogs.reduce((sum: number, log: any) => sum + log.response_time, 0) / totalUses;
 
       // Category performance
       const categoryPerformance: { [key: string]: number } = {};
-      usageLogs.forEach(log => {
+      usageLogs.forEach((log: any) => {
         const category = log.response_templates.category;
         categoryPerformance[category] = (categoryPerformance[category] || 0) + 1;
       });
 
       // Keyword performance
       const keywordPerformance: { [key: string]: number } = {};
-      usageLogs.forEach(log => {
+      usageLogs.forEach((log: any) => {
         const keywords = log.response_templates.keywords || [];
-        keywords.forEach(keyword => {
+        keywords.forEach((keyword: string) => {
           keywordPerformance[keyword] = (keywordPerformance[keyword] || 0) + 1;
         });
       });

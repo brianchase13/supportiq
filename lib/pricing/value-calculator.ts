@@ -152,15 +152,15 @@ export class ValueBasedPricingCalculator {
       // Override with actual data if available
       if (tickets && tickets.length > 0) {
         const responseTimes = tickets
-          .filter(t => t.resolution_time_hours)
-          .map(t => t.resolution_time_hours);
+          .filter((t: { resolution_time_hours?: number }) => t.resolution_time_hours)
+          .map((t: { resolution_time_hours?: number }) => t.resolution_time_hours);
         
         if (responseTimes.length > 0) {
-          metrics.avg_response_time_hours = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+          metrics.avg_response_time_hours = responseTimes.reduce((a: number, b: number) => a + b, 0) / responseTimes.length;
         }
 
         // Calculate current deflection rate from actual data
-        const autoResolved = tickets.filter(t => t.status === 'resolved' && t.auto_resolved).length;
+        const autoResolved = tickets.filter((t: { status?: string, auto_resolved?: boolean }) => t.status === 'resolved' && t.auto_resolved).length;
         metrics.current_deflection_rate = totalTickets > 0 ? autoResolved / totalTickets : 0.15;
       }
 
@@ -393,12 +393,10 @@ export class ValueBasedPricingCalculator {
 
       if (!valueHistory) return [];
 
-      return valueHistory.map(record => ({
+      return valueHistory.map((record: { created_at: string; monthly_savings: number; roi_percentage: number }) => ({
         month: new Date(record.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         monthly_savings: record.monthly_savings,
         roi_percentage: record.roi_percentage,
-        tickets_processed: record.tickets_processed,
-        deflection_rate: record.deflection_rate
       }));
     } catch (error) {
       console.error('Error tracking value over time:', error);

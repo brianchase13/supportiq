@@ -2,9 +2,17 @@ import OpenAI from 'openai';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { ResponseTemplateEngine } from '@/lib/ai/response-templates';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// Lazy initialization to avoid build-time errors
+let openai: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY!,
+    });
+  }
+  return openai;
+}
 
 export interface TicketData {
   id: string;
@@ -154,7 +162,7 @@ export class TicketDeflectionEngine {
 
     const startTime = Date.now();
     
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
@@ -306,12 +314,12 @@ Provide a complete response with confidence scoring.
 
   private async getResponseTemplates(category?: string): Promise<any[]> {
     try {
-      const templateEngine = new ResponseTemplateEngine(this.userId);
-      const templates = await templateEngine.getTemplates();
+      const templateEngine = new ResponseTemplateEngine();
+      const templates = await templateEngine.getTemplates(this.userId);
       
       // Filter by category if specified, otherwise return all active templates
       return templates
-        .filter(t => t.is_active && (!category || t.category === category || t.category === 'general'))
+        .filter(t => t.active && (!category || t.category === category || t.category === 'general'))
         .sort((a, b) => (b.success_rate || 0) - (a.success_rate || 0))
         .slice(0, 3); // Return top 3 templates for context
     } catch (error) {

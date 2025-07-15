@@ -5,7 +5,8 @@ import { supabaseAdmin } from '@/lib/supabase/client';
 export async function GET(request: NextRequest) {
   try {
     // Check if user is admin (you should implement proper admin role checking)
-    const user = await auth.getUser();
+    const cookieStore = request.cookies;
+    const user = await auth.getUser(cookieStore);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -12,7 +12,11 @@ interface IntercomWorkspace {
   app_id: string;
 }
 
-export function IntercomConnect() {
+interface IntercomConnectProps {
+  onConnect?: () => void;
+}
+
+export function IntercomConnect({ onConnect }: IntercomConnectProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [workspace, setWorkspace] = useState<IntercomWorkspace | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +61,7 @@ export function IntercomConnect() {
       setWorkspace(mockWorkspace);
       setIsLoading(false);
       setError(null);
+      if (onConnect) onConnect();
     }, 2000);
   };
 
@@ -76,6 +81,7 @@ export function IntercomConnect() {
         setIsConnected(true);
         setWorkspace(data.workspace);
         setError(null);
+        if (onConnect) onConnect();
       } else {
         // Fallback to mock data if API fails
         const savedWorkspace = localStorage.getItem('intercom_workspace');

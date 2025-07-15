@@ -123,24 +123,20 @@ export class RealtimeWebhookSystem {
 
   private async handleTicketCreated(ticketData: any, userId: string): Promise<WebhookResponse> {
     try {
-      // Load user settings
-      await this.deflectionEngine.loadUserSettings(userId);
-
       // Create ticket record
       const ticket = await this.createTicketRecord(ticketData, userId);
 
       // Analyze ticket for deflection
       const deflectionResult = await this.deflectionEngine.analyzeTicket(ticket);
 
-      if (deflectionResult.shouldDeflect) {
-        // Send automated response
-        const responseSent = await this.deflectionEngine.sendIntercomResponse(
-          ticket.id,
-          deflectionResult.response,
-          userId
-        );
+      // Check if we can deflect based on analysis
+      const canDeflect = deflectionResult.deflection_potential === 'high' && !deflectionResult.requires_human;
 
-        if (responseSent) {
+      if (canDeflect) {
+        // Generate deflection response
+        const response = await this.deflectionEngine.generateDeflectionResponse(deflectionResult, ticket);
+
+        if (response.can_deflect) {
           // Update ticket status
           await this.updateTicketStatus(ticket.id, 'resolved', 'Auto-resolved by AI');
 
@@ -525,10 +521,10 @@ export class RealtimeWebhookSystem {
       if (!events) return null;
 
       const totalEvents = events.length;
-      const processedEvents = events.filter(e => e.processed).length;
-      const failedEvents = events.filter(e => e.error).length;
+      const processedEvents = events.filter((e: any) => e.processed).length;
+      const failedEvents = events.filter((e: any) => e.error).length;
 
-      const eventTypes = events.reduce((acc: any, event) => {
+      const eventTypes = events.reduce((acc: any, event: any) => {
         acc[event.type] = (acc[event.type] || 0) + 1;
         return acc;
       }, {});

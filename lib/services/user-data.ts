@@ -136,7 +136,7 @@ export class UserDataService {
 
       // Category breakdown
       const categories: { [key: string]: number } = {};
-      tickets?.forEach(ticket => {
+      tickets?.forEach((ticket: { category?: string }) => {
         const category = ticket.category || 'general';
         categories[category] = (categories[category] || 0) + 1;
       });
@@ -208,7 +208,7 @@ export class UserDataService {
   async getActivityLog(userId: string, limit: number = 50): Promise<any[]> {
     try {
       // Get recent activity from various tables
-      const activities = [];
+      const activities: any[] = [];
 
       // Recent tickets
       const { data: recentTickets } = await this.supabase
@@ -218,13 +218,13 @@ export class UserDataService {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      recentTickets?.forEach(ticket => {
+      recentTickets?.forEach((ticket: any) => {
         activities.push({
           type: 'ticket',
           action: 'created',
-          description: `Created ticket: ${ticket.subject}`,
-          timestamp: ticket.created_at,
-          metadata: { ticket_id: ticket.id }
+          id: ticket.id,
+          created_at: ticket.created_at,
+          summary: ticket.subject || ticket.description || 'New ticket created'
         });
       });
 
@@ -236,13 +236,13 @@ export class UserDataService {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      recentDeflections?.forEach(deflection => {
+      recentDeflections?.forEach((deflection: any) => {
         activities.push({
           type: 'deflection',
           action: 'processed',
-          description: `Auto-resolved ticket with ${deflection.confidence}% confidence`,
-          timestamp: deflection.created_at,
-          metadata: { deflection_id: deflection.id }
+          id: deflection.id,
+          created_at: deflection.created_at,
+          summary: deflection.summary || 'Deflection processed'
         });
       });
 

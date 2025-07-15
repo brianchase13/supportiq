@@ -1,182 +1,227 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createIntercomIntegration, IntercomWebhookEvent } from '@/lib/integrations/intercom';
 import { supabaseAdmin } from '@/lib/supabase/client';
-import crypto from 'crypto';
-import { z } from 'zod';
-
-const IntercomWebhookSchema = z.object({
-  type: z.string(),
-  data: z.object({
-    item: z.object({
-      id: z.string(),
-      type: z.string(),
-      metadata: z.record(z.any()).optional(),
-    }).optional(),
-    workspace_id: z.string().optional(),
-  }).optional(),
-  created_at: z.number().optional(),
-});
-
-// Webhook signature verification
-function verifyWebhookSignature(
-  body: string,
-  signature: string,
-  secret: string
-): boolean {
-  try {
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(body)
-      .digest('hex');
-    
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
-    );
-  } catch (error) {
-    console.error('Error verifying webhook signature:', error);
-    return false;
-  }
-}
+import IntercomClient from '@/lib/intercom/client';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     const signature = request.headers.get('x-hub-signature-256');
-    const webhookSecret = process.env.INTERCOM_WEBHOOK_SECRET;
-
-    // Verify webhook signature if secret is configured
-    if (webhookSecret && signature) {
-      const isValid = verifyWebhookSignature(body, signature, webhookSecret);
-      if (!isValid) {
-        console.error('Invalid webhook signature');
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-      }
-    }
-
-    // Parse and validate webhook payload
-    const rawEvent = JSON.parse(body);
-    const validationResult = IntercomWebhookSchema.safeParse(rawEvent);
     
-    if (!validationResult.success) {
-      console.error('Invalid webhook payload:', validationResult.error.issues);
-      return NextResponse.json(
-        { error: 'Invalid webhook payload', details: validationResult.error.issues },
-        { status: 400 }
-      );
+    if (!signature) {
+      console.error('Missing webhook signature');
+      return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
     }
+
+    // Verify webhook signature
+    const intercomClient = new IntercomClient();
+    const isValid = intercomClient.verifyWebhookSignature(body, signature.replace('sha256=', ''));
     
-    const event: IntercomWebhookEvent = validationResult.data as IntercomWebhookEvent;
-    console.log('Received Intercom webhook event:', event.type);
+    if (!isValid) {
+      console.error('Invalid webhook signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
 
-    // Extract user ID from the event or metadata
-    // This assumes you have a way to map Intercom workspace to your user
-    // You might need to implement this based on your specific setup
-    const userId = await getUserIdFromEvent(event);
+    const payload = JSON.parse(body);
+    const topic = request.headers.get('x-intercom-topic');
     
-    if (!userId) {
-      console.error('Could not determine user ID from webhook event');
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    console.log(`Received Intercom webhook: ${topic}`, { 
+      id: payload.data?.id,
+      type: payload.data?.type 
+    });
+
+    // Process different webhook topics
+    switch (topic) {
+      case 'conversation.user.created':
+      case 'conversation.user.replied':
+      case 'conversation.admin.replied':
+      case 'conversation.admin.closed':
+        await processConversationEvent(payload, topic);
+        break;
+        
+      case 'ticket.created':
+      case 'ticket.updated':
+        await processTicketEvent(payload, topic);
+        break;
+        
+      default:
+        console.log(`Unhandled webhook topic: ${topic}`);
     }
-
-    // Get user's Intercom access token
-    const { data: user } = await supabaseAdmin
-      .from('users')
-      .select('intercom_access_token')
-      .eq('id', userId)
-      .single();
-
-    if (!user?.intercom_access_token) {
-      console.error('No Intercom access token found for user:', userId);
-      return NextResponse.json({ error: 'Intercom not configured' }, { status: 400 });
-    }
-
-    // Create Intercom integration and process event
-    const intercom = createIntercomIntegration(user.intercom_access_token);
-    await intercom.handleWebhookEvent(event, userId);
-
-    // Log webhook processing
-    await supabaseAdmin
-      .from('webhook_logs')
-      .insert({
-        user_id: userId,
-        provider: 'intercom',
-        event_type: event.type,
-        event_data: event,
-        processed_at: new Date().toISOString(),
-        status: 'success'
-      });
 
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error('Error processing Intercom webhook:', error);
-    
-    // Log error
-    try {
-      const body = await request.text();
-      const event = JSON.parse(body);
-      const userId = await getUserIdFromEvent(event);
-      
-      if (userId) {
-        await supabaseAdmin
-          .from('webhook_logs')
-          .insert({
-            user_id: userId,
-            provider: 'intercom',
-            event_type: event.type,
-            event_data: event,
-            processed_at: new Date().toISOString(),
-            status: 'error',
-            error_message: error instanceof Error ? error.message : 'Unknown error'
-          });
-      }
-    } catch (logError) {
-      console.error('Error logging webhook failure:', logError);
-    }
-
+    console.error('Intercom webhook error:', error);
     return NextResponse.json(
-      { error: 'Webhook processing failed' },
+      { error: 'Webhook processing failed' }, 
       { status: 500 }
     );
   }
 }
 
-// Helper function to extract user ID from webhook event
-async function getUserIdFromEvent(event: IntercomWebhookEvent): Promise<string | null> {
-  try {
-    // Method 1: Try to get user ID from event metadata
-    if (event.data?.item?.metadata?.supportiq_user_id) {
-      return event.data.item.metadata.supportiq_user_id;
-    }
+async function processConversationEvent(payload: any, topic: string) {
+  const conversation = payload.data;
+  
+  if (!conversation?.id) {
+    console.error('No conversation ID in payload');
+    return;
+  }
 
-    // Method 2: Try to match by Intercom workspace ID
-    if (event.data?.workspace_id) {
-      const { data: user } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .eq('intercom_workspace_id', event.data.workspace_id)
-        .single();
-      
-      return user?.id || null;
-    }
+  // Transform conversation data for SupportIQ
+  const conversationData = {
+    id: conversation.id,
+    type: 'conversation',
+    status: conversation.state,
+    created_at: new Date(conversation.created_at * 1000).toISOString(),
+    updated_at: new Date(conversation.updated_at * 1000).toISOString(),
+    user_id: conversation.user?.id,
+    admin_id: conversation.assignee?.id,
+    subject: conversation.conversation_message?.subject,
+    body: conversation.conversation_message?.body,
+    tags: conversation.tags?.map((tag: any) => tag.name) || [],
+    priority: conversation.priority,
+    webhook_topic: topic,
+    // SupportIQ analytics fields
+    deflection_score: calculateDeflectionScore(conversation),
+    sentiment: analyzeSentiment(conversation.conversation_message?.body),
+    category: categorizeConversation(conversation),
+    // Metadata
+    raw_data: conversation
+  };
 
-    // Method 3: For demo/testing purposes, return a default user
-    // In production, you'd want to implement proper user mapping
-    if (process.env.NODE_ENV === 'development') {
-      const { data: user } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .limit(1)
-        .single();
-      
-      return user?.id || null;
-    }
+  // Store in conversations table
+  const { error } = await supabaseAdmin
+    .from('conversations')
+    .upsert(conversationData, { 
+      onConflict: 'id',
+      ignoreDuplicates: false 
+    });
 
-    return null;
-  } catch (error) {
-    console.error('Error extracting user ID from event:', error);
-    return null;
+  if (error) {
+    console.error('Error storing conversation:', error);
+  } else {
+    console.log(`Stored conversation ${conversation.id} from webhook ${topic}`);
+  }
+
+  // Update analytics
+  await updateAnalytics('conversation', topic);
+}
+
+async function processTicketEvent(payload: any, topic: string) {
+  const ticket = payload.data;
+  
+  if (!ticket?.id) {
+    console.error('No ticket ID in payload');
+    return;
+  }
+
+  // Transform ticket data for SupportIQ
+  const ticketData = {
+    id: ticket.id,
+    type: 'ticket',
+    status: ticket.state,
+    created_at: new Date(ticket.created_at * 1000).toISOString(),
+    updated_at: new Date(ticket.updated_at * 1000).toISOString(),
+    user_id: ticket.user?.id,
+    admin_id: ticket.assignee?.id,
+    subject: ticket.ticket_attributes?.subject,
+    body: ticket.ticket_attributes?.body,
+    priority: ticket.ticket_attributes?.priority,
+    webhook_topic: topic,
+    // SupportIQ analytics fields
+    deflection_score: calculateDeflectionScore(ticket),
+    sentiment: analyzeSentiment(ticket.ticket_attributes?.body),
+    category: categorizeTicket(ticket),
+    // Metadata
+    raw_data: ticket
+  };
+
+  // Store in tickets table
+  const { error } = await supabaseAdmin
+    .from('tickets')
+    .upsert(ticketData, { 
+      onConflict: 'id',
+      ignoreDuplicates: false 
+    });
+
+  if (error) {
+    console.error('Error storing ticket:', error);
+  } else {
+    console.log(`Stored ticket ${ticket.id} from webhook ${topic}`);
+  }
+
+  // Update analytics
+  await updateAnalytics('ticket', topic);
+}
+
+// SupportIQ Analytics Functions
+function calculateDeflectionScore(item: any): number {
+  let score = 0;
+  
+  if (item.tags?.some((tag: any) => tag.name?.toLowerCase().includes('faq'))) score += 0.3;
+  if (item.tags?.some((tag: any) => tag.name?.toLowerCase().includes('documentation'))) score += 0.2;
+  if (item.priority === 'low') score += 0.1;
+  if (item.state === 'closed' && item.updated_at - item.created_at < 3600) score += 0.2;
+  
+  return Math.min(score, 1.0);
+}
+
+function analyzeSentiment(text?: string): string {
+  if (!text) return 'neutral';
+  
+  const positiveWords = ['great', 'good', 'excellent', 'amazing', 'love', 'thanks', 'thank you'];
+  const negativeWords = ['bad', 'terrible', 'awful', 'hate', 'frustrated', 'angry', 'disappointed'];
+  
+  const lowerText = text.toLowerCase();
+  const positiveCount = positiveWords.filter(word => lowerText.includes(word)).length;
+  const negativeCount = negativeWords.filter(word => lowerText.includes(word)).length;
+  
+  if (positiveCount > negativeCount) return 'positive';
+  if (negativeCount > positiveCount) return 'negative';
+  return 'neutral';
+}
+
+function categorizeConversation(conversation: any): string {
+  const text = conversation.conversation_message?.body?.toLowerCase() || '';
+  
+  if (text.includes('password') || text.includes('login')) return 'authentication';
+  if (text.includes('billing') || text.includes('payment')) return 'billing';
+  if (text.includes('bug') || text.includes('error')) return 'technical';
+  if (text.includes('feature') || text.includes('request')) return 'feature_request';
+  
+  return 'general';
+}
+
+function categorizeTicket(ticket: any): string {
+  const text = ticket.ticket_attributes?.body?.toLowerCase() || '';
+  
+  if (text.includes('password') || text.includes('login')) return 'authentication';
+  if (text.includes('billing') || text.includes('payment')) return 'billing';
+  if (text.includes('bug') || text.includes('error')) return 'technical';
+  if (text.includes('feature') || text.includes('request')) return 'feature_request';
+  
+  return 'general';
+}
+
+async function updateAnalytics(type: string, topic: string) {
+  const now = new Date().toISOString();
+  const dateKey = now.split('T')[0]; // YYYY-MM-DD format
+  
+  // Update real-time analytics
+  const { error } = await supabaseAdmin
+    .from('analytics_realtime')
+    .upsert({
+      date: dateKey,
+      type: type,
+      event: topic,
+      count: 1,
+      updated_at: now
+    }, {
+      onConflict: 'date,type,event',
+      ignoreDuplicates: false
+    });
+
+  if (error) {
+    console.error('Error updating analytics:', error);
   }
 }
 
