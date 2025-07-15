@@ -52,6 +52,7 @@
     "deps:check": "npx npm-check-updates",
     "tools": "node scripts/dev-tools.js",
     "monitor:performance": "node scripts/monitoring/performance-monitor.js",
+    "fix:supabase": "node scripts/fix-supabase-urls.js",
     "precommit": "npm run lint && npm run type-check && npm run test"
   },
   "dependencies": {

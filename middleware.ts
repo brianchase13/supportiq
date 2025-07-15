@@ -2,6 +2,24 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Handle localhost redirects to production
+  const hostname = request.headers.get('host') || ''
+  const isLocalhost = hostname.includes('localhost') || hostname.includes('127.0.0.1')
+  const isProduction = hostname.includes('vercel.app') || hostname.includes('supportiq')
+  
+  // If we're on localhost but have a production URL in the query params, redirect
+  if (isLocalhost) {
+    const url = request.nextUrl
+    const code = url.searchParams.get('code')
+    
+    if (code) {
+      // This is likely a Supabase auth callback that went to localhost
+      const productionUrl = 'https://supportiq-is54se1bo-brianfprojects.vercel.app'
+      const redirectUrl = new URL(url.pathname + url.search, productionUrl)
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })

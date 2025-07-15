@@ -28,7 +28,7 @@ export function AuthButton({ redirectTo = '/dashboard' }: AuthButtonProps) {
       const supabase = createClient()
       
       // Use production URL directly for now
-      const appUrl = 'https://supportiq-l0b421rnc-brianfprojects.vercel.app'
+      const appUrl = 'https://supportiq-is54se1bo-brianfprojects.vercel.app'
       
       if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
