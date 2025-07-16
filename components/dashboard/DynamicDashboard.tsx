@@ -136,13 +136,13 @@ export function DynamicDashboard({ activeTab, userData }: DynamicDashboardProps)
       case 'knowledge':
         return (
           <Suspense fallback={<KBSkeleton />}>
-            <KnowledgeBaseManager />
+            <KnowledgeBaseManager userId={userData?.id || 'default'} />
           </Suspense>
         );
       case 'settings':
         return (
           <Suspense fallback={<SettingsSkeleton />}>
-            <SettingsPanel />
+            <SettingsPanel userId={userData?.id || 'default'} />
           </Suspense>
         );
       default:
