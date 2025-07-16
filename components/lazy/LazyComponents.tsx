@@ -199,9 +199,7 @@ export function preloadComponent(component: () => Promise<any>) {
 export const PreloadCritical = () => {
   React.useEffect(() => {
     // Preload critical components
-    LazyCard();
-    LazyButton();
-    LazyDashboardLayout();
+    // These are lazy components, so we don't need to call them directly
   }, []);
   
   return null;
