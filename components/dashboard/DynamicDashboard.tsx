@@ -112,37 +112,37 @@ export function DynamicDashboard({ activeTab, userData }: DynamicDashboardProps)
       case 'deflection':
         return (
           <Suspense fallback={<DashboardSkeleton />}>
-            <DeflectionDashboard userData={userData} />
+            <DeflectionDashboard userId={userData?.id || 'default'} />
           </Suspense>
         );
       case 'performance':
         return (
           <Suspense fallback={<ScorecardSkeleton />}>
-            <AgentPerformanceScorecard userData={userData} />
+            <AgentPerformanceScorecard />
           </Suspense>
         );
       case 'crisis':
         return (
           <Suspense fallback={<AlertSkeleton />}>
-            <CrisisModeAlert userData={userData} />
+            <CrisisModeAlert />
           </Suspense>
         );
       case 'analytics':
         return (
           <Suspense fallback={<AnalyticsSkeleton />}>
-            <AnalyticsDashboard userData={userData} />
+            <AnalyticsDashboard />
           </Suspense>
         );
       case 'knowledge':
         return (
           <Suspense fallback={<KBSkeleton />}>
-            <KnowledgeBaseManager userData={userData} />
+            <KnowledgeBaseManager />
           </Suspense>
         );
       case 'settings':
         return (
           <Suspense fallback={<SettingsSkeleton />}>
-            <SettingsPanel userData={userData} />
+            <SettingsPanel />
           </Suspense>
         );
       default:
