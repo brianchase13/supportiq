@@ -41,10 +41,6 @@ export const LazyTicketTester = lazy(() =>
   import('@/components/ai/TicketTester').then(mod => ({ default: mod.TicketTester }))
 );
 
-export const LazyFAQGenerator = lazy(() => 
-  import('@/components/ai/FAQGenerator').then(mod => ({ default: mod.FAQGenerator }))
-);
-
 // Lazy load admin components
 export const LazyLaunchChecklist = lazy(() => 
   import('@/components/admin/LaunchChecklist').then(mod => ({ default: mod.LaunchChecklist }))
