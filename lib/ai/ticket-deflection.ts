@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { generateEmbedding, findSimilarTickets } from './embeddings';
+import { TicketData, TicketAnalysis, DeflectionResponse, TicketMetrics } from '@/lib/types';
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -23,15 +24,7 @@ export interface TicketAnalysis {
   tags: string[];
 }
 
-export interface DeflectionResponse {
-  canDeflect: boolean;
-  response: string;
-  confidence: number;
-  fallbackMessage?: string;
-  suggestedActions: string[];
-  followUpRequired: boolean;
-  escalationTriggers: string[];
-}
+// Removed local DeflectionResponse interface, using imported one
 
 export interface TicketMetrics {
   totalTickets: number;
@@ -46,7 +39,7 @@ export interface TicketMetrics {
 
 export class TicketDeflectionEngine {
   private openai: OpenAI | null;
-  private knowledgeBase: Map<string, any> = new Map();
+  private knowledgeBase: Map<string, unknown> = new Map();
   private responseTemplates: Map<string, string> = new Map();
 
   constructor() {
@@ -167,7 +160,7 @@ Let me know if you need any clarification or run into any issues!`
     );
   }
 
-  async analyzeTicket(ticket: any, existingTickets: any[] = []): Promise<TicketAnalysis> {
+  async analyzeTicket(ticket: unknown, existingTickets: unknown[] = []): Promise<TicketAnalysis> {
     if (!this.openai) {
       return this.generateMockAnalysis(ticket);
     }
@@ -198,7 +191,7 @@ Let me know if you need any clarification or run into any issues!`
     }
   }
 
-  private async performGPTAnalysis(ticket: any, similarTickets: any[]): Promise<Partial<TicketAnalysis>> {
+  private async performGPTAnalysis(ticket: unknown, similarTickets: unknown[]): Promise<Partial<TicketAnalysis>> {
     const ticketText = `${ticket.subject || ''} ${ticket.content || ''}`;
     
     const prompt = `Analyze this customer support ticket and provide detailed categorization and deflection analysis:
@@ -288,23 +281,29 @@ Focus on:
     return analysis as TicketAnalysis;
   }
 
-  async generateDeflectionResponse(analysis: TicketAnalysis, ticket: any): Promise<DeflectionResponse> {
+  async generateDeflectionResponse(analysis: TicketAnalysis, ticket: unknown): Promise<DeflectionResponse> {
     if (!this.openai) {
       return this.generateMockDeflectionResponse(analysis);
     }
 
     try {
       // Check if we can deflect based on analysis
-      const canDeflect = analysis.deflectionPotential === 'high' && !analysis.requiresHuman;
+      const can_deflect = analysis.deflectionPotential === 'high' && !analysis.requiresHuman;
 
-      if (!canDeflect) {
+      if (!can_deflect) {
         return {
-          canDeflect: false,
-          response: this.generateEscalationResponse(analysis),
+          can_deflect: false,
+          response_content: this.generateEscalationResponse(analysis),
           confidence: 0.9,
-          suggestedActions: ['Escalate to human agent'],
-          followUpRequired: true,
-          escalationTriggers: ['Complex issue', 'Requires human intervention']
+          response_type: 'escalate',
+          reasoning: 'Escalation required',
+          suggested_actions: ['Escalate to human agent'],
+          follow_up_required: true,
+          escalation_triggers: ['Complex issue', 'Requires human intervention'],
+          estimated_cost: 0,
+          tokens_used: 0,
+          model_used: 'mock',
+          generated_at: new Date().toISOString(),
         };
       }
 
@@ -312,13 +311,18 @@ Focus on:
       const response = await this.generatePersonalizedResponse(analysis, ticket);
 
       return {
-        canDeflect: true,
-        response: response.content,
+        can_deflect: true,
+        response_content: response.content,
         confidence: response.confidence,
-        fallbackMessage: this.generateFallbackMessage(analysis),
-        suggestedActions: response.suggestedActions,
-        followUpRequired: response.followUpRequired,
-        escalationTriggers: response.escalationTriggers
+        response_type: 'auto_resolve',
+        reasoning: 'Automated deflection',
+        suggested_actions: response.suggestedActions,
+        follow_up_required: response.followUpRequired,
+        escalation_triggers: response.escalationTriggers,
+        estimated_cost: 0,
+        tokens_used: 0,
+        model_used: 'mock',
+        generated_at: new Date().toISOString(),
       };
 
     } catch (error) {
@@ -327,7 +331,7 @@ Focus on:
     }
   }
 
-  private async generatePersonalizedResponse(analysis: TicketAnalysis, ticket: any): Promise<any> {
+  private async generatePersonalizedResponse(analysis: TicketAnalysis, ticket: unknown): Promise<unknown> {
     const prompt = `Generate a helpful, personalized response for this customer support ticket:
 
 TICKET ANALYSIS:
@@ -387,7 +391,7 @@ Thank you for your patience!`;
     return `If this doesn't address your question, please let me know and I'll be happy to connect you with a human agent who can provide more personalized assistance.`;
   }
 
-  calculateDeflectionMetrics(tickets: any[]): TicketMetrics {
+  calculateDeflectionMetrics(tickets: unknown[]): TicketMetrics {
     const totalTickets = tickets.length;
     const deflectedTickets = tickets.filter(t => t.deflected).length;
     const deflectionRate = totalTickets > 0 ? (deflectedTickets / totalTickets) * 100 : 0;
@@ -446,7 +450,7 @@ Thank you for your patience!`;
     };
   }
 
-  private generateMockAnalysis(ticket: any): TicketAnalysis {
+  private generateMockAnalysis(ticket: unknown): TicketAnalysis {
     const categories = ['Account', 'Billing', 'Feature Request', 'Bug', 'How-to', 'Technical Issue'];
     const sentiments = ['positive', 'neutral', 'negative'];
     const priorities = ['low', 'medium', 'high', 'urgent'];
@@ -470,12 +474,18 @@ Thank you for your patience!`;
 
   private generateMockDeflectionResponse(analysis: TicketAnalysis): DeflectionResponse {
     return {
-      canDeflect: analysis.deflectionPotential === 'high',
-      response: 'Thank you for reaching out! I can help you with that. Here\'s what you need to know...',
+      can_deflect: analysis.deflectionPotential === 'high',
+      response_content: 'Thank you for reaching out! I can help you with that. Here\'s what you need to know...',
       confidence: 0.8,
-      suggestedActions: ['Send automated response'],
-      followUpRequired: false,
-      escalationTriggers: ['Customer requests escalation']
+      response_type: 'auto_resolve',
+      reasoning: 'Mock response',
+      suggested_actions: ['Send automated response'],
+      follow_up_required: false,
+      escalation_triggers: ['Customer requests escalation'],
+      estimated_cost: 0,
+      tokens_used: 0,
+      model_used: 'mock',
+      generated_at: new Date().toISOString(),
     };
   }
 }

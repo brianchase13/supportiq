@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Session, TestResult, PageTestResult } from '@/lib/types';
 
 interface PageTestConfig {
   path: string;
@@ -22,7 +24,7 @@ interface PageTestResult {
 }
 
 export class PageTestRunner {
-  private supabase: any;
+  private supabase: unknown;
   private baseUrl: string;
 
   constructor(baseUrl: string = 'http://localhost:3000') {
@@ -33,7 +35,7 @@ export class PageTestRunner {
     );
   }
 
-  async testPage(config: PageTestConfig, userSession?: any): Promise<PageTestResult> {
+  async testPage(config: PageTestConfig, userSession?: unknown): Promise<PageTestResult> {
     const result: PageTestResult = {
       path: config.path,
       success: true,
@@ -70,7 +72,7 @@ export class PageTestRunner {
               result.success = false;
               result.details.errors.push(`API endpoint ${endpoint} failed`);
             }
-          } catch (error: any) {
+          } catch (error: unknown) {
             result.details.apiResponses.push({
               endpoint,
               status: 0,
@@ -93,7 +95,7 @@ export class PageTestRunner {
         result.details.errors.push(...pageLoadResult.errors);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       result.success = false;
       result.message = `Page test failed: ${error.message}`;
       result.details.errors.push(error.message);
@@ -102,7 +104,7 @@ export class PageTestRunner {
     return result;
   }
 
-  private async testApiEndpoint(endpoint: string, userSession?: any): Promise<{
+  private async testApiEndpoint(endpoint: string, userSession?: unknown): Promise<{
     endpoint: string;
     status: number;
     success: boolean;
@@ -126,7 +128,7 @@ export class PageTestRunner {
     }
   }
 
-  private async simulatePageLoad(config: PageTestConfig, userSession?: any): Promise<{
+  private async simulatePageLoad(config: PageTestConfig, userSession?: unknown): Promise<{
     success: boolean;
     message: string;
     errors: string[];
@@ -276,7 +278,7 @@ export class PageTestRunner {
             criticalFailures.push(`${config.path}: ${result.message}`);
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         const failureResult: PageTestResult = {
           path: config.path,
           success: false,
@@ -310,7 +312,7 @@ export class PageTestRunner {
     };
   }
 
-  generatePageTestReport(results: PageTestResult[], summary: any): string {
+  generatePageTestReport(results: PageTestResult[], summary: unknown): string {
     const timestamp = new Date().toISOString();
     
     let report = `

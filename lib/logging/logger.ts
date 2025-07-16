@@ -55,8 +55,8 @@ class Logger {
 
   private sanitizeError(error: Error): Error {
     // Remove sensitive information from error messages
-    const sanitizedError = new Error(error.message.replace(/token=([^&\s]+)/g, 'token=[REDACTED]'));
-    sanitizedError.name = error.name;
+    const sanitizedError = new Error(error.message?.replace(/token=([^&\s]+)/g, 'token=[REDACTED]') || 'Unknown error');
+    sanitizedError.name = error.name || 'Error';
     sanitizedError.stack = error.stack;
     return sanitizedError;
   }

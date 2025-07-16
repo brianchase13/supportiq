@@ -1,5 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { APP_CONFIG } from '@/lib/config/constants';
+import { logger } from '@/lib/logging/logger';
+import { EmailService } from '@/lib/services/email-service';
 
 export interface Trial {
   id: string;
@@ -130,7 +132,17 @@ export class TrialManager {
       };
     }
 
-    const limit = trial.limits[operation as keyof TrialLimits] as number;
+    // Map usage field to corresponding limit field
+    const limitFieldMap: Record<keyof TrialUsage, keyof TrialLimits> = {
+      ai_responses_used: 'ai_responses',
+      team_members_added: 'team_members',
+      integrations_connected: 'integrations',
+      tickets_processed: 'tickets_per_month',
+      storage_used_gb: 'storage_gb'
+    };
+
+    const limitField = limitFieldMap[operation];
+    const limit = trial.limits[limitField] as number;
     const used = trial.usage[operation];
     const remaining = limit - used;
 
@@ -205,7 +217,7 @@ export class TrialManager {
       .lt('expires_at', new Date().toISOString());
 
     if (error) {
-      console.error('Failed to check trial expiration:', error);
+      await logger.error('Failed to check trial expiration:', error);
       return;
     }
 
@@ -227,7 +239,7 @@ export class TrialManager {
       .eq('status', 'active');
 
     if (error) {
-      console.error(`Failed to expire trial for user ${userId}:`, error);
+      await logger.error('Failed to expire trial for user ${userId}:', error);
       return;
     }
 
@@ -296,7 +308,23 @@ export class TrialManager {
    * Send trial expiration notification
    */
   private static async sendTrialExpirationNotification(userId: string): Promise<void> {
-    // TODO: Implement email notification
-    console.log(`Trial expired for user ${userId} - sending notification`);
+    try {
+      // Get user details
+      const { data: user } = await supabaseAdmin
+        .from('users')
+        .select('email, full_name')
+        .eq('id', userId)
+        .single();
+
+      if (user?.email) {
+        await EmailService.sendTrialExpirationEmail(
+          user.email,
+          user.full_name || 'there',
+          0 // Trial has already expired
+        );
+      }
+    } catch (error) {
+      await logger.error('Failed to send trial expiration notification', error);
+    }
   }
 } 

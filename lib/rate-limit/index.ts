@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase/client';
+import { logger } from '@/lib/logging/logger';
 
 export interface RateLimitConfig {
   maxRequests: number;
@@ -100,7 +101,7 @@ export class RateLimiter {
       };
 
     } catch (error) {
-      console.error('Rate limit check failed:', error);
+      await logger.error('Rate limit check failed:', error);
       // Fail open - allow request if rate limiting fails
       return {
         success: true,
@@ -133,7 +134,7 @@ export class RateLimiter {
 
       return Math.max(0, this.config.maxRequests - existing.requests);
     } catch (error) {
-      console.error('Failed to get remaining requests:', error);
+      await logger.error('Failed to get remaining requests:', error);
       return this.config.maxRequests;
     }
   }

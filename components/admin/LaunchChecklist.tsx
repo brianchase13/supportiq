@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -255,11 +255,7 @@ export function LaunchChecklist() {
   const [runningTests, setRunningTests] = useState<string[]>([]);
   const [overallStatus, setOverallStatus] = useState<'pending' | 'in-progress' | 'ready' | 'blocked'>('pending');
 
-  useEffect(() => {
-    updateOverallStatus();
-  }, [checklist]);
-
-  const updateOverallStatus = () => {
+  const updateOverallStatus = useCallback(() => {
     const criticalItems = checklist.filter(item => item.critical);
     const completedCritical = criticalItems.filter(item => item.completed);
     
@@ -272,7 +268,9 @@ export function LaunchChecklist() {
     } else {
       setOverallStatus('blocked');
     }
-  };
+  }, [checklist, runningTests]);
+
+
 
   const runTest = async (item: ChecklistItem) => {
     if (!item.testFunction) return;

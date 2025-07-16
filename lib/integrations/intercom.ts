@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { ticketDeflectionEngine } from '@/lib/ai/ticket-deflection';
 import { generateEmbedding } from '@/lib/ai/embeddings';
+import { IntercomMetadata, IntercomResponse } from '@/lib/types';
 
 export interface IntercomTicket {
   id: string;
@@ -22,7 +23,7 @@ export interface IntercomTicket {
   created_at: number;
   updated_at: number;
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface IntercomResponse {
@@ -39,7 +40,7 @@ export interface IntercomWebhookEvent {
   type: string;
   data: {
     item: IntercomTicket;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   created_at: number;
 }
@@ -238,7 +239,7 @@ export class IntercomIntegration {
   // Send automated response to Intercom
   private async sendAutomatedResponse(
     conversationId: string, 
-    deflectionResponse: any, 
+    deflectionResponse: unknown, 
     userId: string
   ): Promise<void> {
     try {

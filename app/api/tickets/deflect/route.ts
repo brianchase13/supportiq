@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { createClient } from '@/lib/supabase/server';
-import { ticketDeflectionEngine, TicketAnalysis, DeflectionResponse } from '@/lib/ai/ticket-deflection';
+import { ticketDeflectionEngine, TicketAnalysis } from '@/lib/ai/ticket-deflection';
+import { DeflectionResponse } from '@/lib/types';
 import { z } from 'zod';
+import { logger } from '@/lib/logging/logger';
 
 const DeflectionRequestSchema = z.object({
   ticketId: z.string().optional(),
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
     const { data: tickets, error: ticketsError } = await ticketsQuery;
 
     if (ticketsError) {
-      console.error('Failed to fetch tickets:', ticketsError);
+      await logger.error('Failed to fetch tickets:', ticketsError instanceof Error ? ticketsError : new Error(String(ticketsError)));
       return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 });
     }
 
@@ -92,12 +94,12 @@ export async function POST(request: NextRequest) {
           ticketId: ticket.id,
           analysis,
           deflectionResponse,
-          deflected: deflectionResponse.canDeflect && !dryRun
+          deflected: deflectionResponse.can_deflect && !dryRun
         };
 
         results.push(result);
 
-        if (deflectionResponse.canDeflect && !dryRun) {
+        if (deflectionResponse.can_deflect && !dryRun) {
           deflectedCount++;
         }
 
@@ -119,21 +121,21 @@ export async function POST(request: NextRequest) {
               requires_human: analysis.requiresHuman,
               tags: analysis.tags,
               similar_tickets: analysis.similarTickets,
-              deflected: deflectionResponse.canDeflect,
-              deflection_response: deflectionResponse.response,
+              deflected: deflectionResponse.can_deflect,
+              deflection_response: deflectionResponse.response_content,
               deflection_confidence: deflectionResponse.confidence,
               updated_at: new Date().toISOString()
             })
             .eq('id', ticket.id);
 
           // If auto-respond is enabled and we can deflect, send the response
-          if (autoRespond && deflectionResponse.canDeflect) {
+          if (autoRespond && deflectionResponse.can_deflect) {
             await sendAutomatedResponse(ticket, deflectionResponse, user.id);
           }
         }
 
       } catch (error) {
-        console.error(`Failed to analyze ticket ${ticket.id}:`, error);
+        await logger.error('Failed to analyze ticket ${ticket.id}:', error instanceof Error ? error : new Error(String(error)));
         results.push({
           ticketId: ticket.id,
           error: error instanceof Error ? error.message : 'Analysis failed',
@@ -161,7 +163,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Ticket deflection error:', error);
+    await logger.error('Ticket deflection error:', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Deflection failed' },
       { status: 500 }
@@ -208,7 +210,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Failed to fetch deflection data:', error);
+    await logger.error('Failed to fetch deflection data:', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Failed to fetch deflection data' },
       { status: 500 }
@@ -225,18 +227,18 @@ async function sendAutomatedResponse(ticket: any, deflectionResponse: Deflection
         ticket_id: ticket.id,
         user_id: userId,
         response_type: 'automated',
-        content: deflectionResponse.response,
+        content: deflectionResponse.response_content,
         confidence: deflectionResponse.confidence,
         sent_at: new Date().toISOString(),
         metadata: {
           deflectionEngine: true,
-          suggestedActions: deflectionResponse.suggestedActions,
-          followUpRequired: deflectionResponse.followUpRequired
+          suggested_actions: deflectionResponse.suggested_actions,
+          follow_up_required: deflectionResponse.follow_up_required
         }
       });
 
     if (responseError) {
-      console.error('Failed to save automated response:', responseError);
+      await logger.error('Failed to save automated response:', responseError instanceof Error ? responseError : new Error(String(responseError)));
     }
 
     // Update ticket with response sent
@@ -251,9 +253,9 @@ async function sendAutomatedResponse(ticket: any, deflectionResponse: Deflection
 
     // TODO: Integrate with actual support platform (Intercom, Zendesk, etc.)
     // This would send the actual response to the customer
-    console.log(`Automated response sent for ticket ${ticket.id}:`, deflectionResponse.response);
+    await logger.info(`Automated response sent for ticket ${ticket.id}:`, { response_content: deflectionResponse.response_content });
 
   } catch (error) {
-    console.error('Failed to send automated response:', error);
+    await logger.error('Failed to send automated response:', error instanceof Error ? error : new Error(String(error)));
   }
 } 

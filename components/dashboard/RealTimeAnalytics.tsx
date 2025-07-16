@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -54,13 +54,7 @@ export default function RealTimeAnalytics() {
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
 
-  useEffect(() => {
-    if (user) {
-      fetchAnalytics();
-    }
-  }, [user, timeRange]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/analytics/realtime?range=${timeRange}`);
@@ -73,7 +67,9 @@ export default function RealTimeAnalytics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange]);
+
+
 
   const refreshData = async () => {
     setRefreshing(true);

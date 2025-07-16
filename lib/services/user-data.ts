@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logging/logger';
 
 interface UserAnalytics {
   tickets_processed: number;
@@ -86,7 +87,7 @@ export class UserDataService {
         data_retention_days: 90
       };
     } catch (error) {
-      console.error('Error getting user analytics:', error);
+      await logger.error('Error getting user analytics:', error);
       // Return mock data as fallback
       return {
         tickets_processed: 1247,
@@ -174,7 +175,7 @@ export class UserDataService {
         export_date: new Date().toISOString()
       };
     } catch (error) {
-      console.error('Error exporting user data:', error);
+      await logger.error('Error exporting user data:', error);
       throw error;
     }
   }
@@ -185,7 +186,7 @@ export class UserDataService {
       // For now, we'll just throw an error indicating it's not implemented
       throw new Error('Account deletion must be processed through our support team. Please contact support@supportiq.com');
     } catch (error) {
-      console.error('Error deleting user data:', error);
+      await logger.error('Error deleting user data:', error);
       throw error;
     }
   }
@@ -200,7 +201,7 @@ export class UserDataService {
         })
         .eq('id', userId);
     } catch (error) {
-      console.error('Error updating data retention:', error);
+      await logger.error('Error updating data retention:', error);
       throw error;
     }
   }
@@ -251,7 +252,7 @@ export class UserDataService {
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, limit);
     } catch (error) {
-      console.error('Error getting activity log:', error);
+      await logger.error('Error getting activity log:', error);
       return [];
     }
   }
@@ -272,7 +273,7 @@ export class UserDataService {
         timezone: 'UTC'
       };
     } catch (error) {
-      console.error('Error getting user preferences:', error);
+      await logger.error('Error getting user preferences:', error);
       return {
         email_notifications: true,
         weekly_reports: true,
@@ -295,7 +296,7 @@ export class UserDataService {
           onConflict: 'user_id'
         });
     } catch (error) {
-      console.error('Error updating user preferences:', error);
+      await logger.error('Error updating user preferences:', error);
       throw error;
     }
   }

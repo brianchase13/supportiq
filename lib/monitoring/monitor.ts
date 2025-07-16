@@ -1,6 +1,7 @@
 import { log } from '@/lib/logging/logger';
 import { getConfig } from '@/lib/config/constants';
 import { supabaseAdmin } from '@/lib/supabase/client';
+import { MetricData, AlertConfig } from '@/lib/types';
 
 // Comprehensive monitoring system - KNOW WHEN THINGS BREAK
 

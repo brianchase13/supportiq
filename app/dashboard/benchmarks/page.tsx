@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -61,11 +61,7 @@ export default function BenchmarksPage() {
   const [industry, setIndustry] = useState('SaaS');
   const [region, setRegion] = useState('global');
 
-  useEffect(() => {
-    fetchBenchmarkData();
-  }, [companySize, industry, region]);
-
-  const fetchBenchmarkData = async () => {
+  const fetchBenchmarkData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -163,7 +159,9 @@ export default function BenchmarksPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [companySize, industry, region]);
+
+
 
   const getMetricIcon = (metric: string) => {
     switch (metric) {

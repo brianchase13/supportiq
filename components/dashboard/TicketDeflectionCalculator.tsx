@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,7 +50,7 @@ export function TicketDeflectionCalculator() {
   const [loading, setLoading] = useState(false);
 
   // Calculate deflection projections
-  const calculateProjections = async () => {
+  const calculateProjections = useCallback(async () => {
     setLoading(true);
     try {
       // Simulate API call to get AI-powered projections
@@ -85,11 +85,13 @@ export function TicketDeflectionCalculator() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [metrics]);
+
+
 
   useEffect(() => {
     calculateProjections();
-  }, [metrics]);
+  }, [calculateProjections]);
 
   const updateMetric = (key: keyof DeflectionMetrics, value: number) => {
     setMetrics(prev => ({ ...prev, [key]: value }));

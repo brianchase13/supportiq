@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { TrialManager } from '@/lib/trial/manager';
+import { logger } from '@/lib/logging/logger';
+import { EmailService } from '@/lib/services/email-service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-04-10',
@@ -29,7 +31,7 @@ export class SubscriptionSync {
         throw new Error('Missing required metadata in subscription');
       }
 
-      console.log(`🔄 Syncing subscription ${subscription.id} for user ${userId}`);
+      await logger.info(`Syncing subscription ${subscription.id} for user ${userId}`);
 
       // Get customer details
       const customer = await stripe.customers.retrieve(subscription.customer as string);
@@ -88,7 +90,7 @@ export class SubscriptionSync {
         });
 
       if (subscriptionError) {
-        console.error('Failed to upsert subscription record:', subscriptionError);
+        await logger.error('Failed to upsert subscription record', subscriptionError);
       }
 
       // Log subscription event
@@ -98,7 +100,7 @@ export class SubscriptionSync {
         isTrialConversion
       });
 
-      console.log(`✅ Successfully synced subscription ${subscription.id}`);
+      await logger.info(`Successfully synced subscription ${subscription.id}`);
 
       return {
         success: true,
@@ -109,7 +111,7 @@ export class SubscriptionSync {
       };
 
     } catch (error) {
-      console.error('❌ Subscription sync failed:', error);
+      await logger.error('Subscription sync failed', error instanceof Error ? error : new Error(String(error)));
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -122,7 +124,7 @@ export class SubscriptionSync {
    */
   private static async handleTrialConversion(userId: string, planId: string, subscription: Stripe.Subscription): Promise<void> {
     try {
-      console.log(`🔄 Converting trial for user ${userId} to plan ${planId}`);
+      await logger.info(`Converting trial for user ${userId} to plan ${planId}`);
 
       // Convert trial in database
       await TrialManager.convertTrial(userId, planId, 
@@ -136,10 +138,10 @@ export class SubscriptionSync {
       // Send welcome email for paid customers
       await this.sendWelcomeEmail(userId, planId);
 
-      console.log(`✅ Trial conversion completed for user ${userId}`);
+      await logger.info(`Trial conversion completed for user ${userId}`);
 
     } catch (error) {
-      console.error('❌ Trial conversion failed:', error);
+      await logger.error('Trial conversion failed', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -165,7 +167,7 @@ export class SubscriptionSync {
       });
 
     if (error) {
-      console.error('Failed to update user limits:', error);
+      await logger.error('Failed to update user limits', error);
     }
   }
 
@@ -240,7 +242,7 @@ export class SubscriptionSync {
     const userId = subscription.metadata?.userId;
     if (!userId) return;
 
-    console.log(`🔄 Handling subscription cancellation for user ${userId}`);
+    await logger.info(`Handling subscription cancellation for user ${userId}`);
 
     // Update user status
     await supabaseAdmin
@@ -256,7 +258,7 @@ export class SubscriptionSync {
     // Send cancellation email
     await this.sendCancellationEmail(userId);
 
-    console.log(`✅ Subscription cancellation handled for user ${userId}`);
+    await logger.info(`Subscription cancellation handled for user ${userId}`);
   }
 
   /**
@@ -267,7 +269,7 @@ export class SubscriptionSync {
     const userId = subscription.metadata?.userId;
     if (!userId) return;
 
-    console.log(`🔄 Handling payment failure for user ${userId}`);
+    await logger.info(`Handling payment failure for user ${userId}`);
 
     // Update user status
     await supabaseAdmin
@@ -281,7 +283,7 @@ export class SubscriptionSync {
     // Send payment failure email
     await this.sendPaymentFailureEmail(userId, invoice);
 
-    console.log(`✅ Payment failure handled for user ${userId}`);
+    await logger.info(`Payment failure handled for user ${userId}`);
   }
 
   /**
@@ -292,7 +294,7 @@ export class SubscriptionSync {
     const userId = subscription.metadata?.userId;
     if (!userId) return;
 
-    console.log(`🔄 Handling payment success for user ${userId}`);
+    await logger.info(`Handling payment success for user ${userId}`);
 
     // Update user status if it was past_due
     await supabaseAdmin
@@ -310,7 +312,7 @@ export class SubscriptionSync {
       currency: invoice.currency
     });
 
-    console.log(`✅ Payment success handled for user ${userId}`);
+    await logger.info(`Payment success handled for user ${userId}`);
   }
 
   /**
@@ -320,7 +322,7 @@ export class SubscriptionSync {
     userId: string, 
     subscriptionId: string, 
     eventType: string, 
-    data: any
+    data: Record<string, unknown>
   ): Promise<void> {
     const { error } = await supabaseAdmin
       .from('subscription_events')
@@ -333,7 +335,7 @@ export class SubscriptionSync {
       });
 
     if (error) {
-      console.error('Failed to log subscription event:', error);
+      await logger.error('Failed to log subscription event', error);
     }
   }
 
@@ -341,23 +343,71 @@ export class SubscriptionSync {
    * Send welcome email for new paid customers
    */
   private static async sendWelcomeEmail(userId: string, planId: string): Promise<void> {
-    // TODO: Implement email sending
-    console.log(`📧 Sending welcome email to user ${userId} for plan ${planId}`);
+    try {
+      // Get user details
+      const { data: user } = await supabaseAdmin
+        .from('users')
+        .select('email, full_name')
+        .eq('id', userId)
+        .single();
+
+      if (user?.email) {
+        await EmailService.sendWelcomeEmail(
+          user.email,
+          user.full_name || 'there',
+          planId
+        );
+      }
+    } catch (error) {
+      await logger.error('Failed to send welcome email', error);
+    }
   }
 
   /**
    * Send cancellation email
    */
   private static async sendCancellationEmail(userId: string): Promise<void> {
-    // TODO: Implement email sending
-    console.log(`📧 Sending cancellation email to user ${userId}`);
+    try {
+      // Get user details
+      const { data: user } = await supabaseAdmin
+        .from('users')
+        .select('email, full_name, subscription_plan')
+        .eq('id', userId)
+        .single();
+
+      if (user?.email) {
+        await EmailService.sendCancellationEmail(
+          user.email,
+          user.full_name || 'there',
+          user.subscription_plan || 'Professional'
+        );
+      }
+    } catch (error) {
+      await logger.error('Failed to send cancellation email', error);
+    }
   }
 
   /**
    * Send payment failure email
    */
   private static async sendPaymentFailureEmail(userId: string, invoice: Stripe.Invoice): Promise<void> {
-    // TODO: Implement email sending
-    console.log(`📧 Sending payment failure email to user ${userId}`);
+    try {
+      // Get user details
+      const { data: user } = await supabaseAdmin
+        .from('users')
+        .select('email, full_name')
+        .eq('id', userId)
+        .single();
+
+      if (user?.email) {
+        await EmailService.sendPaymentFailureEmail(
+          user.email,
+          user.full_name || 'there',
+          invoice.amount_due
+        );
+      }
+    } catch (error) {
+      await logger.error('Failed to send payment failure email', error);
+    }
   }
 } 

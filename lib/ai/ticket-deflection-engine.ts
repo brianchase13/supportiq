@@ -13,6 +13,7 @@ import { getConfig } from '@/lib/config/constants';
 import { log } from '@/lib/logging/logger';
 import { generateEmbedding, findSimilarTickets } from './embeddings';
 import { supabaseAdmin } from '@/lib/supabase/client';
+import { TicketData, WorkingHours, DeflectionResponse } from '@/lib/types';
 
 // Input validation schemas
 const TicketAnalysisSchema = z.object({
@@ -395,7 +396,7 @@ Thank you for your patience!`,
     };
   }
 
-  private isWithinWorkingHours(workingHours: any): boolean {
+  private isWithinWorkingHours(workingHours: unknown): boolean {
     if (!workingHours.enabled) return true;
 
     const now = new Date();

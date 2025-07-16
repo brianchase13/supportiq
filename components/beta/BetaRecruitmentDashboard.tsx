@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -70,11 +70,7 @@ export function BetaRecruitmentDashboard() {
     monthly_tickets: 100
   });
 
-  useEffect(() => {
-    loadBetaData();
-  }, []);
-
-  const loadBetaData = async () => {
+  const loadBetaData = useCallback(async () => {
     setLoading(true);
     try {
       const [customersData, metricsData, campaignsData, targetsData] = await Promise.all([
@@ -93,7 +89,9 @@ export function BetaRecruitmentDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [betaManager]);
+
+
 
   const handleAddCustomer = async () => {
     try {

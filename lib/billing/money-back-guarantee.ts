@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logging/logger';
 
 interface GuaranteeTerms {
   duration_days: number;
@@ -134,7 +135,7 @@ export class MoneyBackGuaranteeSystem {
 
       return guaranteeStatus;
     } catch (error) {
-      console.error('Error checking guarantee status:', error);
+      await logger.error('Error checking guarantee status:', error);
       throw error;
     }
   }
@@ -177,7 +178,7 @@ export class MoneyBackGuaranteeSystem {
         satisfaction_score: satisfactionScore
       };
     } catch (error) {
-      console.error('Error getting user metrics:', error);
+      await logger.error('Error getting user metrics:', error);
       return {
         total_tickets: 0,
         deflected_tickets: 0,
@@ -253,7 +254,7 @@ export class MoneyBackGuaranteeSystem {
           onConflict: 'user_id'
         });
     } catch (error) {
-      console.error('Error storing guarantee status:', error);
+      await logger.error('Error storing guarantee status:', error);
     }
   }
 
@@ -302,7 +303,7 @@ export class MoneyBackGuaranteeSystem {
 
       return data;
     } catch (error) {
-      console.error('Error requesting refund:', error);
+      await logger.error('Error requesting refund:', error);
       throw error;
     }
   }
@@ -345,7 +346,7 @@ export class MoneyBackGuaranteeSystem {
         await this.sendRefundRejection(refundRequest, notes);
       }
     } catch (error) {
-      console.error('Error processing refund:', error);
+      await logger.error('Error processing refund:', error);
       throw error;
     }
   }
@@ -354,7 +355,7 @@ export class MoneyBackGuaranteeSystem {
     try {
       // This would integrate with your payment processor (Stripe, etc.)
       // For now, we'll just log the refund
-      console.log(`Processing refund of $${refundRequest.amount} for user ${refundRequest.user_id}`);
+      await logger.info('Processing refund of $${refundRequest.amount} for user ${refundRequest.user_id}');
       
       // Update guarantee status
       await this.supabase
@@ -365,7 +366,7 @@ export class MoneyBackGuaranteeSystem {
         })
         .eq('user_id', refundRequest.user_id);
     } catch (error) {
-      console.error('Error processing payment refund:', error);
+      await logger.error('Error processing payment refund:', error);
       throw error;
     }
   }
@@ -380,7 +381,7 @@ export class MoneyBackGuaranteeSystem {
         })
         .eq('id', subscriptionId);
     } catch (error) {
-      console.error('Error cancelling subscription:', error);
+      await logger.error('Error cancelling subscription:', error);
     }
   }
 
@@ -397,7 +398,7 @@ export class MoneyBackGuaranteeSystem {
           created_at: new Date().toISOString()
         });
     } catch (error) {
-      console.error('Error notifying admin:', error);
+      await logger.error('Error notifying admin:', error);
     }
   }
 
@@ -416,7 +417,7 @@ export class MoneyBackGuaranteeSystem {
           created_at: new Date().toISOString()
         });
     } catch (error) {
-      console.error('Error sending refund confirmation:', error);
+      await logger.error('Error sending refund confirmation:', error);
     }
   }
 
@@ -435,7 +436,7 @@ export class MoneyBackGuaranteeSystem {
           created_at: new Date().toISOString()
         });
     } catch (error) {
-      console.error('Error sending refund rejection:', error);
+      await logger.error('Error sending refund rejection:', error);
     }
   }
 
@@ -489,7 +490,7 @@ export class MoneyBackGuaranteeSystem {
         total_refund_amount: totalRefundAmount
       };
     } catch (error) {
-      console.error('Error getting guarantee metrics:', error);
+      await logger.error('Error getting guarantee metrics:', error);
       return {
         total_subscriptions: 0,
         refunds_requested: 0,

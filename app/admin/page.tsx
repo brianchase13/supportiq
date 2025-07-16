@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -61,15 +61,7 @@ export default function AdminDashboard() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const { loading: authLoading } = useRequireAuth();
 
-  useEffect(() => {
-    fetchAdminData();
-  }, []);
-
-  useEffect(() => {
-    filterCustomers();
-  }, [customers, searchTerm, statusFilter]);
-
-  const fetchAdminData = async () => {
+  const fetchAdminData = useCallback(async () => {
     try {
       const [customersResponse, healthResponse] = await Promise.all([
         fetch('/api/admin/customers'),
@@ -90,9 +82,13 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const filterCustomers = () => {
+  useEffect(() => {
+    fetchAdminData();
+  }, [fetchAdminData]);
+
+  const filterCustomers = useCallback(() => {
     let filtered = customers;
 
     // Search filter
@@ -109,7 +105,9 @@ export default function AdminDashboard() {
     }
 
     setFilteredCustomers(filtered);
-  };
+  }, [customers, searchTerm, statusFilter]);
+
+
 
   const getStatusBadge = (status: string) => {
     switch (status) {

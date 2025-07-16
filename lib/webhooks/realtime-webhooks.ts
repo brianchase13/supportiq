@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { TicketDeflectionEngine } from '@/lib/ai/ticket-deflection-engine';
 import { ResponseTemplateSystem } from '@/lib/ai/response-templates';
+import { logger } from '@/lib/logging/logger';
 
 interface WebhookEvent {
   id: string;
@@ -85,7 +86,7 @@ export class RealtimeWebhookSystem {
 
       return result;
     } catch (error) {
-      console.error('Error processing webhook event:', error);
+      await logger.error('Error processing webhook event:', error);
       return {
         success: false,
         message: 'Internal server error',
@@ -168,7 +169,7 @@ export class RealtimeWebhookSystem {
         }
       };
     } catch (error) {
-      console.error('Error handling ticket created:', error);
+      await logger.error('Error handling ticket created:', error);
       return {
         success: false,
         message: 'Failed to process ticket creation',
@@ -195,7 +196,7 @@ export class RealtimeWebhookSystem {
         data: { ticket_id: ticketId }
       };
     } catch (error) {
-      console.error('Error handling ticket updated:', error);
+      await logger.error('Error handling ticket updated:', error);
       return {
         success: false,
         message: 'Failed to process ticket update',
@@ -223,7 +224,7 @@ export class RealtimeWebhookSystem {
         data: { ticket_id: ticketId }
       };
     } catch (error) {
-      console.error('Error handling ticket replied:', error);
+      await logger.error('Error handling ticket replied:', error);
       return {
         success: false,
         message: 'Failed to process ticket reply',
@@ -251,7 +252,7 @@ export class RealtimeWebhookSystem {
         data: { ticket_id: ticketId }
       };
     } catch (error) {
-      console.error('Error handling ticket closed:', error);
+      await logger.error('Error handling ticket closed:', error);
       return {
         success: false,
         message: 'Failed to process ticket closure',
@@ -268,7 +269,7 @@ export class RealtimeWebhookSystem {
       // Handle as ticket creation
       return await this.handleTicketCreated(ticketData, userId);
     } catch (error) {
-      console.error('Error handling conversation created:', error);
+      await logger.error('Error handling conversation created:', error);
       return {
         success: false,
         message: 'Failed to process conversation creation',
@@ -285,7 +286,7 @@ export class RealtimeWebhookSystem {
       // Handle as ticket reply
       return await this.handleTicketReplied(replyData, userId);
     } catch (error) {
-      console.error('Error handling conversation replied:', error);
+      await logger.error('Error handling conversation replied:', error);
       return {
         success: false,
         message: 'Failed to process conversation reply',
@@ -462,14 +463,14 @@ export class RealtimeWebhookSystem {
     if (settings?.satisfaction_surveys_enabled) {
       // Send satisfaction survey via Intercom
       // Implementation would depend on Intercom API
-      console.log(`Sending satisfaction survey for ticket ${ticketId}`);
+      await logger.info('Sending satisfaction survey for ticket ${ticketId}');
     }
   }
 
   private async updateTicketAnalytics(ticketId: string, userId: string): Promise<void> {
     // Update various analytics metrics
     // This would update dashboards, reports, etc.
-    console.log(`Updating analytics for ticket ${ticketId}`);
+    await logger.info('Updating analytics for ticket ${ticketId}');
   }
 
   private mapPriority(priority: any): 'low' | 'medium' | 'high' | 'urgent' {
@@ -538,7 +539,7 @@ export class RealtimeWebhookSystem {
         avg_processing_time: 0.5 // Mock data - would calculate actual processing time
       };
     } catch (error) {
-      console.error('Error getting webhook stats:', error);
+      await logger.error('Error getting webhook stats:', error);
       return null;
     }
   }
@@ -568,13 +569,13 @@ export class RealtimeWebhookSystem {
             retryCount++;
           }
         } catch (error) {
-          console.error(`Failed to retry webhook event ${event.id}:`, error);
+          await logger.error('Failed to retry webhook event ${event.id}:', error);
         }
       }
 
       return retryCount;
     } catch (error) {
-      console.error('Error retrying failed webhooks:', error);
+      await logger.error('Error retrying failed webhooks:', error);
       return 0;
     }
   }

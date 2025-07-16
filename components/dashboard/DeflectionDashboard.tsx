@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,11 +30,7 @@ export function DeflectionDashboard({ userId, dateRange = '30d' }: DeflectionDas
   const [error, setError] = useState<string | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState(dateRange);
 
-  useEffect(() => {
-    fetchMetrics();
-  }, [selectedTimeframe]);
-
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/deflection/metrics?date_range=${selectedTimeframe}`);
@@ -52,7 +48,9 @@ export function DeflectionDashboard({ userId, dateRange = '30d' }: DeflectionDas
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedTimeframe]);
+
+
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {

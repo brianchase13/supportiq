@@ -1,6 +1,9 @@
 'use client';
 
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logging/logger';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { CustomerResults, TestimonialCandidate } from '@/lib/types';
 
 // Real-time results tracking for customer validation
 interface CustomerResults {
@@ -62,7 +65,7 @@ interface CustomerResults {
 }
 
 export class ResultsTracker {
-  private supabase: any;
+  private supabase: unknown;
   
   constructor() {
     this.supabase = createClient(
@@ -108,7 +111,7 @@ export class ResultsTracker {
 
         // Update daily metrics
         const dailyMetrics = existing.daily_metrics || [];
-        const todayIndex = dailyMetrics.findIndex((d: any) => d.date === today);
+        const todayIndex = dailyMetrics.findIndex((d: unknown) => d.date === today);
         
         const todayMetrics = {
           date: today,
@@ -125,7 +128,7 @@ export class ResultsTracker {
         }
 
         // Keep only last 90 days
-        dailyMetrics.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        dailyMetrics.sort((a: unknown, b: unknown) => new Date(b.date).getTime() - new Date(a.date).getTime());
         const recent = dailyMetrics.slice(0, 90);
 
         await this.supabase
@@ -216,7 +219,7 @@ export class ResultsTracker {
       await this.identifyTestimonialCandidates();
 
     } catch (error) {
-      console.error('Error tracking customer results:', error);
+      await logger.error('Error tracking customer results:', error);
       throw error;
     }
   }
@@ -233,7 +236,7 @@ export class ResultsTracker {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error getting customer results:', error);
+      await logger.error('Error getting customer results:', error);
       return [];
     }
   }
@@ -311,7 +314,7 @@ export class ResultsTracker {
         }
       };
     } catch (error) {
-      console.error('Error getting aggregate metrics:', error);
+      await logger.error('Error getting aggregate metrics:', error);
       return {
         totalCustomers: 0,
         avgDeflectionRate: 0,
@@ -341,7 +344,7 @@ export class ResultsTracker {
       ).sort((a, b) => b.metrics.totalSavings - a.metrics.totalSavings);
       
     } catch (error) {
-      console.error('Error identifying testimonial candidates:', error);
+      await logger.error('Error identifying testimonial candidates:', error);
       return [];
     }
   }
@@ -359,7 +362,7 @@ export class ResultsTracker {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error updating customer feedback:', error);
+      await logger.error('Error updating customer feedback:', error);
       throw error;
     }
   }
@@ -385,7 +388,7 @@ export class ResultsTracker {
         })
         .slice(0, limit);
     } catch (error) {
-      console.error('Error getting top performers:', error);
+      await logger.error('Error getting top performers:', error);
       return [];
     }
   }
@@ -417,7 +420,7 @@ export class ResultsTracker {
 - ${customer.company}`;
 
     } catch (error) {
-      console.error('Error generating success story:', error);
+      await logger.error('Error generating success story:', error);
       return '';
     }
   }

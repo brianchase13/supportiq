@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { z } from 'zod';
+import { logger } from '@/lib/logging/logger';
 
 const DemoBookingSchema = z.object({
   name: z.string().min(1),
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Error inserting demo booking:', insertError);
+      await logger.error('Error inserting demo booking:', insertError instanceof Error ? insertError : new Error(String(insertError)));
       return NextResponse.json(
         { error: 'Failed to book demo' },
         { status: 500 }
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       try {
         await sendCalendarInvite(bookingData);
       } catch (emailError) {
-        console.error('Failed to send calendar invite:', emailError);
+        await logger.error('Failed to send calendar invite:', emailError instanceof Error ? emailError : new Error(String(emailError)));
         // Don't fail the request if email fails
       }
     }
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendConfirmationEmail(bookingData);
     } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
+      await logger.error('Failed to send confirmation email:', emailError instanceof Error ? emailError : new Error(String(emailError)));
     }
 
     // Track demo booking event
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest) {
         onConflict: 'email'
       });
 
-    console.log(`Demo booked for ${bookingData.email} on ${bookingData.preferredDate}`);
+    await logger.info('Demo booked for ${bookingData.email} on ${bookingData.preferredDate}');
 
     return NextResponse.json({
       success: true,
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Demo booking error:', error);
+    await logger.error('Demo booking error:', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -185,7 +186,7 @@ async function sendCalendarInvite(bookingData: any) {
     },
   };
 
-  console.log('Calendar invite would be created:', calendarEvent);
+  await logger.info('Calendar invite would be created:', calendarEvent);
 
   // TODO: Integrate with actual calendar service
   // await createCalendarEvent(calendarEvent);
@@ -254,7 +255,7 @@ async function sendConfirmationEmail(bookingData: any) {
     `
   };
 
-  console.log('Confirmation email would be sent:', {
+  await logger.info('Confirmation email would be sent:', {
     to: emailContent.to,
     subject: emailContent.subject
   });
@@ -283,7 +284,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching demo bookings:', error);
+      await logger.error('Error fetching demo bookings:', error instanceof Error ? error : new Error(String(error)));
       return NextResponse.json(
         { error: 'Failed to fetch bookings' },
         { status: 500 }
@@ -296,7 +297,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Demo booking retrieval error:', error);
+    await logger.error('Demo booking retrieval error:', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

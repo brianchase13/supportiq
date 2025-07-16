@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logging/logger';
 
 interface CustomerMetrics {
   total_tickets: number;
@@ -102,7 +103,7 @@ export class ValueBasedPricingCalculator {
         confidence_score: confidenceScore
       };
     } catch (error) {
-      console.error('Error calculating customer value:', error);
+      await logger.error('Error calculating customer value:', error);
       throw error;
     }
   }
@@ -166,7 +167,7 @@ export class ValueBasedPricingCalculator {
 
       return metrics;
     } catch (error) {
-      console.error('Error getting customer metrics:', error);
+      await logger.error('Error getting customer metrics:', error);
       // Return default metrics
       return {
         total_tickets: 0,
@@ -373,7 +374,7 @@ export class ValueBasedPricingCalculator {
 
       return { tier: recommendedTier, reasoning };
     } catch (error) {
-      console.error('Error recommending pricing tier:', error);
+      await logger.error('Error recommending pricing tier:', error);
       const tiers = await this.getPricingTiers();
       return {
         tier: tiers[0],
@@ -399,7 +400,7 @@ export class ValueBasedPricingCalculator {
         roi_percentage: record.roi_percentage,
       }));
     } catch (error) {
-      console.error('Error tracking value over time:', error);
+      await logger.error('Error tracking value over time:', error);
       return [];
     }
   }
@@ -418,7 +419,7 @@ export class ValueBasedPricingCalculator {
           created_at: new Date().toISOString()
         });
     } catch (error) {
-      console.error('Error saving value calculation:', error);
+      await logger.error('Error saving value calculation:', error);
     }
   }
 
@@ -440,7 +441,7 @@ export class ValueBasedPricingCalculator {
           comparison_text: this.generateComparisonText(userCalculation.monthly_savings, userSegment.typical_savings)
         };
     } catch (error) {
-      console.error('Error getting value comparison:', error);
+      await logger.error('Error getting value comparison:', error);
       return null;
     }
   }

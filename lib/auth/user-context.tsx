@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { createClient } from '@/lib/auth';
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 
@@ -44,6 +44,64 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setSupabase(createClient());
     }
   }, []);
+
+  const createUserProfile = useCallback(async (userId: string) => {
+    if (!supabase) return;
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          id: userId,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating user profile:', error);
+        setError(error.message);
+      } else {
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error('Error in createUserProfile:', err);
+      setError('Failed to create user profile');
+    }
+  }, [supabase]);
+
+  const loadUserProfile = useCallback(async (userId: string) => {
+    if (!supabase) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error loading user profile:', error);
+        // Create profile if it doesn't exist
+        if (error.code === 'PGRST116') {
+          await createUserProfile(userId);
+        } else {
+          setError(error.message);
+        }
+      } else {
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error('Error in loadUserProfile:', err);
+      setError('Failed to load user profile');
+    }
+  }, [supabase, createUserProfile]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -90,65 +148,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
-
-  const loadUserProfile = async (userId: string) => {
-    if (!supabase) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error loading user profile:', error);
-        // Create profile if it doesn't exist
-        if (error.code === 'PGRST116') {
-          await createUserProfile(userId);
-        } else {
-          setError(error.message);
-        }
-      } else {
-        setProfile(data);
-      }
-    } catch (err) {
-      console.error('Error in loadUserProfile:', err);
-      setError('Failed to load user profile');
-    }
-  };
-
-  const createUserProfile = async (userId: string) => {
-    if (!supabase) return;
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('users')
-        .insert({
-          id: userId,
-          email: user.email,
-          full_name: user.user_metadata?.full_name || '',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating user profile:', error);
-        setError(error.message);
-      } else {
-        setProfile(data);
-      }
-    } catch (err) {
-      console.error('Error in createUserProfile:', err);
-      setError('Failed to create user profile');
-    }
-  };
+  }, [supabase, loadUserProfile]);
 
   const refreshProfile = async () => {
     if (user) {

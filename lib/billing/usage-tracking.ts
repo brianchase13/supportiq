@@ -1,12 +1,13 @@
 import { useAutumn } from "autumn-js/react";
 import { USAGE_EVENTS, SUPPORTIQ_PLANS } from "./autumn-config";
+import { logger } from '@/lib/logging/logger';
 
 // Server-side usage tracking (for API routes)
 export async function trackUsage(
   customerId: string,
   event: keyof typeof USAGE_EVENTS,
   quantity: number = 1,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ) {
   try {
     // This would typically call Autumn's server-side API
@@ -31,7 +32,7 @@ export async function trackUsage(
 
     return await response.json();
   } catch (error) {
-    console.error(`Error tracking usage for ${event}:`, error);
+    await logger.error(`Error tracking usage for ${event}`, error instanceof Error ? error : new Error(String(error)));
     // Don't throw - usage tracking should not break the main flow
     return null;
   }
@@ -44,12 +45,12 @@ export function useUsageTracking() {
   const trackClientUsage = async (
     event: keyof typeof USAGE_EVENTS,
     quantity: number = 1,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ) => {
     try {
       // Check if autumn is available and has the track method
       if (!autumn || typeof autumn.track !== 'function') {
-        console.warn('Autumn not available for usage tracking');
+        await logger.warn('Autumn not available for usage tracking');
         return;
       }
 
@@ -59,15 +60,15 @@ export function useUsageTracking() {
         entityData: metadata
       });
     } catch (error) {
-      console.error(`Error tracking client usage for ${event}:`, error);
+      await logger.error(`Error tracking client usage for ${event}`, error instanceof Error ? error : new Error(String(error)));
     }
   };
 
   return {
     trackClientUsage,
-    customer: (autumn as any)?.customer,
-    hasAccess: (autumn as any)?.hasAccess,
-    usage: (autumn as any)?.usage
+    customer: autumn?.customer,
+    hasAccess: autumn?.hasAccess,
+    usage: autumn?.usage
   };
 }
 
@@ -96,7 +97,7 @@ export async function checkUsageLimit(
 
     return await response.json();
   } catch (error) {
-    console.error(`Error checking usage limit for ${feature}:`, error);
+    await logger.error(`Error checking usage limit for ${feature}`, error instanceof Error ? error : new Error(String(error)));
     // Default to allowing usage if check fails
     return { allowed: true, remaining: 999, limit: 1000 };
   }

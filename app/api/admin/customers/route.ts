@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase/client';
+import { logger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching customers:', error);
+      await logger.error('Error fetching customers:', error instanceof Error ? error : new Error(String(error)));
       return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 });
     }
 
@@ -88,7 +89,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Admin customers API error:', error);
+    await logger.error('Admin customers API error:', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

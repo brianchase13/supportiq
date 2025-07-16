@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { ResponseTemplate, TemplateVariables, UsageLog } from '@/lib/types';
 
 interface ResponseTemplate {
   id: string;
@@ -45,7 +47,7 @@ interface TemplateAnalytics {
 }
 
 export class ResponseTemplateSystem {
-  private supabase: any;
+  private supabase: unknown;
 
   constructor() {
     this.supabase = createClient(
@@ -180,7 +182,7 @@ export class ResponseTemplateSystem {
   }
 
   private calculateTemplateMatch(
-    ticket: any, 
+    ticket: unknown, 
     template: ResponseTemplate, 
     ticketText: string
   ): TemplateMatch {
@@ -234,7 +236,7 @@ export class ResponseTemplateSystem {
     };
   }
 
-  async renderTemplate(template: ResponseTemplate, variables: { [key: string]: any }): Promise<string> {
+  async renderTemplate(template: ResponseTemplate, variables: { [key: string]: unknown }): Promise<string> {
     let content = template.content;
 
     // Replace variables in template
@@ -329,20 +331,20 @@ export class ResponseTemplateSystem {
       }
 
       const totalUses = usageLogs.length;
-      const successfulUses = usageLogs.filter((log: any) => log.success).length;
+      const successfulUses = usageLogs.filter((log: unknown) => log.success).length;
       const successRate = totalUses > 0 ? successfulUses / totalUses : 0;
-      const avgResponseTime = usageLogs.reduce((sum: number, log: any) => sum + log.response_time, 0) / totalUses;
+      const avgResponseTime = usageLogs.reduce((sum: number, log: unknown) => sum + log.response_time, 0) / totalUses;
 
       // Category performance
       const categoryPerformance: { [key: string]: number } = {};
-      usageLogs.forEach((log: any) => {
+      usageLogs.forEach((log: unknown) => {
         const category = log.response_templates.category;
         categoryPerformance[category] = (categoryPerformance[category] || 0) + 1;
       });
 
       // Keyword performance
       const keywordPerformance: { [key: string]: number } = {};
-      usageLogs.forEach((log: any) => {
+      usageLogs.forEach((log: unknown) => {
         const keywords = log.response_templates.keywords || [];
         keywords.forEach((keyword: string) => {
           keywordPerformance[keyword] = (keywordPerformance[keyword] || 0) + 1;

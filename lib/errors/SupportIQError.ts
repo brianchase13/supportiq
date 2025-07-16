@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logging/logger';
 // Production-ready error handling system for SupportIQ
 
 export class SupportIQError extends Error {
@@ -5,14 +6,14 @@ export class SupportIQError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
   public readonly timestamp: string;
-  public readonly context?: Record<string, any>;
+  public readonly context?: Record<string, unknown>;
 
   constructor(
     message: string,
     code: string,
     statusCode: number = 500,
     isOperational: boolean = true,
-    context?: Record<string, any>
+    context?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'SupportIQError';
@@ -107,7 +108,7 @@ export class SupportIQError extends Error {
 // Predefined error types
 export const ErrorTypes = {
   // Authentication & Authorization
-  UNAUTHORIZED: (context?: any) => new SupportIQError(
+  UNAUTHORIZED: (context?: Record<string, unknown>) => new SupportIQError(
     'Authentication required',
     'UNAUTHORIZED',
     401,
@@ -115,7 +116,7 @@ export const ErrorTypes = {
     context
   ),
   
-  FORBIDDEN: (context?: any) => new SupportIQError(
+  FORBIDDEN: (context?: Record<string, unknown>) => new SupportIQError(
     'Access forbidden',
     'FORBIDDEN',
     403,
@@ -124,7 +125,7 @@ export const ErrorTypes = {
   ),
 
   // Intercom Integration
-  INTERCOM_RATE_LIMIT: (context?: any) => new SupportIQError(
+  INTERCOM_RATE_LIMIT: (context?: Record<string, unknown>) => new SupportIQError(
     'Intercom API rate limit exceeded',
     'INTERCOM_RATE_LIMIT',
     429,
@@ -132,7 +133,7 @@ export const ErrorTypes = {
     context
   ),
 
-  INTERCOM_AUTH_FAILED: (context?: any) => new SupportIQError(
+  INTERCOM_AUTH_FAILED: (context?: Record<string, unknown>) => new SupportIQError(
     'Intercom authentication failed',
     'INTERCOM_AUTH_FAILED',
     401,
@@ -140,7 +141,7 @@ export const ErrorTypes = {
     context
   ),
 
-  INTERCOM_API_ERROR: (message: string, context?: any) => new SupportIQError(
+  INTERCOM_API_ERROR: (message: string, context?: Record<string, unknown>) => new SupportIQError(
     `Intercom API error: ${message}`,
     'INTERCOM_API_ERROR',
     502,
@@ -149,7 +150,7 @@ export const ErrorTypes = {
   ),
 
   // Data & Analysis
-  INSUFFICIENT_TICKETS: (context?: any) => new SupportIQError(
+  INSUFFICIENT_TICKETS: (context?: Record<string, unknown>) => new SupportIQError(
     'Insufficient ticket data for analysis',
     'INSUFFICIENT_TICKETS',
     400,
@@ -157,7 +158,7 @@ export const ErrorTypes = {
     context
   ),
 
-  ANALYSIS_QUOTA_EXCEEDED: (context?: any) => new SupportIQError(
+  ANALYSIS_QUOTA_EXCEEDED: (context?: Record<string, unknown>) => new SupportIQError(
     'Analysis quota exceeded',
     'ANALYSIS_QUOTA_EXCEEDED',
     402,
@@ -165,7 +166,7 @@ export const ErrorTypes = {
     context
   ),
 
-  EMBEDDING_GENERATION_FAILED: (context?: any) => new SupportIQError(
+  EMBEDDING_GENERATION_FAILED: (context?: Record<string, unknown>) => new SupportIQError(
     'Failed to generate embeddings',
     'EMBEDDING_GENERATION_FAILED',
     500,
@@ -174,7 +175,7 @@ export const ErrorTypes = {
   ),
 
   // Payment & Billing
-  PAYMENT_FAILED: (context?: any) => new SupportIQError(
+  PAYMENT_FAILED: (context?: Record<string, unknown>) => new SupportIQError(
     'Payment processing failed',
     'PAYMENT_FAILED',
     402,
@@ -182,7 +183,7 @@ export const ErrorTypes = {
     context
   ),
 
-  SUBSCRIPTION_EXPIRED: (context?: any) => new SupportIQError(
+  SUBSCRIPTION_EXPIRED: (context?: Record<string, unknown>) => new SupportIQError(
     'Subscription has expired',
     'SUBSCRIPTION_EXPIRED',
     402,
@@ -191,7 +192,7 @@ export const ErrorTypes = {
   ),
 
   // Technical Errors
-  DATABASE_ERROR: (context?: any) => new SupportIQError(
+  DATABASE_ERROR: (context?: Record<string, unknown>) => new SupportIQError(
     'Database operation failed',
     'DATABASE_ERROR',
     500,
@@ -199,7 +200,7 @@ export const ErrorTypes = {
     context
   ),
 
-  NETWORK_ERROR: (context?: any) => new SupportIQError(
+  NETWORK_ERROR: (context?: Record<string, unknown>) => new SupportIQError(
     'Network connection error',
     'NETWORK_ERROR',
     503,
@@ -207,7 +208,7 @@ export const ErrorTypes = {
     context
   ),
 
-  VALIDATION_ERROR: (message: string, context?: any) => new SupportIQError(
+  VALIDATION_ERROR: (message: string, context?: Record<string, unknown>) => new SupportIQError(
     `Validation error: ${message}`,
     'VALIDATION_ERROR',
     400,
@@ -216,7 +217,7 @@ export const ErrorTypes = {
   ),
 
   // System Errors
-  SYSTEM_ERROR: (message: string, context?: any) => new SupportIQError(
+  SYSTEM_ERROR: (message: string, context?: Record<string, unknown>) => new SupportIQError(
     `System error: ${message}`,
     'SYSTEM_ERROR',
     500,
@@ -224,7 +225,7 @@ export const ErrorTypes = {
     context
   ),
 
-  CONFIGURATION_ERROR: (message: string, context?: any) => new SupportIQError(
+  CONFIGURATION_ERROR: (message: string, context?: Record<string, unknown>) => new SupportIQError(
     `Configuration error: ${message}`,
     'CONFIGURATION_ERROR',
     500,
@@ -235,8 +236,8 @@ export const ErrorTypes = {
 
 // Error handling utilities
 export class ErrorHandler {
-  static logError(error: Error, context?: Record<string, any>) {
-    const errorData: any = {
+  static async logError(error: Error, context?: Record<string, unknown>) {
+    const errorData: Record<string, unknown> = {
       message: error.message,
       stack: error.stack,
       timestamp: new Date().toISOString(),
@@ -250,7 +251,7 @@ export class ErrorHandler {
       errorData.context = { ...errorData.context, ...error.context };
     }
 
-    console.error('SupportIQ Error:', errorData);
+    await logger.error('SupportIQ Error:', errorData);
 
     // In production, send to monitoring service
     if (process.env.NODE_ENV === 'production') {
@@ -259,8 +260,8 @@ export class ErrorHandler {
     }
   }
 
-  static handleAPIError(error: Error, context?: Record<string, any>) {
-    this.logError(error, context);
+  static async handleAPIError(error: Error, context?: Record<string, unknown>) {
+    await this.logError(error, context);
 
     if (error instanceof SupportIQError) {
       return {
@@ -285,18 +286,20 @@ export class ErrorHandler {
     };
   }
 
-  static wrapAsync<T>(fn: () => Promise<T>): Promise<T> {
-    return fn().catch((error) => {
-      this.logError(error);
+  static async wrapAsync<T>(fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      await this.logError(error as Error);
       throw error;
-    });
+    }
   }
 }
 
 // React Error Boundary Hook
 export const useErrorHandler = () => {
-  const handleError = (error: Error, errorInfo?: any) => {
-    ErrorHandler.logError(error, { errorInfo });
+  const handleError = async (error: Error, errorInfo?: unknown) => {
+    await ErrorHandler.logError(error, { errorInfo });
   };
 
   return { handleError };
@@ -304,18 +307,18 @@ export const useErrorHandler = () => {
 
 // Common error patterns
 export const withErrorHandling = (handler: Function) => {
-  return async (...args: any[]) => {
+  return async (...args: unknown[]) => {
     try {
       return await handler(...args);
     } catch (error) {
-      ErrorHandler.logError(error as Error, { args });
+      await ErrorHandler.logError(error as Error, { args });
       throw error;
     }
   };
 };
 
 // Type guards
-export const isSupportIQError = (error: any): error is SupportIQError => {
+export const isSupportIQError = (error: unknown): error is SupportIQError => {
   return error instanceof SupportIQError;
 };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,13 +22,51 @@ export function IntercomConnect({ onConnect }: IntercomConnectProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const verifyConnection = useCallback(async (token: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/intercom/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ access_token: token }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsConnected(true);
+        setWorkspace(data.workspace);
+        setError(null);
+        if (onConnect) onConnect();
+      } else {
+        // Fallback to mock data if API fails
+        const savedWorkspace = localStorage.getItem('intercom_workspace');
+        if (savedWorkspace) {
+          setWorkspace(JSON.parse(savedWorkspace));
+          setIsConnected(true);
+        } else {
+          throw new Error('Connection verification failed');
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Connection failed');
+      setIsConnected(false);
+      // Clear invalid token
+      localStorage.removeItem('intercom_access_token');
+      localStorage.removeItem('intercom_workspace');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [onConnect]);
+
   useEffect(() => {
     // Check if already connected
     const token = localStorage.getItem('intercom_access_token');
     if (token) {
       verifyConnection(token);
     }
-  }, []);
+  }, [verifyConnection]);
 
   const handleConnect = () => {
     const clientId = process.env.NEXT_PUBLIC_INTERCOM_CLIENT_ID || 'demo-client-id';
@@ -65,43 +103,7 @@ export function IntercomConnect({ onConnect }: IntercomConnectProps) {
     }, 2000);
   };
 
-  const verifyConnection = async (token: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/intercom/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ access_token: token }),
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setIsConnected(true);
-        setWorkspace(data.workspace);
-        setError(null);
-        if (onConnect) onConnect();
-      } else {
-        // Fallback to mock data if API fails
-        const savedWorkspace = localStorage.getItem('intercom_workspace');
-        if (savedWorkspace) {
-          setWorkspace(JSON.parse(savedWorkspace));
-          setIsConnected(true);
-        } else {
-          throw new Error('Connection verification failed');
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Connection failed');
-      setIsConnected(false);
-      // Clear invalid token
-      localStorage.removeItem('intercom_access_token');
-      localStorage.removeItem('intercom_workspace');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleDisconnect = () => {
     localStorage.removeItem('intercom_access_token');

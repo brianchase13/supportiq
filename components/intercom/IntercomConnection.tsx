@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,11 +19,7 @@ export default function IntercomConnection({ user }: IntercomConnectionProps) {
   const [workspaceInfo, setWorkspaceInfo] = useState<any>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
-  useEffect(() => {
-    checkConnectionStatus();
-  }, [user]);
-
-  const checkConnectionStatus = async () => {
+  const checkConnectionStatus = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -50,7 +47,9 @@ export default function IntercomConnection({ user }: IntercomConnectionProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user.id]);
+
+
 
   const handleConnect = () => {
     const clientId = process.env.NEXT_PUBLIC_INTERCOM_CLIENT_ID;
@@ -107,9 +106,11 @@ export default function IntercomConnection({ user }: IntercomConnectionProps) {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img 
+            <Image 
               src="/intercom-logo.svg" 
               alt="Intercom" 
+              width={24}
+              height={24}
               className="h-6 w-6"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { z } from 'zod';
+import { logger } from '@/lib/logging/logger';
 
 const LeadCaptureSchema = z.object({
   email: z.string().email(),
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
         })
         .eq('id', existingLead.id);
 
-      console.log(`Updated existing lead: ${email}`);
+      await logger.info('Updated existing lead: ${email}');
     } else {
       // Create new lead
       const { error: insertError } = await supabaseAdmin
@@ -85,14 +86,14 @@ export async function POST(request: NextRequest) {
         });
 
       if (insertError) {
-        console.error('Error inserting lead:', insertError);
+        await logger.error('Error inserting lead:', insertError instanceof Error ? insertError : new Error(String(insertError)));
         return NextResponse.json(
           { error: 'Failed to save lead' },
           { status: 500 }
         );
       }
 
-      console.log(`New lead captured: ${email}`);
+      await logger.info('New lead captured: ${email}');
     }
 
     // Generate trial signup link
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
       try {
         await sendWelcomeEmail(email, name, trialSignupUrl);
       } catch (emailError) {
-        console.error('Failed to send welcome email:', emailError);
+        await logger.error('Failed to send welcome email:', emailError instanceof Error ? emailError : new Error(String(emailError)));
         // Don't fail the request if email fails
       }
     }
@@ -132,7 +133,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Lead capture error:', error);
+    await logger.error('Lead capture error:', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -188,7 +189,7 @@ async function sendWelcomeEmail(email: string, name: string | undefined, trialSi
     `
   };
 
-  console.log('Welcome email would be sent:', {
+  await logger.info('Welcome email would be sent:', {
     to: emailContent.to,
     subject: emailContent.subject,
     trialSignupUrl
@@ -230,7 +231,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Lead retrieval error:', error);
+    await logger.error('Lead retrieval error:', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

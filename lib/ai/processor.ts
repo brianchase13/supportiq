@@ -2,6 +2,9 @@ import OpenAI from 'openai';
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { TrialManager } from '@/lib/trial/manager';
 import { APP_CONFIG } from '@/lib/config/constants';
+import { logger } from '@/lib/logging/logger';
+import { TicketData, KnowledgeBaseEntry, ResponseTemplate, ConversationHistory } from '@/lib/types';
+import IntercomClient from '@/lib/intercom/client';
 
 export interface TicketData {
   id: string;
@@ -115,7 +118,7 @@ export class RealTicketProcessor {
       }
 
     } catch (error) {
-      console.error('Ticket processing error:', error);
+      await logger.error('Ticket processing error:', error);
       return {
         success: false,
         should_respond: false,
@@ -278,7 +281,7 @@ Custom Instructions: Focus on quick resolution while maintaining quality`,
   /**
    * Get relevant knowledge base articles
    */
-  private async getRelevantKnowledge(ticket: TicketData): Promise<any[]> {
+  private async getRelevantKnowledge(ticket: TicketData): Promise<unknown[]> {
     const { data: articles } = await supabaseAdmin
       .from('knowledge_base')
       .select('*')
@@ -292,7 +295,7 @@ Custom Instructions: Focus on quick resolution while maintaining quality`,
   /**
    * Get response templates for category
    */
-  private async getResponseTemplates(category?: string): Promise<any[]> {
+  private async getResponseTemplates(category?: string): Promise<unknown[]> {
     const { data: templates } = await supabaseAdmin
       .from('response_templates')
       .select('*')
@@ -307,7 +310,7 @@ Custom Instructions: Focus on quick resolution while maintaining quality`,
   /**
    * Get conversation history for context
    */
-  private async getConversationHistory(conversationId?: string): Promise<any[]> {
+  private async getConversationHistory(conversationId?: string): Promise<unknown[]> {
     if (!conversationId) return [];
 
     const { data: history } = await supabaseAdmin
@@ -323,7 +326,7 @@ Custom Instructions: Focus on quick resolution while maintaining quality`,
   /**
    * Build the prompt for AI analysis
    */
-  private buildPrompt(ticket: TicketData, knowledgeBase: any[], templates: any[], history: any[]): string {
+  private buildPrompt(ticket: TicketData, knowledgeBase: unknown[], templates: unknown[], history: unknown[]): string {
     let prompt = `Analyze this customer support ticket and generate an appropriate response:
 
 TICKET:
@@ -388,7 +391,7 @@ Generate a response that:
       });
 
     if (error) {
-      console.error('Failed to store AI response:', error);
+      await logger.error('Failed to store AI response:', error);
     }
   }
 
@@ -397,18 +400,38 @@ Generate a response that:
    */
   private async sendResponse(ticket: TicketData, response: AIResponse): Promise<void> {
     if (!ticket.intercom_conversation_id) {
-      console.log('No Intercom conversation ID, skipping response send');
+      await logger.info('No Intercom conversation ID, skipping response send');
       return;
     }
 
     try {
-      // TODO: Implement Intercom API call
-      console.log('Sending response to Intercom:', {
+      // Get user's Intercom access token
+      const { data: user } = await supabaseAdmin
+        .from('users')
+        .select('intercom_access_token')
+        .eq('id', this.userId)
+        .single();
+
+      if (!user?.intercom_access_token) {
+        await logger.warn('No Intercom access token found for user', { userId: this.userId });
+        return;
+      }
+
+      // Send response via Intercom API
+      const intercomClient = new IntercomClient();
+      await intercomClient.sendConversationReply(
+        user.intercom_access_token,
+        ticket.intercom_conversation_id,
+        response.response_content,
+        'comment'
+      );
+
+      await logger.info('Response sent to Intercom successfully', {
         conversation_id: ticket.intercom_conversation_id,
-        response: response.response_content
+        response_length: response.response_content.length
       });
     } catch (error) {
-      console.error('Failed to send response to Intercom:', error);
+      await logger.error('Failed to send response to Intercom:', error);
     }
   }
 
@@ -425,7 +448,7 @@ Generate a response that:
       .eq('id', ticketId);
 
     if (error) {
-      console.error('Failed to update ticket status:', error);
+      await logger.error('Failed to update ticket status:', error);
     }
   }
 } 

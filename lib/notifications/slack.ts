@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logger } from '@/lib/logging/logger';
 
 interface SlackMessage {
   text?: string;
@@ -53,9 +54,9 @@ export class SlackNotifier {
       };
 
       await axios.post(this.webhookUrl, payload);
-      console.log('Slack notification sent successfully');
+      await logger.info('Slack notification sent successfully');
     } catch (error) {
-      console.error('Failed to send Slack notification:', error);
+      await logger.error('Failed to send Slack notification:', error);
       throw error;
     }
   }

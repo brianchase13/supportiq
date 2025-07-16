@@ -1,5 +1,6 @@
 import { TestResult, TestSuite } from '@/lib/types';
 import { log } from '@/lib/logging/logger';
+import { TestResult, MockData } from '@/lib/types';
 
 // Comprehensive testing framework - EVERY FUNCTION NEEDS TESTS
 export class TestFramework {
@@ -243,7 +244,7 @@ export class TestUtils {
   }
 
   // Test data generators
-  static generateMockTicket(overrides: Partial<any> = {}): any {
+  static generateMockTicket(overrides: Partial<Record<string, unknown>> = {}): unknown {
     return {
       id: `ticket_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       user_id: `user_${Date.now()}`,
@@ -267,7 +268,7 @@ export class TestUtils {
     };
   }
 
-  static generateMockUser(overrides: Partial<any> = {}): any {
+  static generateMockUser(overrides: Partial<Record<string, unknown>> = {}): unknown {
     return {
       id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       email: 'test@example.com',

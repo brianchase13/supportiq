@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logging/logger';
 
 interface TrackingMetrics {
   user_id: string;
@@ -156,7 +157,7 @@ export class ResultsTrackingSystem {
 
       return metrics;
     } catch (error) {
-      console.error('Error tracking daily metrics:', error);
+      await logger.error('Error tracking daily metrics:', error);
       throw error;
     }
   }
@@ -176,7 +177,7 @@ export class ResultsTrackingSystem {
           onConflict: 'user_id,date'
         });
     } catch (error) {
-      console.error('Error storing daily metrics:', error);
+      await logger.error('Error storing daily metrics:', error);
     }
   }
 
@@ -196,7 +197,7 @@ export class ResultsTrackingSystem {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creating A/B test:', error);
+      await logger.error('Error creating A/B test:', error);
       throw error;
     }
   }
@@ -212,7 +213,7 @@ export class ResultsTrackingSystem {
           created_at: new Date().toISOString()
         });
     } catch (error) {
-      console.error('Error recording A/B test impression:', error);
+      await logger.error('Error recording A/B test impression:', error);
     }
   }
 
@@ -228,7 +229,7 @@ export class ResultsTrackingSystem {
           created_at: new Date().toISOString()
         });
     } catch (error) {
-      console.error('Error recording A/B test conversion:', error);
+      await logger.error('Error recording A/B test conversion:', error);
     }
   }
 
@@ -278,7 +279,7 @@ export class ResultsTrackingSystem {
 
       return variants;
     } catch (error) {
-      console.error('Error getting A/B test results:', error);
+      await logger.error('Error getting A/B test results:', error);
       return [];
     }
   }
@@ -319,7 +320,7 @@ export class ResultsTrackingSystem {
 
       return null;
     } catch (error) {
-      console.error('Error determining A/B test winner:', error);
+      await logger.error('Error determining A/B test winner:', error);
       return null;
     }
   }
@@ -352,7 +353,7 @@ export class ResultsTrackingSystem {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error recording customer feedback:', error);
+      await logger.error('Error recording customer feedback:', error);
       throw error;
     }
   }
@@ -374,7 +375,7 @@ export class ResultsTrackingSystem {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error recording deflection event:', error);
+      await logger.error('Error recording deflection event:', error);
       throw error;
     }
   }
@@ -436,7 +437,7 @@ export class ResultsTrackingSystem {
         }))
       };
     } catch (error) {
-      console.error('Error getting results summary:', error);
+      await logger.error('Error getting results summary:', error);
       return null;
     }
   }
@@ -471,7 +472,7 @@ export class ResultsTrackingSystem {
         recommendations: this.generateRecommendations(summary, feedbackAnalysis, deflectionAnalysis)
       };
     } catch (error) {
-      console.error('Error generating performance report:', error);
+      await logger.error('Error generating performance report:', error);
       return null;
     }
   }

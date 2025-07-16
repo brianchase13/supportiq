@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { User, Session, AuthTestResult, PageTestResult } from '@/lib/types';
 
 interface TestUser {
   email: string;
@@ -11,13 +13,13 @@ interface TestUser {
 interface AuthTestResult {
   success: boolean;
   message: string;
-  user?: any;
-  session?: any;
-  error?: any;
+  user?: unknown;
+  session?: unknown;
+  error?: unknown;
 }
 
 export class AuthTestSuite {
-  private supabase: any;
+  private supabase: unknown;
   private testUsers: TestUser[] = [];
 
   constructor() {
@@ -70,7 +72,7 @@ export class AuthTestSuite {
         user: data.user,
         session: data.session
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: `Sign up error: ${error.message}`,
@@ -100,7 +102,7 @@ export class AuthTestSuite {
         user: data.user,
         session: data.session
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: `Sign in error: ${error.message}`,
@@ -125,7 +127,7 @@ export class AuthTestSuite {
         success: true,
         message: 'Sign out successful'
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: `Sign out error: ${error.message}`,
@@ -151,7 +153,7 @@ export class AuthTestSuite {
         message: `Session ${data.session ? 'active' : 'inactive'}`,
         session: data.session
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: `Get session error: ${error.message}`,
@@ -177,7 +179,7 @@ export class AuthTestSuite {
         message: `User ${data.user ? 'found' : 'not found'}`,
         user: data.user
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: `Get user error: ${error.message}`,
@@ -207,7 +209,7 @@ export class AuthTestSuite {
         message: 'Profile exists and accessible',
         user: data
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: `Profile check error: ${error.message}`,
@@ -279,8 +281,8 @@ export class AuthTestSuite {
     return { results, summary };
   }
 
-  async testPageAccess(pages: string[]): Promise<{ results: any[]; summary: string }> {
-    const results: any[] = [];
+  async testPageAccess(pages: string[]): Promise<{ results: unknown[]; summary: string }> {
+    const results: unknown[] = [];
     
     console.log('🌐 Testing page access with authentication...');
 
@@ -297,7 +299,7 @@ export class AuthTestSuite {
         
         results.push(mockTest);
         console.log(`✅ ${page}: Accessible`);
-      } catch (error: any) {
+      } catch (error: unknown) {
         results.push({
           page,
           success: false,
@@ -330,7 +332,7 @@ export class AuthTestSuite {
     this.testUsers = [];
   }
 
-  generateTestReport(authResults: AuthTestResult[], pageResults?: any[]): string {
+  generateTestReport(authResults: AuthTestResult[], pageResults?: unknown[]): string {
     const timestamp = new Date().toISOString();
     const authSuccess = authResults.filter(r => r.success).length;
     const authTotal = authResults.length;

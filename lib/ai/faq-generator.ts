@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 interface Ticket {
   id: string;
@@ -52,7 +53,7 @@ interface KnowledgeBaseArticle {
 
 export class FAQGenerator {
   private openai: OpenAI;
-  private supabase: any;
+  private supabase: SupabaseClient;
 
   constructor() {
     this.openai = new OpenAI({
@@ -512,7 +513,7 @@ The article should be comprehensive, well-structured, and provide value beyond t
     }
   }
 
-  async getFAQAnalytics(userId: string, days: number = 30): Promise<any> {
+  async getFAQAnalytics(userId: string, days: number = 30): Promise<unknown> {
     try {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);

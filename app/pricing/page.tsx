@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,11 +41,7 @@ export default function PricingPage() {
   const [ticketVolume, setTicketVolume] = useState(1000);
   const [projectedSavings, setProjectedSavings] = useState(60000);
 
-  useEffect(() => {
-    fetchPricingData();
-  }, [ticketVolume, projectedSavings]);
-
-  const fetchPricingData = async () => {
+  const fetchPricingData = useCallback(async () => {
     try {
       const response = await fetch(`/api/stripe/checkout?ticketVolume=${ticketVolume}&projectedSavings=${projectedSavings}`);
       const data = await response.json();
@@ -143,7 +139,9 @@ export default function PricingPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [ticketVolume, projectedSavings]);
+
+
 
   const handleCheckout = async (planId: string) => {
     try {

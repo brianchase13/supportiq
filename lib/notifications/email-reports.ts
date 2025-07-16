@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { logger } from '@/lib/logging/logger';
 
 interface EmailReportData {
   user: {
@@ -225,9 +226,9 @@ export class EmailReportService {
         html
       });
 
-      console.log(`Weekly report sent to ${data.user.email}`);
+      await logger.info('Weekly report sent to ${data.user.email}');
     } catch (error) {
-      console.error('Failed to send weekly report:', error);
+      await logger.error('Failed to send weekly report:', error);
       throw error;
     }
   }
@@ -305,9 +306,9 @@ export class EmailReportService {
         html
       });
 
-      console.log(`Crisis alert sent to ${data.user.email}`);
+      await logger.info('Crisis alert sent to ${data.user.email}');
     } catch (error) {
-      console.error('Failed to send crisis alert:', error);
+      await logger.error('Failed to send crisis alert:', error);
       throw error;
     }
   }
@@ -369,9 +370,9 @@ export class EmailReportService {
         html
       });
 
-      console.log(`Welcome email sent to ${data.user.email}`);
+      await logger.info('Welcome email sent to ${data.user.email}');
     } catch (error) {
-      console.error('Failed to send welcome email:', error);
+      await logger.error('Failed to send welcome email:', error);
       throw error;
     }
   }
