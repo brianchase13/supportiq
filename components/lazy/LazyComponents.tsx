@@ -22,7 +22,6 @@ export const LazyButton = lazy(() => import('@/components/ui/button').then(mod =
 export const LazyDialog = lazy(() => import('@/components/ui/dialog').then(mod => ({ default: mod.Dialog })));
 export const LazySelect = lazy(() => import('@/components/ui/select').then(mod => ({ default: mod.Select })));
 export const LazyTabs = lazy(() => import('@/components/ui/tabs').then(mod => ({ default: mod.Tabs })));
-export const LazyToast = lazy(() => import('@/components/ui/toast').then(mod => ({ default: mod.Toast })));
 
 // Lazy load dashboard components
 export const LazyDeflectionDashboard = lazy(() => 
